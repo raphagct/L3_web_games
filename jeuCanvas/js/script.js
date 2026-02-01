@@ -2,8 +2,11 @@ import Fruit from "./fruit.js";
 
 window.onload = init;
 
-let canvas, ctx;
-// alias de Matter.js 
+let canvas,
+  ctx,
+  score = 0;
+let etat = "MENU ACCUEIL";
+// alias de Matter.js
 const Engine = Matter.Engine,
   Bodies = Matter.Bodies,
   Composite = Matter.Composite,
@@ -34,7 +37,7 @@ function init() {
     const y = event.clientY - rect.top;
     const fruit = new Fruit(x, y, prochainTypeFruit, engine, Bodies, Composite);
     fruits.push(fruit);
-    
+
     prochainTypeFruit = getRandomFruit();
     afficherProchainFruit();
   });
@@ -44,33 +47,83 @@ function init() {
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
+  if (etat === "MENU ACCUEIL") {
+    drawMenuAccueil();
+  } else if (etat === "JEU EN COURS") {
+    drawJeu();
+  } else if (etat === "GAME OVER") {
+    drawGameOver();
+  }
 
+  requestAnimationFrame(startGame);
+}
+
+function getRandomFruit() {
+  const tab = ["myrtille", "cerise", "kaki", "banane", "orange"];
+  const randomIndex = Math.floor(Math.random() * tab.length);
+  return tab[randomIndex];
+}
+
+function drawMenuAccueil() {
+  // Bonne pratique : dès qu'on change l'état du contexte graphique
+  // ex: on change la couleur, la police, l'épaisseur du trait, la position
+  // du repère etc. on sauvegarde l'état précédent avec ctx.save()
+  ctx.save();
+
+  ctx.fillStyle = "black";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Bienvenue dans le Jeu!",
+    canvas.width / 2,
+    canvas.height / 2 - 50,
+  );
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour commencer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+  // On écoute les touches pour démarrer le jeu
+  window.onkeydown = (event) => {
+    etat = "JEU EN COURS";
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  // Si on a fait ctx.save(). .. on doit faire ctx.restore() à la fin
+  ctx.restore();
+}
+
+function drawGameOver() {
+  ctx.save();
+
+  ctx.fillStyle = "red";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+
+  // On écoute les touches pour redémarrer le jeu
+  window.onkeydown = (event) => {
+    etat = "JEU EN COURS";
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  ctx.restore();
+}
+
+function drawJeu() {
   // clear canvas et dessine la limite rouge
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawLimite(ctx);
 
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
-
-  requestAnimationFrame(startGame);
-}
-
-function getRandomFruit() {
-  const tab = [
-    "myrtille",
-    "cerise",
-    "kaki",
-    "banane",
-    "orange",
-    "pomme",
-    "kaki",
-    "coco",
-    "melon",
-    "ananas",
-    "pasteque",
-  ];
-  const randomIndex = Math.floor(Math.random() * tab.length);
-  return tab[randomIndex];
 }
 
 function drawLimite(ctx) {
@@ -108,7 +161,7 @@ function creeBordure() {
 
 function afficherProchainFruit() {
   const attributs = getAttributsFruit(prochainTypeFruit);
-prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
+  prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
     <div style="display: flex; align-items: center; justify-content: center;">
       <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
     </div>`;
@@ -116,61 +169,80 @@ prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
 
 function getAttributsFruit(type) {
   switch (type) {
-    case "myrtille": return { radius: 20, color: "blue" };
-    case "cerise": return { radius: 30, color: "darkred" };
-    case "kaki": return { radius: 40, color: "green" };
-    case "banane": return { radius: 50, color: "yellow" };
-    case "orange": return { radius: 60, color: "orange" };
-    case "pomme": return { radius: 70, color: "red" };
-    case "coco": return { radius: 90, color: "brown" };
-    case "melon": return { radius: 100, color: "lightgreen" };
-    case "ananas": return { radius: 110, color: "gold" };
-    case "pasteque": return { radius: 120, color: "darkgreen" };
-    default: return { radius: 30, color: "gray" };
+    case "myrtille":
+      return { radius: 20, color: "blue" };
+    case "cerise":
+      return { radius: 30, color: "darkred" };
+    case "kaki":
+      return { radius: 40, color: "green" };
+    case "banane":
+      return { radius: 50, color: "yellow" };
+    case "orange":
+      return { radius: 60, color: "orange" };
+    case "pomme":
+      return { radius: 70, color: "red" };
+    case "coco":
+      return { radius: 90, color: "brown" };
+    case "melon":
+      return { radius: 100, color: "lightgreen" };
+    case "ananas":
+      return { radius: 110, color: "gold" };
+    case "pasteque":
+      return { radius: 120, color: "darkgreen" };
+    default:
+      return { radius: 30, color: "gray" };
   }
 }
 
 function getProchainTypeFruit(typeActuel) {
   const evolution = {
-    "myrtille": "cerise",
-    "cerise": "kaki",
-    "kaki": "banane",
-    "banane": "orange",
-    "orange": "pomme",
-    "pomme": "coco",
-    "coco": "melon",
-    "melon": "ananas",
-    "ananas": "pasteque",
-    "pasteque": null // plus d'évolution possible apres la pastèque
+    myrtille: "cerise",
+    cerise: "kaki",
+    kaki: "banane",
+    banane: "orange",
+    orange: "pomme",
+    pomme: "coco",
+    coco: "melon",
+    melon: "ananas",
+    ananas: "pasteque",
+    pasteque: null, // plus d'évolution possible apres la pastèque
   };
   return evolution[typeActuel];
 }
 
 function gererCollisions() {
-  Events.on(engine, 'collisionStart', (event) => {
+  Events.on(engine, "collisionStart", (event) => {
     const pairs = event.pairs;
-    
-    pairs.forEach(pair => {
+
+    pairs.forEach((pair) => {
       // récupère les fruits en collision
-      const fruit1 = fruits.find(f => f.body === pair.bodyA);
-      const fruit2 = fruits.find(f => f.body === pair.bodyB);
-      
+      const fruit1 = fruits.find((f) => f.body === pair.bodyA);
+      const fruit2 = fruits.find((f) => f.body === pair.bodyB);
+
       // vérif si c'est bien les mêmes fruits
       if (fruit1 && fruit2 && fruit1.type === fruit2.type) {
         const typeSuivant = getProchainTypeFruit(fruit1.type);
-        
+
         // vérifie si c'est pas déjà une pasteque
         if (typeSuivant) {
           const x = (fruit1.body.position.x + fruit2.body.position.x) / 2;
           const y = (fruit1.body.position.y + fruit2.body.position.y) / 2;
-          
+
           // créer le nouveau fruit
-          const nouveauFruit = new Fruit(x, y, typeSuivant, engine, Bodies, Composite);
+          const nouveauFruit = new Fruit(
+            x,
+            y,
+            typeSuivant,
+            engine,
+            Bodies,
+            Composite,
+          );
           fruits.push(nouveauFruit);
-          
+
           // supprimer les anciens fruits
           supprimerFruit(fruit1);
           supprimerFruit(fruit2);
+          addScore(getNbPointsPourFruit(typeSuivant));
         }
       }
     });
@@ -183,4 +255,26 @@ function supprimerFruit(fruit) {
     fruits.splice(index, 1);
   }
   Composite.remove(engine.world, fruit.body);
+}
+
+function addScore(points) {
+  score += points;
+  const spanScore = document.querySelector("#scoreValue");
+  spanScore.textContent = score;
+}
+
+function getNbPointsPourFruit(type) {
+  const pointsParFruit = {
+    myrtille: 10,
+    cerise: 20,
+    kaki: 30,
+    banane: 40,
+    orange: 50,
+    pomme: 60,
+    coco: 70,
+    melon: 80,
+    ananas: 90,
+    pasteque: 100,
+  };
+  return pointsParFruit[type];
 }

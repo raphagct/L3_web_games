@@ -7,14 +7,76 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f7f7f7;
+  background: #ffd59d; /* couleur d'arrière-plan demandée */
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 24px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.game-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #monCanvas {
   display: block;
-  border: 1px solid black;
+  border: 1px solid #333;
   background-color: lightgrey;
   border-top: 0;
   height: auto;
-  margin: 24px auto;
+  margin: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 160px;
+  align-items: center;
+}
+
+.score,
+.prochainFruit {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  text-align: center;
+}
+
+.score h3,
+.prochainFruit h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.score-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #444;
+}
+
+.prochainFruit div {
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+  .sidebar {
+    width: 100%;
+    max-width: 400px;
+  }
 }
