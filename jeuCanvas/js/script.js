@@ -1,11 +1,14 @@
 import Fruit from "./fruit.js";
+import { evolutionFruits } from "./collision.js";
+import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
 
 window.onload = init;
 
-let canvas,
-  ctx,
-  score = 0;
+let canvas, ctx;
+let score = 0;
+let prochainTypeFruit;
 let etat = "MENU ACCUEIL";
+
 // alias de Matter.js
 const Engine = Matter.Engine,
   Bodies = Matter.Bodies,
@@ -14,19 +17,13 @@ const Engine = Matter.Engine,
 
 const engine = Engine.create();
 const fruits = [];
-let prochainTypeFruit = null;
-let prochainFruitDiv = null;
 
 function init() {
   canvas = document.querySelector("#monCanvas");
   ctx = canvas.getContext("2d");
-  prochainFruitDiv = document.querySelector(".prochainFruit");
-
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
 
   creeBordure();
-  gererCollisions();
+  evolutionFruits(Events, fruits, engine, Bodies, Composite, score);
 
   prochainTypeFruit = getRandomFruit();
   afficherProchainFruit();
@@ -56,12 +53,6 @@ function startGame() {
   }
 
   requestAnimationFrame(startGame);
-}
-
-function getRandomFruit() {
-  const tab = ["myrtille", "cerise", "kaki", "banane", "orange"];
-  const randomIndex = Math.floor(Math.random() * tab.length);
-  return tab[randomIndex];
 }
 
 function drawMenuAccueil() {
@@ -161,120 +152,9 @@ function creeBordure() {
 
 function afficherProchainFruit() {
   const attributs = getAttributsFruit(prochainTypeFruit);
+  const prochainFruitDiv = document.querySelector(".prochainFruit");
   prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
     <div style="display: flex; align-items: center; justify-content: center;">
       <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
     </div>`;
-}
-
-function getAttributsFruit(type) {
-  switch (type) {
-    case "myrtille":
-      return { radius: 20, color: "blue" };
-    case "cerise":
-      return { radius: 30, color: "darkred" };
-    case "kaki":
-      return { radius: 40, color: "green" };
-    case "banane":
-      return { radius: 50, color: "yellow" };
-    case "orange":
-      return { radius: 60, color: "orange" };
-    case "pomme":
-      return { radius: 70, color: "red" };
-    case "coco":
-      return { radius: 90, color: "brown" };
-    case "melon":
-      return { radius: 100, color: "lightgreen" };
-    case "ananas":
-      return { radius: 110, color: "gold" };
-    case "pasteque":
-      return { radius: 120, color: "darkgreen" };
-    default:
-      return { radius: 30, color: "gray" };
-  }
-}
-
-function getProchainTypeFruit(typeActuel) {
-  const evolution = {
-    myrtille: "cerise",
-    cerise: "kaki",
-    kaki: "banane",
-    banane: "orange",
-    orange: "pomme",
-    pomme: "coco",
-    coco: "melon",
-    melon: "ananas",
-    ananas: "pasteque",
-    pasteque: null, // plus d'évolution possible apres la pastèque
-  };
-  return evolution[typeActuel];
-}
-
-function gererCollisions() {
-  Events.on(engine, "collisionStart", (event) => {
-    const pairs = event.pairs;
-
-    pairs.forEach((pair) => {
-      // récupère les fruits en collision
-      const fruit1 = fruits.find((f) => f.body === pair.bodyA);
-      const fruit2 = fruits.find((f) => f.body === pair.bodyB);
-
-      // vérif si c'est bien les mêmes fruits
-      if (fruit1 && fruit2 && fruit1.type === fruit2.type) {
-        const typeSuivant = getProchainTypeFruit(fruit1.type);
-
-        // vérifie si c'est pas déjà une pasteque
-        if (typeSuivant) {
-          const x = (fruit1.body.position.x + fruit2.body.position.x) / 2;
-          const y = (fruit1.body.position.y + fruit2.body.position.y) / 2;
-
-          // créer le nouveau fruit
-          const nouveauFruit = new Fruit(
-            x,
-            y,
-            typeSuivant,
-            engine,
-            Bodies,
-            Composite,
-          );
-          fruits.push(nouveauFruit);
-
-          // supprimer les anciens fruits
-          supprimerFruit(fruit1);
-          supprimerFruit(fruit2);
-          addScore(getNbPointsPourFruit(typeSuivant));
-        }
-      }
-    });
-  });
-}
-
-function supprimerFruit(fruit) {
-  const index = fruits.indexOf(fruit);
-  if (index > -1) {
-    fruits.splice(index, 1);
-  }
-  Composite.remove(engine.world, fruit.body);
-}
-
-function addScore(points) {
-  score += points;
-  const spanScore = document.querySelector("#scoreValue");
-  spanScore.textContent = score;
-}
-
-function getNbPointsPourFruit(type) {
-  const pointsParFruit = {
-    myrtille: 10,
-    cerise: 20,
-    kaki: 30,
-    banane: 40,
-    orange: 50,
-    pomme: 60,
-    coco: 70,
-    melon: 80,
-    ananas: 90,
-    pasteque: 100,
-  };
-  return pointsParFruit[type];
 }
