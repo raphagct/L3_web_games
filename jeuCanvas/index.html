@@ -7,10 +7,22 @@
     <title>jeu de la pastèque</title>
   </head>
   <body>
-    <canvas id="monCanvas" width="900" height="700"></canvas>
+    <div class="wrapper">
+      <div class="game-area">
+        <canvas id="monCanvas" width="900" height="700"></canvas>
+      </div>
+
+      <aside class="sidebar">
+        <div class="score">
+          <h3>Score</h3>
+          <div class="score-value"><span id="scoreValue">0</span></div>
+        </div>
+
+        <div class="prochainFruit"></div>
+      </aside>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script type="module" src="js/script.js"></script>
-    "
   </body>
 </html>

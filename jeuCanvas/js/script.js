@@ -1,12 +1,19 @@
 import Fruit from "./fruit.js";
+import { evolutionFruits } from "./collision.js";
+import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
 
 window.onload = init;
 
 let canvas, ctx;
-// alias de Matter.js 
+let score = 0;
+let prochainTypeFruit;
+let etat = "MENU ACCUEIL";
+
+// alias de Matter.js
 const Engine = Matter.Engine,
   Bodies = Matter.Bodies,
-  Composite = Matter.Composite;
+  Composite = Matter.Composite,
+  Events = Matter.Events;
 
 const engine = Engine.create();
 const fruits = [];
@@ -15,17 +22,21 @@ function init() {
   canvas = document.querySelector("#monCanvas");
   ctx = canvas.getContext("2d");
 
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-
   creeBordure();
+  evolutionFruits(Events, fruits, engine, Bodies, Composite, score);
+
+  prochainTypeFruit = getRandomFruit();
+  afficherProchainFruit();
 
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const fruit = new Fruit(x, y, getRandomFruit(), engine, Bodies, Composite);
+    const fruit = new Fruit(x, y, prochainTypeFruit, engine, Bodies, Composite);
     fruits.push(fruit);
+
+    prochainTypeFruit = getRandomFruit();
+    afficherProchainFruit();
   });
 
   requestAnimationFrame(startGame);
@@ -33,33 +44,77 @@ function init() {
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
+  if (etat === "MENU ACCUEIL") {
+    drawMenuAccueil();
+  } else if (etat === "JEU EN COURS") {
+    drawJeu();
+  } else if (etat === "GAME OVER") {
+    drawGameOver();
+  }
 
+  requestAnimationFrame(startGame);
+}
+
+function drawMenuAccueil() {
+  // Bonne pratique : dès qu'on change l'état du contexte graphique
+  // ex: on change la couleur, la police, l'épaisseur du trait, la position
+  // du repère etc. on sauvegarde l'état précédent avec ctx.save()
+  ctx.save();
+
+  ctx.fillStyle = "black";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Bienvenue dans le Jeu!",
+    canvas.width / 2,
+    canvas.height / 2 - 50,
+  );
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour commencer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+  // On écoute les touches pour démarrer le jeu
+  window.onkeydown = (event) => {
+    etat = "JEU EN COURS";
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  // Si on a fait ctx.save(). .. on doit faire ctx.restore() à la fin
+  ctx.restore();
+}
+
+function drawGameOver() {
+  ctx.save();
+
+  ctx.fillStyle = "red";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+
+  // On écoute les touches pour redémarrer le jeu
+  window.onkeydown = (event) => {
+    etat = "JEU EN COURS";
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  ctx.restore();
+}
+
+function drawJeu() {
   // clear canvas et dessine la limite rouge
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawLimite(ctx);
 
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
-
-  requestAnimationFrame(startGame);
-}
-
-function getRandomFruit() {
-  const tab = [
-    "myrtille",
-    "cerise",
-    "kaki",
-    "banane",
-    "orange",
-    "pomme",
-    "kaki",
-    "coco",
-    "melon",
-    "ananas",
-    "pasteque",
-  ];
-  const randomIndex = Math.floor(Math.random() * tab.length);
-  return tab[randomIndex];
 }
 
 function drawLimite(ctx) {
@@ -93,4 +148,13 @@ function creeBordure() {
     { isStatic: true },
   );
   Composite.add(engine.world, [ground, leftWall, rightWall]);
+}
+
+function afficherProchainFruit() {
+  const attributs = getAttributsFruit(prochainTypeFruit);
+  const prochainFruitDiv = document.querySelector(".prochainFruit");
+  prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
+    <div style="display: flex; align-items: center; justify-content: center;">
+      <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
+    </div>`;
 }
