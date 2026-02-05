@@ -12,7 +12,7 @@ body {
   padding: 24px;
 }
 
-.wrapper {
+main {
   display: flex;
   align-items: flex-start;
   gap: 24px;
@@ -79,4 +79,61 @@ body {
     width: 100%;
     max-width: 400px;
   }
+}
+
+/* --- Menu overlay (affiché au démarrage) --- */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  z-index: 999; /* menu devant tout */
+  transition:
+    opacity 300ms ease,
+    visibility 300ms ease;
+}
+
+nav h1 {
+  font-size: 5rem;
+}
+
+nav #boutonJouer {
+  padding: 30px 48px;
+  font-size: 3rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #ffd59d;
+  color: #333;
+}
+
+/* Le main est en dessous et masqué au départ */
+main {
+  position: relative;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+/* Quand la partie commence, on fait passer le main devant et on cache le menu */
+body.playing nav {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body.playing main {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 100;
 }
