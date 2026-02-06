@@ -40,19 +40,6 @@ export default class App {
       this.scene.render();
     });
   }
-
-  async goToStart() {
-    this.engine.displayLoadingUI();
-    this.scene.detachControl();
-    let scene = new BABYLON.Scene(this.engine);
-    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
-    let camera = new BABYLON.FreeCamera(
-      "camera1",
-      new BABYLON.Vector3(0, 0, 0),
-      scene,
-    );
-    camera.setTarget(BABYLON.Vector3.Zero());
-  }
 }
 
 new App();

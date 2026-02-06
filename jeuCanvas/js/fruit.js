@@ -13,15 +13,15 @@ export default class Fruit {
     });
     // on ajoute le fruit dans le monde physique
     this.Composite.add(this.engine.world, [this.body]);
+    this.img = new Image();
+    this.img.src = this.path;
   }
 
   draw(ctx) {
     // dessine le fruit à partir de son body physique
     const positionBody = this.body.position;
-    const img = new Image();
-    img.src = this.path;
     ctx.drawImage(
-      img,
+      this.img,
       positionBody.x - this.radius,
       positionBody.y - this.radius,
       this.radius * 2,
