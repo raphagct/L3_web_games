@@ -18,10 +18,17 @@ export default class Fruit {
   draw(ctx) {
     // dessine le fruit à partir de son body physique
     const positionBody = this.body.position;
-    ctx.fillStyle = this.color;
+    const img = new Image();
+    img.src = this.path;
+    ctx.drawImage(
+      img,
+      positionBody.x - this.radius,
+      positionBody.y - this.radius,
+      this.radius * 2,
+      this.radius * 2,
+    );
     ctx.beginPath();
     ctx.arc(positionBody.x, positionBody.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
   }
 
   // change la taille et la couleur selon le type de fruit
@@ -29,47 +36,47 @@ export default class Fruit {
     switch (this.type) {
       case "myrtille":
         this.radius = 20;
-        this.color = "blue";
-        break; 
+        this.path = "./assets/img/myrtille.png";
+        break;
       case "cerise":
         this.radius = 30;
-        this.color = "darkred";
+        this.path = "./assets/img/cerise.png";
         break;
       case "kaki":
         this.radius = 40;
-        this.color = "green";
+        this.path = "./assets/img/kaki.png";
         break;
       case "banane":
         this.radius = 50;
-        this.color = "yellow";
+        this.path = "./assets/img/banane.png";
         break;
       case "orange":
         this.radius = 60;
-        this.color = "orange";
+        this.path = "./assets/img/orange.png";
         break;
       case "pomme":
         this.radius = 70;
-        this.color = "red";
+        this.path = "./assets/img/pomme.png";
         break;
       case "coco":
         this.radius = 90;
-        this.color = "brown";
+        this.path = "./assets/img/coco.png";
         break;
       case "melon":
         this.radius = 100;
-        this.color = "lightgreen";
+        this.path = "./assets/img/melon.png";
         break;
       case "ananas":
         this.radius = 110;
-        this.color = "gold";
+        this.path = "./assets/img/ananas.png";
         break;
       case "pasteque":
         this.radius = 120;
-        this.color = "darkgreen";
+        this.path = "./assets/img/pasteque.png";
         break;
       default:
         this.radius = 30;
-        this.color = "gray";
+        this.path = "./assets/img/default.png";
         break;
     }
   }

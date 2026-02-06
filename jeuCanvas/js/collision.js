@@ -7,7 +7,7 @@ import {
 
 import Fruit from "./fruit.js";
 
-function evolutionFruits(Events, fruits, engine, Bodies, Composite, score) {
+function evolutionFruits(Events, fruits, engine, Bodies, Composite) {
   Events.on(engine, "collisionStart", (event) => {
     const pairs = event.pairs;
 
@@ -39,7 +39,8 @@ function evolutionFruits(Events, fruits, engine, Bodies, Composite, score) {
           // supprimer les anciens fruits
           supprimerFruit(fruit1, Composite, engine, fruits);
           supprimerFruit(fruit2, Composite, engine, fruits);
-          addScoreFruits(getNbPointsPourFruit(typeSuivant), score);
+          // mettre à jour le score (addScoreFruits gère le cumul maintenant)
+          addScoreFruits(getNbPointsPourFruit(typeSuivant));
         }
       }
     });

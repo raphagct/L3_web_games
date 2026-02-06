@@ -5,7 +5,6 @@ import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
 window.onload = init;
 
 let canvas, ctx;
-let score = 0;
 let prochainTypeFruit;
 let etat = "MENU ACCUEIL";
 
@@ -23,7 +22,8 @@ function init() {
   ctx = canvas.getContext("2d");
 
   creeBordure();
-  evolutionFruits(Events, fruits, engine, Bodies, Composite, score);
+  // ne pas passer score par valeur ; collision.js utilise maintenant addScoreFruits
+  evolutionFruits(Events, fruits, engine, Bodies, Composite);
 
   prochainTypeFruit = getRandomFruit();
   afficherProchainFruit();
@@ -39,50 +39,29 @@ function init() {
     afficherProchainFruit();
   });
 
+  // bouton Jouer : masque le menu (nav) et affiche le main en jouant via z-index
+  const boutonJouer = document.getElementById("boutonJouer");
+  if (boutonJouer) {
+    boutonJouer.addEventListener("click", () => {
+      // applique la classe qui gère z-index/visibilité via CSS
+      document.body.classList.add("playing");
+      // passe l'état du jeu en cours
+      etat = "JEU EN COURS";
+    });
+  }
+
   requestAnimationFrame(startGame);
 }
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
-  if (etat === "MENU ACCUEIL") {
-    drawMenuAccueil();
-  } else if (etat === "JEU EN COURS") {
+  if (etat === "JEU EN COURS") {
     drawJeu();
   } else if (etat === "GAME OVER") {
     drawGameOver();
   }
 
   requestAnimationFrame(startGame);
-}
-
-function drawMenuAccueil() {
-  // Bonne pratique : dès qu'on change l'état du contexte graphique
-  // ex: on change la couleur, la police, l'épaisseur du trait, la position
-  // du repère etc. on sauvegarde l'état précédent avec ctx.save()
-  ctx.save();
-
-  ctx.fillStyle = "black";
-  ctx.font = "48px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(
-    "Bienvenue dans le Jeu!",
-    canvas.width / 2,
-    canvas.height / 2 - 50,
-  );
-  ctx.font = "24px Arial";
-  ctx.fillText(
-    "Appuyez sur une touche pour commencer",
-    canvas.width / 2,
-    canvas.height / 2 + 20,
-  );
-  // On écoute les touches pour démarrer le jeu
-  window.onkeydown = (event) => {
-    etat = "JEU EN COURS";
-    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
-  };
-
-  // Si on a fait ctx.save(). .. on doit faire ctx.restore() à la fin
-  ctx.restore();
 }
 
 function drawGameOver() {
@@ -102,6 +81,8 @@ function drawGameOver() {
   // On écoute les touches pour redémarrer le jeu
   window.onkeydown = (event) => {
     etat = "JEU EN COURS";
+    // assure que le menu HTML disparaisse aussi
+    document.body.classList.add("playing");
     window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
   };
 

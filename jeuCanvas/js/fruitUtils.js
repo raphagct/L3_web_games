@@ -44,10 +44,18 @@ function getNbPointsPourFruit(type) {
   return pointsParFruit[type];
 }
 
-function addScoreFruits(points, score) {
+// module-level score pour éviter les problèmes de passage par valeur
+let score = 0;
+
+function addScoreFruits(points) {
   score += points;
   const spanScore = document.querySelector("#scoreValue");
-  spanScore.textContent = score;
+  if (spanScore) spanScore.textContent = score;
+  return score;
+}
+
+function getScore() {
+  return score;
 }
 
 function getAttributsFruit(type) {
@@ -84,4 +92,5 @@ export {
   getAttributsFruit,
   addScoreFruits,
   getRandomFruit,
+  getScore,
 };
