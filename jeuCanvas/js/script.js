@@ -8,6 +8,7 @@ let canvas, ctx;
 let score = 0;
 let prochainTypeFruit;
 let etat = "MENU ACCUEIL";
+let mouseX = 0;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -21,6 +22,7 @@ const fruits = [];
 function init() {
   canvas = document.querySelector("#monCanvas");
   ctx = canvas.getContext("2d");
+  mouseX = canvas.width / 2;
 
   creeBordure();
   evolutionFruits(Events, fruits, engine, Bodies, Composite, score);
@@ -28,11 +30,14 @@ function init() {
   prochainTypeFruit = getRandomFruit();
   afficherProchainFruit();
 
-  canvas.addEventListener("click", (event) => {
+  canvas.addEventListener("mousemove", (event) => {
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const fruit = new Fruit(x, y, prochainTypeFruit, engine, Bodies, Composite);
+    mouseX = event.clientX - rect.left;
+  });
+
+  canvas.addEventListener("click", (event) => {
+    const x = mouseX;
+    const fruit = new Fruit(x, 40, prochainTypeFruit, engine, Bodies, Composite);
     fruits.push(fruit);
 
     prochainTypeFruit = getRandomFruit();
@@ -115,6 +120,28 @@ function drawJeu() {
 
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
+
+  if (etat === "JEU EN COURS") {
+    const attributs = getAttributsFruit(prochainTypeFruit);
+
+    // Dessine la ligne de visée
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(mouseX, 40 + attributs.radius);
+    ctx.lineTo(mouseX, canvas.height);
+    ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = attributs.color;
+    // ajout d'un effet de transparence pour que le fruit semble fantomatique et donc pas encore en jeu
+    ctx.globalAlpha = 0.7; 
+    ctx.beginPath();
+    ctx.arc(mouseX, 40, attributs.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
 function drawLimite(ctx) {

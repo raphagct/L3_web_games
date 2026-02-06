@@ -9,7 +9,7 @@ body {
   justify-content: center;
   background: #ffd59d; /* couleur d'arrière-plan demandée */
   font-family: Arial, Helvetica, sans-serif;
-  padding: 24px;
+  padding: 0px 24px;
 }
 
 .wrapper {
