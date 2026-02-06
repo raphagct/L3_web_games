@@ -1,6 +1,8 @@
+import * as BABYLON from "@babylonjs/core";
+
 // main.js utilise le global `BABYLON` fourni par le CDN (babylon.js)
 // 1. Récupérer le canvas HTML
-const canvas = document.getElementById("renderCanvas");
+const canvas = document.getElementById("canvas");
 
 // 2. Initialiser le moteur Babylon
 const engine = new BABYLON.Engine(canvas, true);
