@@ -4,10 +4,9 @@ import {
   getNbPointsPourFruit,
   addScoreFruits,
 } from "./fruitUtils.js";
-
 import Fruit from "./fruit.js";
 
-function evolutionFruits(Events, fruits, engine, Bodies, Composite) {
+function gererEvolutionFruits(Events, fruits, engine, Bodies, Composite) {
   Events.on(engine, "collisionStart", (event) => {
     const pairs = event.pairs;
 

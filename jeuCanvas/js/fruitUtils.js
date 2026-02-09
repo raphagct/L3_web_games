@@ -11,6 +11,8 @@ function getProchainTypeFruit(typeActuel) {
     ananas: "pasteque",
     pasteque: null, // plus d'évolution possible apres la pastèque
   };
+
+  
   return evolution[typeActuel];
 }
 
@@ -27,6 +29,7 @@ function getRandomFruit() {
   const randomIndex = Math.floor(Math.random() * tab.length);
   return tab[randomIndex];
 }
+
 
 function getNbPointsPourFruit(type) {
   const pointsParFruit = {
