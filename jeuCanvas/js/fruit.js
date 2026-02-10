@@ -1,12 +1,15 @@
+import { getRadiusFruit } from "./fruitUtils.js";
+
 export default class Fruit {
-  constructor(x, y, engine, Bodies, Composite, image, radius) {
+  constructor(x, y, engine, Bodies, Composite, type, image) {
     this.engine = engine;
     this.Bodies = Bodies;
     this.Composite = Composite;
+    this.type = type;
     this.image = image;
-    this.radius = radius;
+    this.radius = getRadiusFruit(type);
     //on crée le fruit dans le monde physique
-    this.body = this.Bodies.circle(x, y, this.radius / 2, {
+    this.body = this.Bodies.circle(x, y, this.radius, {
       restitution: 0.6, // rebond
       friction: 0.5, // glisse
       density: 0.002, // densité (masse en gros)
@@ -18,6 +21,7 @@ export default class Fruit {
   draw(ctx) {
     // dessine le fruit à partir de son body physique
     const positionBody = this.body.position;
+
     ctx.drawImage(
       this.image,
       positionBody.x - this.radius,

@@ -6,7 +6,14 @@ import {
 } from "./fruitUtils.js";
 import Fruit from "./fruit.js";
 
-function gererEvolutionFruits(Events, fruits, engine, Bodies, Composite) {
+function gererEvolutionFruits(
+  Events,
+  fruits,
+  engine,
+  Bodies,
+  Composite,
+  loadedAssets,
+) {
   Events.on(engine, "collisionStart", (event) => {
     const pairs = event.pairs;
 
@@ -28,10 +35,11 @@ function gererEvolutionFruits(Events, fruits, engine, Bodies, Composite) {
           const nouveauFruit = new Fruit(
             x,
             y,
-            typeSuivant,
             engine,
             Bodies,
             Composite,
+            typeSuivant,
+            loadedAssets[typeSuivant],
           );
           fruits.push(nouveauFruit);
 

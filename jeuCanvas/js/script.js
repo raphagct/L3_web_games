@@ -1,6 +1,6 @@
 import Fruit from "./fruit.js";
 import { gererEvolutionFruits } from "./collision.js";
-import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
+import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
 import { assetsToLoad, etat } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
 
@@ -28,7 +28,7 @@ async function init() {
   loadedAssets = await loadAssets(assetsToLoad);
 
   creeBordure();
-  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite);
+  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
 
   prochainTypeFruit = getRandomFruit();
   prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
@@ -39,7 +39,6 @@ async function init() {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const fruitConfig = assetsToLoad[prochainTypeFruit];
     const fruitImage = loadedAssets[prochainTypeFruit];
     const fruit = new Fruit(
       x,
@@ -47,8 +46,8 @@ async function init() {
       engine,
       Bodies,
       Composite,
-      fruitImage, // The visual image
-      fruitConfig.radius, // The logic radius (from the config, not the image)
+      prochainTypeFruit,
+      fruitImage,
     );
     fruits.push(fruit);
 
@@ -122,13 +121,13 @@ function creeBordure() {
 }
 
 function afficherProchainFruit() {
-  const attributs = getAttributsFruit(prochainTypeFruit);
+  const radiusFruit = getRadiusFruit(prochainTypeFruit);
   const container = document.querySelector(".next-fruit-circle");
 
   const fruitDiv = document.createElement("img");
   fruitDiv.src = prochainTypeFruitImg;
-  fruitDiv.style.width = `${attributs.radius * 2.5}px`;
-  fruitDiv.style.height = `${attributs.radius * 2.5}px`;
+  fruitDiv.style.width = `${radiusFruit * 2.5}px`;
+  fruitDiv.style.height = `${radiusFruit * 2.5}px`;
   fruitDiv.style.borderRadius = "50%";
 
   container.innerHTML = "";

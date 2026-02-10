@@ -12,7 +12,6 @@ function getProchainTypeFruit(typeActuel) {
     pasteque: null, // plus d'évolution possible apres la pastèque
   };
 
-  
   return evolution[typeActuel];
 }
 
@@ -29,7 +28,6 @@ function getRandomFruit() {
   const randomIndex = Math.floor(Math.random() * tab.length);
   return tab[randomIndex];
 }
-
 
 function getNbPointsPourFruit(type) {
   const pointsParFruit = {
@@ -61,30 +59,30 @@ function getScore() {
   return score;
 }
 
-function getAttributsFruit(type) {
+function getRadiusFruit(type) {
   switch (type) {
     case "myrtille":
-      return { radius: 20, color: "blue" };
+      return 20;
     case "cerise":
-      return { radius: 30, color: "darkred" };
+      return 30;
     case "kaki":
-      return { radius: 40, color: "green" };
+      return 40;
     case "banane":
-      return { radius: 50, color: "yellow" };
+      return 50;
     case "orange":
-      return { radius: 60, color: "orange" };
+      return 60;
     case "pomme":
-      return { radius: 70, color: "red" };
+      return 70;
     case "coco":
-      return { radius: 90, color: "brown" };
+      return 80;
     case "melon":
-      return { radius: 100, color: "lightgreen" };
+      return 90;
     case "ananas":
-      return { radius: 110, color: "gold" };
+      return 100;
     case "pasteque":
-      return { radius: 120, color: "darkgreen" };
+      return 110;
     default:
-      return { radius: 30, color: "gray" };
+      return 30;
   }
 }
 
@@ -92,8 +90,8 @@ export {
   getProchainTypeFruit,
   supprimerFruit,
   getNbPointsPourFruit,
-  getAttributsFruit,
   addScoreFruits,
   getRandomFruit,
   getScore,
+  getRadiusFruit,
 };
