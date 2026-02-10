@@ -1,12 +1,14 @@
 import Fruit from "./fruit.js";
-import { evolutionFruits } from "./collision.js";
-import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
+import { gererEvolutionFruits } from "./collision.js";
+import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
+import { assetsToLoad, etat } from "./model.js";
+import { loadAssets } from "./assetLoader.js";
 
 window.onload = init;
 
-let canvas, ctx;
-let prochainTypeFruit;
-let etat = "MENU ACCUEIL";
+let canvas, ctx, loadedAssets;
+let prochainTypeFruit, prochainTypeFruitImg;
+let etatJeu = etat.ACCUEIL;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -14,39 +16,51 @@ const Engine = Matter.Engine,
   Composite = Matter.Composite,
   Events = Matter.Events;
 
+// on crée le moteur physique
 const engine = Engine.create();
 const fruits = [];
 
-function init() {
+async function init() {
   canvas = document.querySelector("#monCanvas");
   ctx = canvas.getContext("2d");
 
+  // on charge les assets avant de lancer le jeu
+  loadedAssets = await loadAssets(assetsToLoad);
+
   creeBordure();
-  // ne pas passer score par valeur ; collision.js utilise maintenant addScoreFruits
-  evolutionFruits(Events, fruits, engine, Bodies, Composite);
+  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
 
   prochainTypeFruit = getRandomFruit();
+  prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
   afficherProchainFruit();
 
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const fruit = new Fruit(x, y, prochainTypeFruit, engine, Bodies, Composite);
+
+    const fruitImage = loadedAssets[prochainTypeFruit];
+    const fruit = new Fruit(
+      x,
+      y,
+      engine,
+      Bodies,
+      Composite,
+      prochainTypeFruit,
+      fruitImage,
+    );
     fruits.push(fruit);
 
     prochainTypeFruit = getRandomFruit();
+    prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
     afficherProchainFruit();
   });
 
-  // bouton Jouer : masque le menu (nav) et affiche le main en jouant via z-index
   const boutonJouer = document.getElementById("boutonJouer");
   if (boutonJouer) {
     boutonJouer.addEventListener("click", () => {
-      // applique la classe qui gère z-index/visibilité via CSS
       document.body.classList.add("playing");
-      // passe l'état du jeu en cours
-      etat = "JEU EN COURS";
+      etatJeu = etat.JEU_EN_COURS;
     });
   }
 
@@ -55,38 +69,13 @@ function init() {
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
-  if (etat === "JEU EN COURS") {
+  if (etatJeu === etat.JEU_EN_COURS) {
     drawJeu();
-  } else if (etat === "GAME OVER") {
+  } else if (etatJeu === etat.GAME_OVER) {
     drawGameOver();
   }
 
   requestAnimationFrame(startGame);
-}
-
-function drawGameOver() {
-  ctx.save();
-
-  ctx.fillStyle = "red";
-  ctx.font = "48px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
-  ctx.font = "24px Arial";
-  ctx.fillText(
-    "Appuyez sur une touche pour rejouer",
-    canvas.width / 2,
-    canvas.height / 2 + 20,
-  );
-
-  // On écoute les touches pour redémarrer le jeu
-  window.onkeydown = (event) => {
-    etat = "JEU EN COURS";
-    // assure que le menu HTML disparaisse aussi
-    document.body.classList.add("playing");
-    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
-  };
-
-  ctx.restore();
 }
 
 function drawJeu() {
@@ -132,10 +121,42 @@ function creeBordure() {
 }
 
 function afficherProchainFruit() {
-  const attributs = getAttributsFruit(prochainTypeFruit);
-  const prochainFruitDiv = document.querySelector(".prochainFruit");
-  prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
-    <div style="display: flex; align-items: center; justify-content: center;">
-      <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
-    </div>`;
+  const radiusFruit = getRadiusFruit(prochainTypeFruit);
+  const container = document.querySelector(".next-fruit-circle");
+
+  const fruitDiv = document.createElement("img");
+  fruitDiv.src = prochainTypeFruitImg;
+  fruitDiv.style.width = `${radiusFruit * 2.5}px`;
+  fruitDiv.style.height = `${radiusFruit * 2.5}px`;
+  fruitDiv.style.borderRadius = "50%";
+
+  container.innerHTML = "";
+  container.appendChild(fruitDiv);
 }
+
+/** 
+function drawGameOver() {
+  ctx.save();
+
+  ctx.fillStyle = "red";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+
+  // On écoute les touches pour redémarrer le jeu
+  window.onkeydown = (event) => {
+    etatJeu = etatJeu.JEU_EN_COURS;
+    // assure que le menu HTML disparaisse aussi
+    document.body.classList.add("playing");
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  ctx.restore();
+}
+*/

@@ -1,10 +1,19 @@
+import { getRadiusFruit } from "./fruitUtils.js";
+
 export default class Fruit {
-  constructor(x, y, type, engine, Bodies, Composite) {
-    this.type = type;
-    this.getAttributsSelonTypes();
+  constructor(x, y, engine, Bodies, Composite, type, image, radius = null) {
     this.engine = engine;
     this.Bodies = Bodies;
     this.Composite = Composite;
+    this.type = type;
+    this.image = image;
+    // Utiliser le rayon fourni ou celui par défaut
+    this.radius = radius || getRadiusFruit(type);
+
+    // Pour la hitbox: on veut que le body physique soit plus petit que l'image
+    // car l'image a souvent des bords transparents/carrés.
+    // Donc on garde this.radius pour la physique.
+
     //on crée le fruit dans le monde physique
     this.body = this.Bodies.circle(x, y, this.radius, {
       restitution: 0.6, // rebond
@@ -18,66 +27,26 @@ export default class Fruit {
   draw(ctx) {
     // dessine le fruit à partir de son body physique
     const positionBody = this.body.position;
-    const img = new Image();
-    img.src = this.path;
-    ctx.drawImage(
-      img,
-      positionBody.x - this.radius,
-      positionBody.y - this.radius,
-      this.radius * 2,
-      this.radius * 2,
-    );
-    ctx.beginPath();
-    ctx.arc(positionBody.x, positionBody.y, this.radius, 0, Math.PI * 2);
-  }
+    const angle = this.body.angle; // Récupérer l'angle du corps
 
-  // change la taille et la couleur selon le type de fruit
-  getAttributsSelonTypes() {
-    switch (this.type) {
-      case "myrtille":
-        this.radius = 20;
-        this.path = "./assets/img/myrtille.png";
-        break;
-      case "cerise":
-        this.radius = 30;
-        this.path = "./assets/img/cerise.png";
-        break;
-      case "kaki":
-        this.radius = 40;
-        this.path = "./assets/img/kaki.png";
-        break;
-      case "banane":
-        this.radius = 50;
-        this.path = "./assets/img/banane.png";
-        break;
-      case "orange":
-        this.radius = 60;
-        this.path = "./assets/img/orange.png";
-        break;
-      case "pomme":
-        this.radius = 70;
-        this.path = "./assets/img/pomme.png";
-        break;
-      case "coco":
-        this.radius = 90;
-        this.path = "./assets/img/coco.png";
-        break;
-      case "melon":
-        this.radius = 100;
-        this.path = "./assets/img/melon.png";
-        break;
-      case "ananas":
-        this.radius = 110;
-        this.path = "./assets/img/ananas.png";
-        break;
-      case "pasteque":
-        this.radius = 120;
-        this.path = "./assets/img/pasteque.png";
-        break;
-      default:
-        this.radius = 30;
-        this.path = "./assets/img/default.png";
-        break;
-    }
+    // Facteur d'échelle pour l'image par rapport à la hitbox physique
+    // L'image est dessinée plus grande que le cercle de collision
+    // pour compenser les zones transparentes
+    const scaleFactor = 1.4;
+    const drawRadius = this.radius * scaleFactor;
+
+    ctx.save(); // Sauvegarder le contexte actuel
+    ctx.translate(positionBody.x, positionBody.y); // Déplacer l'origine au centre du fruit
+    ctx.rotate(angle); // Faire tourner le contexte
+
+    ctx.drawImage(
+      this.image,
+      -drawRadius, // Dessiner centré sur (0,0) locale
+      -drawRadius,
+      drawRadius * 2,
+      drawRadius * 2,
+    );
+
+    ctx.restore(); // Restaurer le contexte
   }
 }
