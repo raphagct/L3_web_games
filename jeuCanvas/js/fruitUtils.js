@@ -76,11 +76,11 @@ function getRadiusFruit(type) {
     case "coco":
       return 80;
     case "melon":
-      return 90;
-    case "ananas":
-      return 100;
-    case "pasteque":
       return 110;
+    case "ananas":
+      return 140;
+    case "pasteque":
+      return 170;
     default:
       return 30;
   }
