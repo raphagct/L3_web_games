@@ -46,4 +46,4 @@ function gererEvolutionFruits(Events, fruits, engine, Bodies, Composite) {
   });
 }
 
-export { evolutionFruits };
+export { gererEvolutionFruits };

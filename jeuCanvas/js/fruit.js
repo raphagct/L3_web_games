@@ -1,10 +1,10 @@
 export default class Fruit {
-  constructor(x, y, engine, Bodies, Composite, image) {
-    this.getAttributsSelonTypes();
+  constructor(x, y, engine, Bodies, Composite, image, radius) {
     this.engine = engine;
     this.Bodies = Bodies;
     this.Composite = Composite;
     this.image = image;
+    this.radius = radius;
     //on crée le fruit dans le monde physique
     this.body = this.Bodies.circle(x, y, this.radius / 2, {
       restitution: 0.6, // rebond

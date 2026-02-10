@@ -1,13 +1,14 @@
 import Fruit from "./fruit.js";
 import { gererEvolutionFruits } from "./collision.js";
 import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
-import { assetToLoad, etat } from "./model.js";
+import { assetsToLoad, etat } from "./model.js";
+import { loadAssets } from "./assetLoader.js";
 
 window.onload = init;
 
 let canvas, ctx, loadedAssets;
 let prochainTypeFruit, prochainTypeFruitImg;
-let etat = etat.ACCUEIL;
+let etatJeu = etat.ACCUEIL;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -24,31 +25,35 @@ async function init() {
   ctx = canvas.getContext("2d");
 
   // on charge les assets avant de lancer le jeu
-  loadedAssets = await loadAssets(assetToLoad);
+  loadedAssets = await loadAssets(assetsToLoad);
 
   creeBordure();
   gererEvolutionFruits(Events, fruits, engine, Bodies, Composite);
 
   prochainTypeFruit = getRandomFruit();
-  prochainTypeFruitImg = assetToLoad[prochainTypeFruit].url;
+  prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
   afficherProchainFruit();
 
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
+
+    const fruitConfig = assetsToLoad[prochainTypeFruit];
+    const fruitImage = loadedAssets[prochainTypeFruit];
     const fruit = new Fruit(
       x,
       y,
       engine,
       Bodies,
       Composite,
-      loadedAssets[prochainTypeFruit.url],
+      fruitImage, // The visual image
+      fruitConfig.radius, // The logic radius (from the config, not the image)
     );
     fruits.push(fruit);
 
     prochainTypeFruit = getRandomFruit();
-    prochainTypeFruitImg = assetToLoad[prochainTypeFruit].url;
+    prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
     afficherProchainFruit();
   });
 
@@ -56,7 +61,7 @@ async function init() {
   if (boutonJouer) {
     boutonJouer.addEventListener("click", () => {
       document.body.classList.add("playing");
-      etat = etat.JEU_EN_COURS;
+      etatJeu = etat.JEU_EN_COURS;
     });
   }
 
@@ -65,9 +70,9 @@ async function init() {
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
-  if (etat === etat.JEU_EN_COURS) {
+  if (etatJeu === etat.JEU_EN_COURS) {
     drawJeu();
-  } else if (etat === etat.GAME_OVER) {
+  } else if (etatJeu === etat.GAME_OVER) {
     drawGameOver();
   }
 
@@ -118,11 +123,17 @@ function creeBordure() {
 
 function afficherProchainFruit() {
   const attributs = getAttributsFruit(prochainTypeFruit);
-  const prochainFruitDiv = document.querySelector(".prochainFruit");
-  prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
-    <div style="display: flex; align-items: center; justify-content: center;">
-      <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
-    </div>`;
+  const container = document.querySelector(".next-fruit-circle");
+
+  const fruitDiv = document.createElement("div");
+  fruitDiv.style.width = `${attributs.radius * 2}px`;
+  fruitDiv.style.height = `${attributs.radius * 2}px`;
+  fruitDiv.style.backgroundColor = attributs.color;
+  fruitDiv.style.borderRadius = "50%";
+  fruitDiv.style.boxShadow = "inset 0 -5px 10px rgba(0,0,0,0.2)"; // Petit bonus style 3D
+
+  container.innerHTML = "";
+  container.appendChild(fruitDiv);
 }
 
 /** 
@@ -142,7 +153,7 @@ function drawGameOver() {
 
   // On écoute les touches pour redémarrer le jeu
   window.onkeydown = (event) => {
-    etat = etat.JEU_EN_COURS;
+    etatJeu = etatJeu.JEU_EN_COURS;
     // assure que le menu HTML disparaisse aussi
     document.body.classList.add("playing");
     window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
