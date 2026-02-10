@@ -125,12 +125,11 @@ function afficherProchainFruit() {
   const attributs = getAttributsFruit(prochainTypeFruit);
   const container = document.querySelector(".next-fruit-circle");
 
-  const fruitDiv = document.createElement("div");
-  fruitDiv.style.width = `${attributs.radius * 2}px`;
-  fruitDiv.style.height = `${attributs.radius * 2}px`;
-  fruitDiv.style.backgroundColor = attributs.color;
+  const fruitDiv = document.createElement("img");
+  fruitDiv.src = prochainTypeFruitImg;
+  fruitDiv.style.width = `${attributs.radius * 2.5}px`;
+  fruitDiv.style.height = `${attributs.radius * 2.5}px`;
   fruitDiv.style.borderRadius = "50%";
-  fruitDiv.style.boxShadow = "inset 0 -5px 10px rgba(0,0,0,0.2)"; // Petit bonus style 3D
 
   container.innerHTML = "";
   container.appendChild(fruitDiv);
