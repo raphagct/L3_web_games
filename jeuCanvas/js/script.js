@@ -96,26 +96,38 @@ function drawJeu() {
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
 
-  if (etat === "JEU EN COURS") {
-    const attributs = getAttributsFruit(prochainTypeFruit);
+  if (etatJeu === etat.JEU_EN_COURS) {
+    const radius = getRadiusFruit(prochainTypeFruit);
+    // Le fruit a un rayon d'affichage plus grand que son corps physique (1.4x)
+    // On reprend la logique de Fruit.draw pour que le fantôme ait la meme taille
+    const hitboxDiff = 1.4;
+    const drawRadius = radius * hitboxDiff;
+    const img = loadedAssets[prochainTypeFruit];
 
     // Dessine la ligne de visée
     ctx.save();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    ctx.moveTo(mouseX, 40 + attributs.radius);
+    ctx.moveTo(mouseX, 40 + drawRadius);
     ctx.lineTo(mouseX, canvas.height);
     ctx.stroke();
     ctx.restore();
-    ctx.save();
-    ctx.fillStyle = attributs.color;
-    // ajout d'un effet de transparence pour que le fruit semble fantomatique et donc pas encore en jeu
-    ctx.globalAlpha = 0.7; 
-    ctx.beginPath();
-    ctx.arc(mouseX, 40, attributs.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+
+    // Dessine le fruit fantôme avec transparence
+    if (img) {
+      ctx.save();
+      ctx.globalAlpha = 0.5; 
+      ctx.translate(mouseX, 40);
+      ctx.drawImage(
+        img,
+        -drawRadius,
+        -drawRadius,
+        drawRadius * 2,
+        drawRadius * 2,
+      );
+      ctx.restore();
+    }
   }
 }
 
