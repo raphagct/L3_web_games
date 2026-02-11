@@ -37,10 +37,13 @@ function gererEvolutionFruits(
 
           // Ajustements spécifiques pour les gros fruits pour garantir la hiérarchie
           // tout en évitant l'explosion de taille
-          if (typeSuivant === "melon") multiplier = 1.2;      // Coco -> Melon
-          else if (typeSuivant === "ananas") multiplier = 1.2; // Melon -> Ananas
-          else if (typeSuivant === "pasteque") multiplier = 1.2;// Ananas -> Pastèque
-          else if (fruit1.radius > 60) multiplier = 1.15;     // Sécurité générique
+          if (typeSuivant === "melon")
+            multiplier = 1.2; // Coco -> Melon
+          else if (typeSuivant === "ananas")
+            multiplier = 1.2; // Melon -> Ananas
+          else if (typeSuivant === "pasteque")
+            multiplier = 1.2; // Ananas -> Pastèque
+          else if (fruit1.radius > 60) multiplier = 1.15; // Sécurité générique
 
           const newRadius = fruit1.radius * multiplier;
 
@@ -53,13 +56,15 @@ function gererEvolutionFruits(
             Composite,
             typeSuivant,
             loadedAssets[typeSuivant],
-            newRadius // On passe le rayon calculé
+            newRadius, // On passe le rayon calculé
           );
           fruits.push(nouveauFruit);
 
           // supprimer les anciens fruits
           supprimerFruit(fruit1, Composite, engine, fruits);
           supprimerFruit(fruit2, Composite, engine, fruits);
+
+          loadedAssets.plop.play();
           // mettre à jour le score (addScoreFruits gère le cumul maintenant)
           addScoreFruits(getNbPointsPourFruit(typeSuivant));
         }

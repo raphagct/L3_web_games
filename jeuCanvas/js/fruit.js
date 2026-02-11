@@ -8,11 +8,7 @@ export default class Fruit {
     this.type = type;
     this.image = image;
     // Utiliser le rayon fourni ou celui par défaut
-    this.radius = radius || getRadiusFruit(type);
-
-    // Pour la hitbox: on veut que le body physique soit plus petit que l'image
-    // car l'image a souvent des bords transparents/carrés.
-    // Donc on garde this.radius pour la physique.
+    this.radius = radius || getRadiusFruit(type)
 
     //on crée le fruit dans le monde physique
     this.body = this.Bodies.circle(x, y, this.radius, {
@@ -28,10 +24,6 @@ export default class Fruit {
     // dessine le fruit à partir de son body physique
     const positionBody = this.body.position;
     const angle = this.body.angle; // Récupérer l'angle du corps
-
-    // Facteur d'échelle pour l'image par rapport à la hitbox physique
-    // L'image est dessinée plus grande que le cercle de collision
-    // pour compenser les zones transparentes
     const scaleFactor = 1.4;
     const drawRadius = this.radius * scaleFactor;
 
