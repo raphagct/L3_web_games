@@ -32,10 +32,12 @@ async function init() {
   creeBordure();
   gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
 
+  // On recup un fruit au hasard  et on l'affiche dans la preview 
   prochainTypeFruit = getRandomFruit();
   prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
   afficherProchainFruit();
 
+  //ecouteur pour placer un fruit
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
