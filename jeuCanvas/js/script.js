@@ -6,8 +6,7 @@ import { loadAssets } from "./assetLoader.js";
 
 window.onload = init;
 
-let canvas, ctx, loadedAssets;
-let prochainTypeFruit, prochainTypeFruitImg;
+let canvas, ctx, loadedAssets, prochainTypeFruit, prochainTypeFruitImgSrc;
 let etatJeu = etat.ACCUEIL;
 let niveauJeu = niveau.LEVEL1;
 
@@ -28,18 +27,18 @@ async function init() {
   // on charge les assets avant de lancer le jeu
   loadedAssets = await loadAssets(assetsToLoad);
 
+  // on draw les bordures et on init le syteme d'evolution
+  // par collision entre fruit du même type
   creeBordure();
   gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
 
   prochainTypeFruit = getRandomFruit();
-  prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
+  prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
   afficherProchainFruit();
 
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
-    // Convertir les coordonnées du clic (client) en coordonnées du canvas
-    // (le canvas peut être redimensionné en CSS, il faut tenir compte du ratio)
-    const scaleX = canvas.width / rect.width; // ratio entre pixels canvas et pixels CSS
+    const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     const x = (event.clientX - rect.left) * scaleX;
     const y = (event.clientY - rect.top) * scaleY;
@@ -57,7 +56,7 @@ async function init() {
     fruits.push(fruit);
 
     prochainTypeFruit = getRandomFruit();
-    prochainTypeFruitImg = assetsToLoad[prochainTypeFruit].url;
+    prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
     afficherProchainFruit();
   });
 
@@ -130,7 +129,7 @@ function afficherProchainFruit() {
   const container = document.querySelector(".next-fruit-circle");
 
   const fruitDiv = document.createElement("img");
-  fruitDiv.src = prochainTypeFruitImg;
+  fruitDiv.src = prochainTypeFruitImgSrc;
   fruitDiv.style.width = `${radiusFruit * 2.5}px`;
   fruitDiv.style.height = `${radiusFruit * 2.5}px`;
   fruitDiv.style.borderRadius = "50%";

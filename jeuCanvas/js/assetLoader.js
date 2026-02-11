@@ -1,3 +1,6 @@
+
+//Code récupéré sur l'exemple du cours
+
 async function loadAssets(assetsToLoadURLs) {
   // here we should load the sounds, the sprite sheets etc.
   // then at the end call the callback function

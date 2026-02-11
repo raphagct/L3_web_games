@@ -1,44 +1,51 @@
 import { getRadiusFruit } from "./fruitUtils.js";
 
 export default class Fruit {
-  constructor(x, y, engine, Bodies, Composite, type, image, radius = null) {
+  constructor(x, y, engine, Bodies, Composite, type, image, radius) {
     this.engine = engine;
     this.Bodies = Bodies;
     this.Composite = Composite;
     this.type = type;
     this.image = image;
-    // Utiliser le rayon fourni ou celui par défaut
-    this.radius = radius || getRadiusFruit(type)
+    // On utilise le radius fourni ou sinon on le calcule en fonction du type de fruit
+    if (radius) {
+      this.radius = radius;
+    } else {
+      this.radius = getRadiusFruit(type);
+    }
 
-    //on crée le fruit dans le monde physique
+    //on init le fruit dans le monde physique (Matter.js)
     this.body = this.Bodies.circle(x, y, this.radius, {
-      restitution: 0.6, // rebond
+      restitution: 0.2, // rebond
       friction: 0.5, // glisse
       density: 0.002, // densité (masse en gros)
     });
+
     // on ajoute le fruit dans le monde physique
     this.Composite.add(this.engine.world, [this.body]);
   }
 
   draw(ctx) {
-    // dessine le fruit à partir de son body physique
+    // dessine le fruit à la position du fruit du monde physique
     const positionBody = this.body.position;
-    const angle = this.body.angle; // Récupérer l'angle du corps
-    const scaleFactor = 1.4;
-    const drawRadius = this.radius * scaleFactor;
+    const angle = this.body.angle;
+    const hitboxDiff = 1.4;
+    const drawRadius = this.radius * hitboxDiff;
 
-    ctx.save(); // Sauvegarder le contexte actuel
-    ctx.translate(positionBody.x, positionBody.y); // Déplacer l'origine au centre du fruit
-    ctx.rotate(angle); // Faire tourner le contexte
+    ctx.save();
+
+    // on fais tourner le fruit quand il se déplace
+    ctx.translate(positionBody.x, positionBody.y);
+    ctx.rotate(angle);
 
     ctx.drawImage(
       this.image,
-      -drawRadius, // Dessiner centré sur (0,0) locale
+      -drawRadius,
       -drawRadius,
       drawRadius * 2,
       drawRadius * 2,
     );
 
-    ctx.restore(); // Restaurer le contexte
+    ctx.restore();
   }
 }

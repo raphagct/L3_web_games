@@ -17,9 +17,9 @@ function getProchainTypeFruit(typeActuel) {
 
 function supprimerFruit(fruit, Composite, engine, fruits) {
   const index = fruits.indexOf(fruit);
-  if (index > -1) {
-    fruits.splice(index, 1);
-  }
+  fruits.splice(index, 1);
+
+  // on supprime le fruit du monde physique
   Composite.remove(engine.world, fruit.body);
 }
 
