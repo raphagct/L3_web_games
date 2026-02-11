@@ -1,13 +1,15 @@
 import Fruit from "./fruit.js";
-import { evolutionFruits } from "./collision.js";
-import { getRandomFruit, getAttributsFruit } from "./fruitUtils.js";
+import { gererEvolutionFruits } from "./collision.js";
+import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
+import { assetsToLoad, etat, niveau } from "./model.js";
+import { loadAssets } from "./assetLoader.js";
 
 window.onload = init;
 
-let canvas, ctx;
+let canvas, ctx, loadedAssets, prochainTypeFruit, prochainTypeFruitImgSrc;
+let etatJeu = etat.ACCUEIL;
+let niveauJeu = niveau.LEVEL1;
 let score = 0;
-let prochainTypeFruit;
-let etat = "MENU ACCUEIL";
 let mouseX = 0;
 
 // alias de Matter.js
@@ -16,18 +18,26 @@ const Engine = Matter.Engine,
   Composite = Matter.Composite,
   Events = Matter.Events;
 
+// on crée le moteur physique
 const engine = Engine.create();
 const fruits = [];
 
-function init() {
+async function init() {
   canvas = document.querySelector("#monCanvas");
   ctx = canvas.getContext("2d");
   mouseX = canvas.width / 2;
 
-  creeBordure();
-  evolutionFruits(Events, fruits, engine, Bodies, Composite, score);
+  // on charge les assets avant de lancer le jeu
+  loadedAssets = await loadAssets(assetsToLoad);
 
+  // on draw les bordures et on init le syteme d'evolution
+  // par collision entre fruit du même type
+  creeBordure();
+  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
+
+  // On recup un fruit au hasard  et on l'affiche dans la preview 
   prochainTypeFruit = getRandomFruit();
+  prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
   afficherProchainFruit();
 
   canvas.addEventListener("mousemove", (event) => {
@@ -35,82 +45,47 @@ function init() {
     mouseX = event.clientX - rect.left;
   });
 
+
+  //ecouteur pour placer un fruit
   canvas.addEventListener("click", (event) => {
     const x = mouseX;
-    const fruit = new Fruit(x, 40, prochainTypeFruit, engine, Bodies, Composite);
+    const fruitImage = loadedAssets[prochainTypeFruit];
+    const fruit = new Fruit(
+      x,
+      40,
+      engine,
+      Bodies,
+      Composite,
+      prochainTypeFruit,
+      fruitImage,
+    );
     fruits.push(fruit);
 
     prochainTypeFruit = getRandomFruit();
+    prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
     afficherProchainFruit();
   });
+
+  const boutonJouer = document.getElementById("boutonJouer");
+  if (boutonJouer) {
+    boutonJouer.addEventListener("click", () => {
+      document.body.classList.add("playing");
+      etatJeu = etat.JEU_EN_COURS;
+    });
+  }
 
   requestAnimationFrame(startGame);
 }
 
 function startGame() {
   Engine.update(engine, 1000 / 60);
-  if (etat === "MENU ACCUEIL") {
-    drawMenuAccueil();
-  } else if (etat === "JEU EN COURS") {
+  if (etatJeu === etat.JEU_EN_COURS) {
     drawJeu();
-  } else if (etat === "GAME OVER") {
+  } else if (etatJeu === etat.GAME_OVER) {
     drawGameOver();
   }
 
   requestAnimationFrame(startGame);
-}
-
-function drawMenuAccueil() {
-  // Bonne pratique : dès qu'on change l'état du contexte graphique
-  // ex: on change la couleur, la police, l'épaisseur du trait, la position
-  // du repère etc. on sauvegarde l'état précédent avec ctx.save()
-  ctx.save();
-
-  ctx.fillStyle = "black";
-  ctx.font = "48px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(
-    "Bienvenue dans le Jeu!",
-    canvas.width / 2,
-    canvas.height / 2 - 50,
-  );
-  ctx.font = "24px Arial";
-  ctx.fillText(
-    "Appuyez sur une touche pour commencer",
-    canvas.width / 2,
-    canvas.height / 2 + 20,
-  );
-  // On écoute les touches pour démarrer le jeu
-  window.onkeydown = (event) => {
-    etat = "JEU EN COURS";
-    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
-  };
-
-  // Si on a fait ctx.save(). .. on doit faire ctx.restore() à la fin
-  ctx.restore();
-}
-
-function drawGameOver() {
-  ctx.save();
-
-  ctx.fillStyle = "red";
-  ctx.font = "48px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
-  ctx.font = "24px Arial";
-  ctx.fillText(
-    "Appuyez sur une touche pour rejouer",
-    canvas.width / 2,
-    canvas.height / 2 + 20,
-  );
-
-  // On écoute les touches pour redémarrer le jeu
-  window.onkeydown = (event) => {
-    etat = "JEU EN COURS";
-    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
-  };
-
-  ctx.restore();
 }
 
 function drawJeu() {
@@ -178,10 +153,42 @@ function creeBordure() {
 }
 
 function afficherProchainFruit() {
-  const attributs = getAttributsFruit(prochainTypeFruit);
-  const prochainFruitDiv = document.querySelector(".prochainFruit");
-  prochainFruitDiv.innerHTML = `<h3>Prochain fruit :</h3>
-    <div style="display: flex; align-items: center; justify-content: center;">
-      <div style="width: ${attributs.radius * 2}px; height: ${attributs.radius * 2}px; background-color: ${attributs.color}; border-radius: 50%;"></div>
-    </div>`;
+  const radiusFruit = getRadiusFruit(prochainTypeFruit);
+  const container = document.querySelector(".next-fruit-circle");
+
+  const fruitDiv = document.createElement("img");
+  fruitDiv.src = prochainTypeFruitImgSrc;
+  fruitDiv.style.width = `${radiusFruit * 2.5}px`;
+  fruitDiv.style.height = `${radiusFruit * 2.5}px`;
+  fruitDiv.style.borderRadius = "50%";
+
+  container.innerHTML = "";
+  container.appendChild(fruitDiv);
 }
+
+/** 
+function drawGameOver() {
+  ctx.save();
+
+  ctx.fillStyle = "red";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    "Appuyez sur une touche pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 20,
+  );
+
+  // On écoute les touches pour redémarrer le jeu
+  window.onkeydown = (event) => {
+    etatJeu = etatJeu.JEU_EN_COURS;
+    // assure que le menu HTML disparaisse aussi
+    document.body.classList.add("playing");
+    window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
+  };
+
+  ctx.restore();
+}
+*/

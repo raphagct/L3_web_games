@@ -11,14 +11,15 @@ function getProchainTypeFruit(typeActuel) {
     ananas: "pasteque",
     pasteque: null, // plus d'évolution possible apres la pastèque
   };
+
   return evolution[typeActuel];
 }
 
 function supprimerFruit(fruit, Composite, engine, fruits) {
   const index = fruits.indexOf(fruit);
-  if (index > -1) {
-    fruits.splice(index, 1);
-  }
+  fruits.splice(index, 1);
+
+  // on supprime le fruit du monde physique
   Composite.remove(engine.world, fruit.body);
 }
 
@@ -44,36 +45,44 @@ function getNbPointsPourFruit(type) {
   return pointsParFruit[type];
 }
 
-function addScoreFruits(points, score) {
+// module-level score pour éviter les problèmes de passage par valeur
+let score = 0;
+
+function addScoreFruits(points) {
   score += points;
   const spanScore = document.querySelector("#scoreValue");
-  spanScore.textContent = score;
+  if (spanScore) spanScore.textContent = score;
+  return score;
 }
 
-function getAttributsFruit(type) {
+function getScore() {
+  return score;
+}
+
+function getRadiusFruit(type) {
   switch (type) {
     case "myrtille":
-      return { radius: 20, color: "blue" };
+      return 20;
     case "cerise":
-      return { radius: 30, color: "darkred" };
+      return 30;
     case "kaki":
-      return { radius: 40, color: "green" };
+      return 40;
     case "banane":
-      return { radius: 50, color: "yellow" };
+      return 50;
     case "orange":
-      return { radius: 60, color: "orange" };
+      return 60;
     case "pomme":
-      return { radius: 70, color: "red" };
+      return 70;
     case "coco":
-      return { radius: 90, color: "brown" };
+      return 80;
     case "melon":
-      return { radius: 100, color: "lightgreen" };
+      return 110;
     case "ananas":
-      return { radius: 110, color: "gold" };
+      return 140;
     case "pasteque":
-      return { radius: 120, color: "darkgreen" };
+      return 170;
     default:
-      return { radius: 30, color: "gray" };
+      return 30;
   }
 }
 
@@ -81,7 +90,8 @@ export {
   getProchainTypeFruit,
   supprimerFruit,
   getNbPointsPourFruit,
-  getAttributsFruit,
   addScoreFruits,
   getRandomFruit,
+  getScore,
+  getRadiusFruit,
 };

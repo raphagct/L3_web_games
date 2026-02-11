@@ -1,0 +1,17 @@
+{
+  "name": "jeubabylon",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.50.0"
+  }
+}
