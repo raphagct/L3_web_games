@@ -18,4 +18,9 @@ const etat = {
   GAME_OVER: "GAME OVER",
 };
 
-export { assetsToLoad, etat };
+const niveau = {
+  LEVEL1: "melon",
+  LEVEL2: "ananas",
+  LEVEL3: "pasteque",
+};
+export { assetsToLoad, etat, niveau };

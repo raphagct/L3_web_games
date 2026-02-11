@@ -1,7 +1,7 @@
 import Fruit from "./fruit.js";
 import { gererEvolutionFruits } from "./collision.js";
 import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
-import { assetsToLoad, etat } from "./model.js";
+import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
 
 window.onload = init;
@@ -9,6 +9,7 @@ window.onload = init;
 let canvas, ctx, loadedAssets;
 let prochainTypeFruit, prochainTypeFruitImg;
 let etatJeu = etat.ACCUEIL;
+let niveauJeu = niveau.LEVEL1;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -36,8 +37,12 @@ async function init() {
 
   canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    // Convertir les coordonnées du clic (client) en coordonnées du canvas
+    // (le canvas peut être redimensionné en CSS, il faut tenir compte du ratio)
+    const scaleX = canvas.width / rect.width; // ratio entre pixels canvas et pixels CSS
+    const scaleY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * scaleX;
+    const y = (event.clientY - rect.top) * scaleY;
 
     const fruitImage = loadedAssets[prochainTypeFruit];
     const fruit = new Fruit(
