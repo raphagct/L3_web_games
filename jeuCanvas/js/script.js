@@ -3,6 +3,7 @@ import { gererEvolutionFruits } from "./collision.js";
 import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
 import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
+import FusionEffect from "./effect.js";
 
 window.onload = init;
 
@@ -21,6 +22,7 @@ const Engine = Matter.Engine,
 // on crée le moteur physique
 const engine = Engine.create();
 const fruits = [];
+const effects = [];
 
 async function init() {
   canvas = document.querySelector("#monCanvas");
@@ -33,7 +35,15 @@ async function init() {
   // on draw les bordures et on init le syteme d'evolution
   // par collision entre fruit du même type
   creeBordure();
-  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
+  gererEvolutionFruits(
+    Events,
+    fruits,
+    engine,
+    Bodies,
+    Composite,
+    loadedAssets,
+    effects,
+  );
 
   // On recup un fruit au hasard  et on l'affiche dans la preview 
   prochainTypeFruit = getRandomFruit();
@@ -95,6 +105,16 @@ function drawJeu() {
 
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
+
+  // on dessine et met à jour les effets
+  for (let i = effects.length - 1; i >= 0; i--) {
+    const effect = effects[i];
+    effect.update();
+    effect.draw(ctx);
+    if (effect.isFinished()) {
+      effects.splice(i, 1);
+    }
+  }
 
   if (etatJeu === etat.JEU_EN_COURS) {
     const radius = getRadiusFruit(prochainTypeFruit);
