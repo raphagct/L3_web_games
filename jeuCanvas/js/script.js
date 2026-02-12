@@ -1,8 +1,9 @@
 import Fruit from "./fruit.js";
-import { gererEvolutionFruits } from "./collision.js";
-import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
+import { gererEvolutionFruits, gererGameOver } from "./collision.js";
+import { getRandomFruit, getRadiusFruit, resetScore } from "./fruitUtils.js";
 import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
+import BorduresJeu from "./borduresjeu.js";
 
 window.onload = init;
 
@@ -11,15 +12,10 @@ let etatJeu = etat.ACCUEIL;
 let niveauJeu = niveau.LEVEL1;
 let score = 0;
 let mouseX = 0;
-
-// alias de Matter.js
-const Engine = Matter.Engine,
-  Bodies = Matter.Bodies,
-  Composite = Matter.Composite,
-  Events = Matter.Events;
+let borduresJeu;
 
 // on crée le moteur physique
-const engine = Engine.create();
+const engine = Matter.Engine.create();
 const fruits = [];
 
 async function init() {
@@ -30,10 +26,37 @@ async function init() {
   // on charge les assets avant de lancer le jeu
   loadedAssets = await loadAssets(assetsToLoad);
 
-  // on draw les bordures et on init le syteme d'evolution
-  // par collision entre fruit du même type
-  creeBordure();
-  gererEvolutionFruits(Events, fruits, engine, Bodies, Composite, loadedAssets);
+  // On crée la map et le capteur 
+  borduresJeu = new BorduresJeu(engine, canvas.width, canvas.height);
+  borduresJeu.creeBordures();
+  const capteur = borduresJeu.creeCapteur();
+  
+  // on init le syteme d'evolution par collision entre fruit du même type
+
+  gererEvolutionFruits(
+    fruits,
+    engine,
+    loadedAssets,
+    (typeFruitCree) => {
+      // Callback appelé quand deux fruits fusionnent
+      if (typeFruitCree === niveauJeu) {
+        // Niveau terminé !
+        if (niveauJeu === niveau.LEVEL1) {
+          niveauJeu = niveau.LEVEL2;
+          etatJeu = etat.NEXT_LEVEL;
+        } else if (niveauJeu === niveau.LEVEL2) {
+          niveauJeu = niveau.LEVEL3;
+          etatJeu = etat.NEXT_LEVEL;
+        } else if (niveauJeu === niveau.LEVEL3) {
+          niveauJeu = niveau.FIN;
+          etatJeu = etat.NEXT_LEVEL;
+        }
+      }
+    },
+  );
+  gererGameOver(engine, capteur, () => {
+    etatJeu = etat.GAME_OVER;
+  });
 
   // On recup un fruit au hasard  et on l'affiche dans la preview 
   prochainTypeFruit = getRandomFruit();
@@ -54,8 +77,6 @@ async function init() {
       x,
       40,
       engine,
-      Bodies,
-      Composite,
       prochainTypeFruit,
       fruitImage,
     );
@@ -74,24 +95,28 @@ async function init() {
     });
   }
 
+  
+
   requestAnimationFrame(startGame);
 }
 
 function startGame() {
-  Engine.update(engine, 1000 / 60);
+  Matter.Engine.update(engine, 1000 / 60);
   if (etatJeu === etat.JEU_EN_COURS) {
     drawJeu();
   } else if (etatJeu === etat.GAME_OVER) {
     drawGameOver();
+  } else if (etatJeu === etat.NEXT_LEVEL) {
+    drawNextLevel();
   }
-
+  
   requestAnimationFrame(startGame);
 }
 
 function drawJeu() {
   // clear canvas et dessine la limite rouge
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawLimite(ctx);
+  borduresJeu.drawLimit(ctx);
 
   // on dessine chaque fruit
   fruits.forEach((f) => f.draw(ctx));
@@ -131,38 +156,7 @@ function drawJeu() {
   }
 }
 
-function drawLimite(ctx) {
-  ctx.strokeStyle = "red";
-  ctx.beginPath();
-  ctx.moveTo(0, 80);
-  ctx.lineTo(ctx.canvas.width, 80);
-  ctx.stroke();
-}
 
-function creeBordure() {
-  const ground = Bodies.rectangle(
-    ctx.canvas.width / 2,
-    ctx.canvas.height + 50,
-    ctx.canvas.width,
-    100,
-    { isStatic: true },
-  );
-  const leftWall = Bodies.rectangle(
-    -50,
-    ctx.canvas.height / 2,
-    100,
-    ctx.canvas.height,
-    { isStatic: true },
-  );
-  const rightWall = Bodies.rectangle(
-    ctx.canvas.width + 50,
-    ctx.canvas.height / 2,
-    100,
-    ctx.canvas.height,
-    { isStatic: true },
-  );
-  Composite.add(engine.world, [ground, leftWall, rightWall]);
-}
 
 function afficherProchainFruit() {
   const radiusFruit = getRadiusFruit(prochainTypeFruit);
@@ -178,10 +172,72 @@ function afficherProchainFruit() {
   container.appendChild(fruitDiv);
 }
 
-/** 
+function drawNextLevel() {
+  ctx.save();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "green";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  
+  if (niveauJeu === niveau.FIN) {
+    ctx.fillText(
+      "Bravo vous avez fini le jeu !",
+      canvas.width / 2,
+      canvas.height / 2,
+    );
+    ctx.font = "24px Arial";
+    ctx.fillText(
+      "Appuyez sur une touche pour recommencer",
+      canvas.width / 2,
+      canvas.height / 2 + 50,
+    );
+     // On écoute les touches pour redémarrer le jeu complet
+     window.onkeydown = (event) => {
+        niveauJeu = niveau.LEVEL1;
+        etatJeu = etat.JEU_EN_COURS;
+        score = 0;
+        resetScore();
+        fruits.forEach((f) => Matter.Composite.remove(engine.world, f.body));
+        fruits.length = 0;
+        document.body.classList.add("playing");
+        window.onkeydown = null;
+      };
+
+  } else {
+    // Affiche le niveau suivant
+    ctx.fillText("Niveau Terminé !", canvas.width / 2, canvas.height / 2 - 50);
+    ctx.font = "30px Arial";
+    ctx.fillText(
+        "Prochain objectif : " + niveauJeu,
+        canvas.width / 2,
+        canvas.height / 2,
+    );
+    ctx.font = "24px Arial";
+    ctx.fillText(
+      "Appuyez sur une touche pour continuer",
+      canvas.width / 2,
+      canvas.height / 2 + 50,
+    );
+
+    // On attend un clic pour continuer
+    window.onkeydown = () => {
+        etatJeu = etat.JEU_EN_COURS;
+        score = 0;
+        resetScore();
+        // Clear le "rect" => Clear tous les fruits
+        fruits.forEach((f) => Matter.Composite.remove(engine.world, f.body));
+        fruits.length = 0;
+        
+        document.body.classList.add("playing");
+        window.onkeydown = null;
+    }
+  }
+  ctx.restore();
+}
+
 function drawGameOver() {
   ctx.save();
-
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "red";
   ctx.font = "48px Arial";
   ctx.textAlign = "center";
@@ -195,7 +251,17 @@ function drawGameOver() {
 
   // On écoute les touches pour redémarrer le jeu
   window.onkeydown = (event) => {
-    etatJeu = etatJeu.JEU_EN_COURS;
+    etatJeu = etat.JEU_EN_COURS;
+    score = 0;
+    resetScore(); // reset score in fruitUtils
+    
+    // Remove all fruits from the world
+    fruits.forEach((f) => {
+      Matter.Composite.remove(engine.world, f.body);
+    });
+    // Empty the array
+    fruits.length = 0;
+
     // assure que le menu HTML disparaisse aussi
     document.body.classList.add("playing");
     window.onkeydown = null; // on enlève l'écouteur pour ne pas redémarrer le jeu
@@ -203,4 +269,5 @@ function drawGameOver() {
 
   ctx.restore();
 }
-*/
+
+

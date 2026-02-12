@@ -15,12 +15,12 @@ function getProchainTypeFruit(typeActuel) {
   return evolution[typeActuel];
 }
 
-function supprimerFruit(fruit, Composite, engine, fruits) {
+function supprimerFruit(fruit, engine, fruits) {
   const index = fruits.indexOf(fruit);
   fruits.splice(index, 1);
 
   // on supprime le fruit du monde physique
-  Composite.remove(engine.world, fruit.body);
+  Matter.Composite.remove(engine.world, fruit.body);
 }
 
 function getRandomFruit() {
@@ -59,6 +59,12 @@ function getScore() {
   return score;
 }
 
+function resetScore() {
+  score = 0;
+  const spanScore = document.querySelector("#scoreValue");
+  if (spanScore) spanScore.textContent = score;
+}
+
 function getRadiusFruit(type) {
   switch (type) {
     case "myrtille":
@@ -94,4 +100,5 @@ export {
   getRandomFruit,
   getScore,
   getRadiusFruit,
+  resetScore,
 };
