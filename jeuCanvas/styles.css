@@ -96,13 +96,14 @@ main {
 
 .panel-score h3,
 .panel-next h3 {
-  margin: 0 0 15px 0;
+  margin: 0 0 5px 0;
   font-size: 1.5rem;
   font-weight: bold;
   opacity: 1;
 }
 
-#scoreValue {
+#scoreValue,
+#highScoreValue {
   font-size: 3.5rem;
   font-weight: 900;
   color: white;

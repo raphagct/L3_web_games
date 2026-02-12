@@ -1,6 +1,6 @@
 import Fruit from "./fruit.js";
 import { gererEvolutionFruits } from "./collision.js";
-import { getRandomFruit, getRadiusFruit } from "./fruitUtils.js";
+import { getRandomFruit, getRadiusFruit, getHighScore, updateHighScoreDisplay } from "./fruitUtils.js";
 import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
 import FusionEffect from "./effect.js";
@@ -49,6 +49,7 @@ async function init() {
   prochainTypeFruit = getRandomFruit();
   prochainTypeFruitImgSrc = loadedAssets[prochainTypeFruit].src;
   afficherProchainFruit();
+  updateHighScoreDisplay(getHighScore());
 
   canvas.addEventListener("mousemove", (event) => {
     const rect = canvas.getBoundingClientRect();

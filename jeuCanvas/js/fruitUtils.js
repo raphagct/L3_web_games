@@ -48,10 +48,32 @@ function getNbPointsPourFruit(type) {
 // module-level score pour éviter les problèmes de passage par valeur
 let score = 0;
 
+function getHighScore() {
+  return localStorage.getItem("highScore") || 0;
+}
+
+function saveHighScore(newScore) {
+  const currentHigh = getHighScore();
+  if (newScore > currentHigh) {
+    localStorage.setItem("highScore", newScore);
+    updateHighScoreDisplay(newScore);
+    return true;
+  }
+  return false;
+}
+
+function updateHighScoreDisplay(value) {
+  const spanHigh = document.querySelector("#highScoreValue");
+  if (spanHigh) spanHigh.textContent = value;
+}
+
 function addScoreFruits(points) {
   score += points;
   const spanScore = document.querySelector("#scoreValue");
   if (spanScore) spanScore.textContent = score;
+  
+  saveHighScore(score);
+  
   return score;
 }
 
@@ -94,4 +116,6 @@ export {
   getRandomFruit,
   getScore,
   getRadiusFruit,
+  getHighScore,
+  updateHighScoreDisplay,
 };
