@@ -55,7 +55,7 @@ function gererEvolutionFruits(
           supprimerFruit(fruit1, engine, fruits);
           supprimerFruit(fruit2, engine, fruits);
 
-          loadedAssets.plop.play();
+          //loadedAssets.plop.play();
 
           // mettre à jour le score (addScoreFruits gère le cumul maintenant)
           addScoreFruits(getNbPointsPourFruit(typeSuivant));

@@ -15,7 +15,7 @@ let score = 0;
 let mouseX = 0;
 let borduresJeu;
 let canDrop = true;
-const delaiDrop = 700;
+const delaiDrop = 400;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -68,18 +68,7 @@ async function init() {
   gererGameOver(engine, capteur, () => {
     etatJeu = etat.GAME_OVER;
   });
-  // on draw les bordures et on init le syteme d'evolution
-  // par collision entre fruit du même type
-  creeBordure();
-  gererEvolutionFruits(
-    Events,
-    fruits,
-    engine,
-    Bodies,
-    Composite,
-    loadedAssets,
-    effects,
-  );
+
 
   // On recup un fruit au hasard  et on l'affiche dans la preview 
   prochainTypeFruit = getRandomFruit();
