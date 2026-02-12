@@ -12,6 +12,8 @@ let etatJeu = etat.ACCUEIL;
 let niveauJeu = niveau.LEVEL1;
 let score = 0;
 let mouseX = 0;
+let canDrop = true;
+const delaiDrop = 700;
 
 // alias de Matter.js
 const Engine = Matter.Engine,
@@ -60,6 +62,12 @@ async function init() {
 
   //ecouteur pour placer un fruit
   canvas.addEventListener("click", (event) => {
+    if (!canDrop) return;
+    canDrop = false;
+    setTimeout(() => {
+      canDrop = true;
+    }, delaiDrop);
+
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     mouseX = (event.clientX - rect.left) * scaleX;
@@ -122,7 +130,7 @@ function drawJeu() {
     }
   }
 
-  if (etatJeu === etat.JEU_EN_COURS) {
+  if (etatJeu === etat.JEU_EN_COURS && canDrop) {
     const radius = getRadiusFruit(prochainTypeFruit);
     // Le fruit a un rayon d'affichage plus grand que son corps physique (1.4x)
     // On reprend la logique de Fruit.draw pour que le fantôme ait la meme taille
