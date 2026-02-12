@@ -52,12 +52,17 @@ async function init() {
 
   canvas.addEventListener("mousemove", (event) => {
     const rect = canvas.getBoundingClientRect();
-    mouseX = event.clientX - rect.left;
+    const scaleX = canvas.width / rect.width;
+    mouseX = (event.clientX - rect.left) * scaleX;
   });
 
 
   //ecouteur pour placer un fruit
   canvas.addEventListener("click", (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    mouseX = (event.clientX - rect.left) * scaleX;
+
     const x = mouseX;
     const fruitImage = loadedAssets[prochainTypeFruit];
     const fruit = new Fruit(
