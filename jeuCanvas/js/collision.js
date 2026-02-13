@@ -6,13 +6,15 @@ import {
   getRadiusFruit,
 } from "./fruitUtils.js";
 import Fruit from "./fruit.js";
-import FusionEffect from "./effect.js";
+import EffetEvolution from "./effect.js";
+
+let evenementEvolution = null;
+let gameOverDetecte = false;
 
 function gererEvolutionFruits(
   fruits,
   engine,
   loadedAssets,
-  onFruitMerged,
   effects,
 ) {
   Matter.Events.on(engine, "collisionStart", (event) => {
@@ -47,22 +49,21 @@ function gererEvolutionFruits(
           );
           fruits.push(nouveauFruit);
 
-          if (onFruitMerged) {
-            onFruitMerged(typeSuivant);
-          }
+          // On stocke l'événement pour la boucle de jeu
+          evenementEvolution = typeSuivant;
 
           // supprimer les anciens fruits
           supprimerFruit(fruit1, engine, fruits);
           supprimerFruit(fruit2, engine, fruits);
 
-          //loadedAssets.plop.play();
+          loadedAssets.plop.play();
 
           // mettre à jour le score (addScoreFruits gère le cumul maintenant)
           addScoreFruits(getNbPointsPourFruit(typeSuivant));
 
           // Ajouter un effet visuel de fusion
           if (effects) {
-            effects.push(new FusionEffect(x, y, newRadius, "#FFD700"));
+            effects.push(new EffetEvolution(x, y, newRadius, "#FFD700"));
           }
         }
       }
@@ -70,7 +71,7 @@ function gererEvolutionFruits(
   });
 }
 
-function gererGameOver(engine, sensor, onGameOver) {
+function gererGameOver(engine, sensor) {
   let gameOverFrameCount = 0;
 
   Matter.Events.on(engine, "collisionActive", (event) => {
@@ -90,23 +91,38 @@ function gererGameOver(engine, sensor, onGameOver) {
       if (fruitBody) {
         // On vérifie si le fruit est quasi à l'arrêt
         if (fruitBody.speed < 0.2) {
-            dangerDeLeFrame = true;
-            break; // Un seul fruit suffit pour trigger le danger
+          dangerDeLeFrame = true;
+          break; // Un seul fruit suffit pour trigger le danger
         }
       }
     }
 
     if (dangerDeLeFrame) {
-        gameOverFrameCount++;
-        // Si plus de 2 secondes (à 60fps)
-        if (gameOverFrameCount > 120) {
-            onGameOver();
-            gameOverFrameCount = 0; // reset
-        }
+      gameOverFrameCount++;
+      // Si plus de 2 secondes (à 60fps)
+      if (gameOverFrameCount > 120) {
+        gameOverDetecte = true;
+        gameOverFrameCount = 0; // reset
+      }
     } else {
-        gameOverFrameCount = 0;
+      gameOverFrameCount = 0;
     }
   });
 }
 
-export { gererEvolutionFruits, gererGameOver };
+function getEvenementEvolution() {
+  const evt = evenementEvolution;
+  evenementEvolution = null; // consomme l'événement
+  return evt;
+}
+
+function isGameOver() {
+  return gameOverDetecte;
+}
+
+function resetCollisionState() {
+  evenementEvolution = null;
+  gameOverDetecte = false;
+}
+
+export { gererEvolutionFruits, gererGameOver, getEvenementEvolution, isGameOver, resetCollisionState };

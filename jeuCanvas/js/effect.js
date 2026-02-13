@@ -1,13 +1,15 @@
-export default class FusionEffect {
+//code entièrement généré par IA
+
+export default class EffetEvolution {
   constructor(x, y, radius, color) {
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.color = (color === "white" || !color) ? "#FFD700" : color; 
-    
+    this.color = (color === "white" || !color) ? "#FFD700" : color;
+
     this.particles = [];
     this.rings = [];
-    
+
     const particleCount = 20;
     for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -38,7 +40,7 @@ export default class FusionEffect {
       p.size *= 0.95;
       if (p.alpha <= 0) this.particles.splice(i, 1);
     }
-    
+
     for (let i = this.rings.length - 1; i >= 0; i--) {
       const r = this.rings[i];
       r.r += r.speed;
@@ -50,38 +52,38 @@ export default class FusionEffect {
 
   draw(ctx) {
     ctx.save();
-    
+
     if (this.rings.length > 0 && this.rings[0].alpha > 0.5) {
-        ctx.globalAlpha = this.rings[0].alpha * 0.6;
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
-        ctx.fill();
+      ctx.globalAlpha = this.rings[0].alpha * 0.6;
+      ctx.fillStyle = "white";
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     ctx.strokeStyle = this.color;
     ctx.shadowColor = this.color;
     ctx.shadowBlur = 15; // Effet de lueur
     this.rings.forEach(r => {
-        if (r.alpha > 0) {
-            ctx.globalAlpha = r.alpha;
-            ctx.lineWidth = Math.max(0.5, r.width);
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, r.r, 0, Math.PI * 2);
-            ctx.stroke();
-        }
+      if (r.alpha > 0) {
+        ctx.globalAlpha = r.alpha;
+        ctx.lineWidth = Math.max(0.5, r.width);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     });
     ctx.shadowBlur = 0;
 
     // Dessin des particules
     ctx.fillStyle = this.color;
     this.particles.forEach(p => {
-        if (p.alpha > 0) {
-            ctx.globalAlpha = p.alpha;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
+      if (p.alpha > 0) {
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     });
 
     ctx.restore();

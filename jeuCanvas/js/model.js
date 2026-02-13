@@ -9,7 +9,7 @@ const assetsToLoad = {
   kaki: { url: "./assets/img/kaki.png" },
   cerise: { url: "./assets/img/cerise.png" },
   myrtille: { url: "./assets/img/myrtille.png" },
-  //plop: { url: "./assets/sfx/pop-sfx.mp3" },
+  plop: { url: "./assets/sfx/pop-sfx.mp3" },
 };
 
 const etat = {

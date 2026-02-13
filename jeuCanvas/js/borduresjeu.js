@@ -40,7 +40,7 @@ export default class BorduresJeu {
     return this.capteur;
   }
 
-  drawLimit(ctx) {
+  drawLimite(ctx) {
     ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(0, 80);

@@ -1,4 +1,3 @@
-
 //Code récupéré sur l'exemple du cours
 
 async function loadAssets(assetsToLoadURLs) {
