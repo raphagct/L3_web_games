@@ -1,83 +1,48 @@
+import { getRadiusFruit } from "./fruitUtils.js";
+
 export default class Fruit {
-  constructor(x, y, type, engine, Bodies, Composite) {
-    this.type = type;
-    this.getAttributsSelonTypes();
+  constructor(x, y, engine, type, image, radius) {
     this.engine = engine;
-    this.Bodies = Bodies;
-    this.Composite = Composite;
-    //on crée le fruit dans le monde physique
-    this.body = this.Bodies.circle(x, y, this.radius, {
-      restitution: 0.6, // rebond
+    this.type = type;
+    this.image = image;
+    // On utilise le radius fourni ou sinon on le calcule en fonction du type de fruit
+    if (radius) {
+      this.radius = radius;
+    } else {
+      this.radius = getRadiusFruit(type);
+    }
+
+    //on init le fruit dans le monde physique (Matter.js)
+    this.body = Matter.Bodies.circle(x, y, this.radius, {
+      restitution: 0.2, // rebond
       friction: 0.5, // glisse
       density: 0.002, // densité (masse en gros)
     });
+
     // on ajoute le fruit dans le monde physique
-    this.Composite.add(this.engine.world, [this.body]);
+    Matter.Composite.add(this.engine.world, [this.body]);
   }
 
   draw(ctx) {
-    // dessine le fruit à partir de son body physique
+    // dessine le fruit à la position du fruit du monde physique
     const positionBody = this.body.position;
-    const img = new Image();
-    img.src = this.path;
-    ctx.drawImage(
-      img,
-      positionBody.x - this.radius,
-      positionBody.y - this.radius,
-      this.radius * 2,
-      this.radius * 2,
-    );
-    ctx.beginPath();
-    ctx.arc(positionBody.x, positionBody.y, this.radius, 0, Math.PI * 2);
-  }
+    const angle = this.body.angle;
+    const hitboxDiff = 1.4; // fix du rayon car les images des fruits ne sont pas parfaitement rondes
+    const drawRadius = this.radius * hitboxDiff;
 
-  // change la taille et la couleur selon le type de fruit
-  getAttributsSelonTypes() {
-    switch (this.type) {
-      case "myrtille":
-        this.radius = 20;
-        this.path = "./assets/img/myrtille.png";
-        break;
-      case "cerise":
-        this.radius = 30;
-        this.path = "./assets/img/cerise.png";
-        break;
-      case "kaki":
-        this.radius = 40;
-        this.path = "./assets/img/kaki.png";
-        break;
-      case "banane":
-        this.radius = 50;
-        this.path = "./assets/img/banane.png";
-        break;
-      case "orange":
-        this.radius = 60;
-        this.path = "./assets/img/orange.png";
-        break;
-      case "pomme":
-        this.radius = 70;
-        this.path = "./assets/img/pomme.png";
-        break;
-      case "coco":
-        this.radius = 90;
-        this.path = "./assets/img/coco.png";
-        break;
-      case "melon":
-        this.radius = 100;
-        this.path = "./assets/img/melon.png";
-        break;
-      case "ananas":
-        this.radius = 110;
-        this.path = "./assets/img/ananas.png";
-        break;
-      case "pasteque":
-        this.radius = 120;
-        this.path = "./assets/img/pasteque.png";
-        break;
-      default:
-        this.radius = 30;
-        this.path = "./assets/img/default.png";
-        break;
-    }
+    ctx.save();
+    // on fais tourner le fruit quand il se déplace
+    ctx.translate(positionBody.x, positionBody.y);
+    ctx.rotate(angle);
+
+    ctx.drawImage(
+      this.image,
+      -drawRadius,
+      -drawRadius,
+      drawRadius * 2,
+      drawRadius * 2,
+    );
+
+    ctx.restore();
   }
 }

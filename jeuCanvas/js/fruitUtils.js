@@ -1,3 +1,4 @@
+//fonctions utilitaires pour indiquer les evolutions des fruits
 function getProchainTypeFruit(typeActuel) {
   const evolution = {
     myrtille: "cerise",
@@ -11,15 +12,16 @@ function getProchainTypeFruit(typeActuel) {
     ananas: "pasteque",
     pasteque: null, // plus d'évolution possible apres la pastèque
   };
+
   return evolution[typeActuel];
 }
 
-function supprimerFruit(fruit, Composite, engine, fruits) {
+function supprimerFruit(fruit, engine, fruits) {
   const index = fruits.indexOf(fruit);
-  if (index > -1) {
-    fruits.splice(index, 1);
-  }
-  Composite.remove(engine.world, fruit.body);
+  fruits.splice(index, 1);
+
+  // on supprime le fruit du monde physique
+  Matter.Composite.remove(engine.world, fruit.body);
 }
 
 function getRandomFruit() {
@@ -44,53 +46,26 @@ function getNbPointsPourFruit(type) {
   return pointsParFruit[type];
 }
 
-// module-level score pour éviter les problèmes de passage par valeur
-let score = 0;
-
-function addScoreFruits(points) {
-  score += points;
-  const spanScore = document.querySelector("#scoreValue");
-  if (spanScore) spanScore.textContent = score;
-  return score;
-}
-
-function getScore() {
-  return score;
-}
-
-function getAttributsFruit(type) {
-  switch (type) {
-    case "myrtille":
-      return { radius: 20, color: "blue" };
-    case "cerise":
-      return { radius: 30, color: "darkred" };
-    case "kaki":
-      return { radius: 40, color: "green" };
-    case "banane":
-      return { radius: 50, color: "yellow" };
-    case "orange":
-      return { radius: 60, color: "orange" };
-    case "pomme":
-      return { radius: 70, color: "red" };
-    case "coco":
-      return { radius: 90, color: "brown" };
-    case "melon":
-      return { radius: 100, color: "lightgreen" };
-    case "ananas":
-      return { radius: 110, color: "gold" };
-    case "pasteque":
-      return { radius: 120, color: "darkgreen" };
-    default:
-      return { radius: 30, color: "gray" };
-  }
+function getRadiusFruit(type) {
+  const rayonParFruit = {
+    myrtille: 20,
+    cerise: 30,
+    kaki: 40,
+    banane: 50,
+    orange: 60,
+    pomme: 70,
+    coco: 80,
+    melon: 110,
+    ananas: 140,
+    pasteque: 170,
+  };
+  return rayonParFruit[type];
 }
 
 export {
   getProchainTypeFruit,
   supprimerFruit,
   getNbPointsPourFruit,
-  getAttributsFruit,
-  addScoreFruits,
   getRandomFruit,
-  getScore,
+  getRadiusFruit,
 };
