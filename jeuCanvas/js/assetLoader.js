@@ -44,7 +44,7 @@ async function loadAssetsUsingHowlerAndNoXhr(assetsToBeLoaded) {
 
     console.log("Nb assets to load: " + numberOfAssetsToLoad);
 
-    for (name in assetsToBeLoaded) {
+    for (let name in assetsToBeLoaded) {
       var url = assetsToBeLoaded[name].url;
       console.log("Loading " + url);
       if (isImage(url)) {
@@ -64,12 +64,21 @@ async function loadAssetsUsingHowlerAndNoXhr(assetsToBeLoaded) {
           loop: assetsToBeLoaded[name].loop,
           autoplay: false,
           volume: assetsToBeLoaded[name].volume,
+          // Forcer l'utilisation de HTML5 Audio pour résoudre notre problème avec le son plop
+          html5: true,
           onload: function () {
             if (++loadedAssets >= numberOfAssetsToLoad) {
               console.log("ALL ASSETS LOADEDS");
               return resolve(assetsLoaded);
             }
             console.log("Loaded asset " + loadedAssets);
+          },
+          onloaderror: function (id, err) {
+            console.error("Failed to load asset: " + name, err);
+            if (++loadedAssets >= numberOfAssetsToLoad) {
+              console.log("ALL ASSETS LOADED (with errors)");
+              return resolve(assetsLoaded);
+            }
           },
         }); // End of howler.js callback
       } // if
