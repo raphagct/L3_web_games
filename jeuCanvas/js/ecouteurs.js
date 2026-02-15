@@ -1,5 +1,5 @@
 import { etat } from "./model.js";
-import Fruit from "./fruit.js";
+import Fruit from "./Fruit.js";
 import { getRandomFruit } from "./fruitUtils.js";
 
 function initListeners(game) {

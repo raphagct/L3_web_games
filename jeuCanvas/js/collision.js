@@ -4,8 +4,8 @@ import {
   getNbPointsPourFruit,
   getRadiusFruit,
 } from "./fruitUtils.js";
-import Fruit from "./fruit.js";
-import EffetEvolution from "./effet.js";
+import Fruit from "./Fruit.js";
+import EffetEvolution from "./EffetEvolution.js";
 
 let gameOverDetecte = false;
 
