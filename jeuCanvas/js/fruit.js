@@ -27,11 +27,10 @@ export default class Fruit {
     // dessine le fruit à la position du fruit du monde physique
     const positionBody = this.body.position;
     const angle = this.body.angle;
-    const hitboxDiff = 1.4;
+    const hitboxDiff = 1.4; // fix du rayon car les images des fruits ne sont pas parfaitement rondes
     const drawRadius = this.radius * hitboxDiff;
 
     ctx.save();
-
     // on fais tourner le fruit quand il se déplace
     ctx.translate(positionBody.x, positionBody.y);
     ctx.rotate(angle);

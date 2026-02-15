@@ -1,4 +1,4 @@
-//code entièrement généré par IA
+//code entièrement généré par IA, il fait une animation de particule
 
 export default class EffetEvolution {
   constructor(x, y, radius, color) {

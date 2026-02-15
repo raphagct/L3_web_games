@@ -1,21 +1,17 @@
-import Fruit from "./fruit.js";
 import {
     gererEvolutionFruits,
     gererGameOver,
-    getEvenementEvolution,
     isGameOver,
-    resetCollisionState,
+    resetGameOver,
 } from "./collision.js";
 import {
     getRandomFruit,
     getRadiusFruit,
-    getHighScore,
-    updateHighScoreDisplay,
-    resetScore,
 } from "./fruitUtils.js";
 import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
 import BorduresJeu from "./borduresjeu.js";
+import { initListeners } from "./ecouteurs.js";
 
 export default class Game {
     constructor(canvas) {
@@ -25,137 +21,66 @@ export default class Game {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
 
-        // On crée le moteur et le monde physique
+        // On crée le moteur et le monde physique Matter.js
         this.engine = Matter.Engine.create();
         this.world = this.engine.world;
 
-        // On init les etats du jeu
         this.etatJeu = etat.ACCUEIL;
         this.niveauJeu = niveau.LEVEL1;
         this.canDrop = true;
         this.delaiDrop = 400;
+        this.score = 0;
 
-        // Entities
+        // On récupère le meilleur score dans le stockage du navigateur
+        this.highScore = Number(localStorage.getItem("highScore")) || 0;
+
         this.fruits = [];
-        this.effects = [];
-        this.borduresJeu = null;
-        this.capteur = null;
-
-        // Next Fruit Logic
-        this.fruitCourant = null; // Le fruit qui suit la souris
-        this.fruitSuivant = null; // Le fruit affiché dans la case "Suivant"
-        this.loadedAssets = null;
+        this.effets = [];
     }
 
     async init() {
         // On charge les images et les sfx de façon asynchrone
         this.loadedAssets = await loadAssets(assetsToLoad);
 
-        // On crée les bordures du jeu
+        // On crée les bordures du jeu et le capteur de gameOver
         this.borduresJeu = new BorduresJeu(this.engine, this.width, this.height);
         this.borduresJeu.creeBordures();
         this.capteur = this.borduresJeu.creeCapteur();
 
-        // On met en place le système d'évolution de fruit du même type via collisions
+        // On met en place le système d'évolution de fruit du même type via collisions et le système de gameOver
         gererEvolutionFruits(
             this.fruits,
             this.engine,
             this.loadedAssets,
-            this.effects
+            this.effets,
+            this
         );
         gererGameOver(this.engine, this.capteur);
 
-        // On crée le premier fruit
+        // On crée le premier fruit et on recupere le fruit d'apres pour pouvoir l'afficher
         this.fruitCourant = getRandomFruit();
         this.fruitSuivant = getRandomFruit();
         this.afficherFruitSuivant();
 
-        // On affiche le meilleur score
-        updateHighScoreDisplay(getHighScore());
+        // On affiche le meilleur score et l'objectif
+        this.updateScore();
+        initListeners(this);
+        this.updateObjectif();
 
-        // On met en place les inputs
-        this.setupInputs();
-
+        console.log("Game initialisé");
     }
 
     start() {
-        requestAnimationFrame(() => this.loop());
+        console.log("Game démarré");
+        // On démarre une animation à 60 images par seconde
+        requestAnimationFrame(this.mainAnimationLoop.bind(this));
     }
 
-    setupInputs() {
-        // Mouse Move
-        this.canvas.addEventListener("mousemove", (event) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const scaleX = this.width / rect.width;
-            this.mouseX = (event.clientX - rect.left) * scaleX;
-        });
-
-        // Click to Drop
-        this.canvas.addEventListener("click", (event) => {
-            this.handleDrop(event);
-        });
-
-        // Play Button
-        const boutonJouer = document.getElementById("boutonJouer");
-        if (boutonJouer) {
-            boutonJouer.addEventListener("click", () => {
-                document.body.classList.add("playing");
-                this.etatJeu = etat.JEU_EN_COURS;
-            });
-        }
-
-        // Restart Listeners are set in drawGameOver/drawNextLevel only when needed
-    }
-
-    handleDrop(event) {
-        if (this.etatJeu !== etat.JEU_EN_COURS) return;
-        if (!this.canDrop) return;
-
-        this.canDrop = false;
-        setTimeout(() => {
-            this.canDrop = true;
-        }, this.delaiDrop);
-
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.width / rect.width;
-        this.mouseX = (event.clientX - rect.left) * scaleX;
-
-        const x = this.mouseX;
-        const typeToDrop = this.fruitCourant;
-        const fruitImage = this.loadedAssets[typeToDrop];
-
-        // Create Physical Fruit
-        const fruit = new Fruit(x, 40, this.engine, typeToDrop, fruitImage);
-        this.fruits.push(fruit);
-
-        // Cycle Fruits: Current becomes what Next wass, New Next is generated
-        this.fruitCourant = this.fruitSuivant;
-        this.fruitSuivant = getRandomFruit();
-        this.afficherFruitSuivant();
-    }
-
-    afficherFruitSuivant() {
-        const radiusFruit = getRadiusFruit(this.fruitSuivant);
-        const imgSrc = this.loadedAssets[this.fruitSuivant].src;
-        const container = document.querySelector(".next-fruit-circle");
-
-        if (container) {
-            container.innerHTML = "";
-            const fruitImg = document.createElement("img");
-            fruitImg.src = imgSrc;
-            fruitImg.style.width = `${radiusFruit * 2.5}px`;
-            fruitImg.style.height = `${radiusFruit * 2.5}px`;
-            fruitImg.style.borderRadius = "50%";
-            container.appendChild(fruitImg);
-        }
-    }
-
-    loop() {
+    mainAnimationLoop() {
         Matter.Engine.update(this.engine, 1000 / 60);
 
-        this.checkGameEvents();
+        this.checkSiNiveauTermine();
 
-        // Draw based on state
         if (this.etatJeu === etat.JEU_EN_COURS) {
             this.drawJeu();
         } else if (this.etatJeu === etat.GAME_OVER) {
@@ -163,26 +88,16 @@ export default class Game {
         } else if (this.etatJeu === etat.NEXT_LEVEL) {
             this.drawNextLevel();
         }
-
-        requestAnimationFrame(() => this.loop());
+        requestAnimationFrame(this.mainAnimationLoop.bind(this));
     }
 
-    checkGameEvents() {
-        // Polling Evolution
-        const typeFruitCree = getEvenementEvolution();
-        if (typeFruitCree) {
-            if (typeFruitCree === this.niveauJeu) {
-                this.levelUp();
-            }
-        }
-
-        // Polling GameOver
+    checkSiNiveauTermine() {
         if (isGameOver()) {
             this.etatJeu = etat.GAME_OVER;
         }
     }
 
-    levelUp() {
+    monterDeNiveau() {
         if (this.niveauJeu === niveau.LEVEL1) {
             this.niveauJeu = niveau.LEVEL2;
             this.etatJeu = etat.NEXT_LEVEL;
@@ -193,40 +108,93 @@ export default class Game {
             this.niveauJeu = niveau.FIN;
             this.etatJeu = etat.NEXT_LEVEL;
         }
+        this.updateObjectif();
+    }
+
+    updateObjectif() {
+        const divNiveau = document.getElementById("niveauActuel");
+        const divFruit = document.getElementById("fruitObjectif");
+        let levelName = "";
+        let fruitObjectif = this.niveauJeu;
+
+        if (this.niveauJeu === niveau.LEVEL1) levelName = "Niveau 1";
+        else if (this.niveauJeu === niveau.LEVEL2) levelName = "Niveau 2";
+        else if (this.niveauJeu === niveau.LEVEL3) levelName = "Niveau 3";
+        else if (this.niveauJeu === niveau.FIN) {
+            levelName = "Terminé !";
+            fruitObjectif = null;
+        }
+
+        divNiveau.textContent = levelName;
+        divFruit.innerHTML = "";
+
+        if (fruitObjectif) {
+            divFruit.textContent = fruitObjectif.toUpperCase();
+        }
+    }
+
+    addScore(points) {
+        this.score += points;
+        // Vérification du meilleur score
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem("highScore", this.highScore);
+        }
+
+        this.updateScore();
+    }
+
+    updateScore() {
+        document.getElementById("scoreValue").textContent = this.score;
+        document.getElementById("highScoreValue").textContent = this.highScore;
+    }
+
+    afficherFruitSuivant() {
+        const rayonFruit = getRadiusFruit(this.fruitSuivant);
+        const imgSrc = this.loadedAssets[this.fruitSuivant].src;
+        const container = document.querySelector(".next-fruit-circle");
+        container.innerHTML = "";
+        const fruitImg = document.createElement("img");
+        fruitImg.src = imgSrc;
+        fruitImg.style.width = `${rayonFruit * 2.5}px`;
+        fruitImg.style.height = `${rayonFruit * 2.5}px`;
+        fruitImg.style.borderRadius = "50%";
+        container.appendChild(fruitImg);
+
     }
 
     drawJeu() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.borduresJeu.drawLimite(this.ctx);
 
-        // Fruits
+        // On draw les fruits
         this.fruits.forEach((f) => f.draw(this.ctx));
 
-        // Effects
-        for (let i = this.effects.length - 1; i >= 0; i--) {
-            const effect = this.effects[i];
-            effect.update();
-            effect.draw(this.ctx);
-            if (effect.isFinished()) {
-                this.effects.splice(i, 1);
+        // effets lors des fusions
+        for (let i = this.effets.length - 1; i >= 0; i--) {
+            const effet = this.effets[i];
+            effet.update();
+            effet.draw(this.ctx);
+            if (effet.isFinished()) {
+                this.effets.splice(i, 1);
             }
         }
 
-        // Phantom Fruit (Current)
+        // On draw le fruit de preview 
         if (this.etatJeu === etat.JEU_EN_COURS && this.canDrop) {
-            this.drawPhantom();
+            this.drawPreviewJouerFruit();
         }
     }
 
-    drawPhantom() {
-        const radius = getRadiusFruit(this.fruitCourant);
+    drawPreviewJouerFruit() {
+        const rayonFruit = getRadiusFruit(this.fruitCourant);
         const hitboxDiff = 1.4;
-        const drawRadius = radius * hitboxDiff;
+        const drawRadius = rayonFruit * hitboxDiff;
         const img = this.loadedAssets[this.fruitCourant];
 
         this.ctx.save();
 
-        // Line
+        // Ligne pour afficher la traj de la chute du fruit
         this.ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
         this.ctx.setLineDash([5, 5]);
         this.ctx.beginPath();
@@ -234,18 +202,17 @@ export default class Game {
         this.ctx.lineTo(this.mouseX, this.height);
         this.ctx.stroke();
 
-        // Image
-        if (img) {
-            this.ctx.globalAlpha = 0.5;
-            this.ctx.translate(this.mouseX, 40);
-            this.ctx.drawImage(
-                img,
-                -drawRadius,
-                -drawRadius,
-                drawRadius * 2,
-                drawRadius * 2
-            );
-        }
+        //image du fruit courant avec opacité 0.5
+        this.ctx.globalAlpha = 0.5;
+        this.ctx.translate(this.mouseX, 40);
+        this.ctx.drawImage(
+            img,
+            -drawRadius,
+            -drawRadius,
+            drawRadius * 2,
+            drawRadius * 2
+        );
+
         this.ctx.restore();
     }
 
@@ -257,29 +224,35 @@ export default class Game {
         this.ctx.textAlign = "center";
 
         if (this.niveauJeu === niveau.FIN) {
-            this.drawWinScreen();
+            this.drawVictoire();
         } else {
-            this.drawLevelCompleteScreen();
+            this.drawLevelSuivant();
         }
         this.ctx.restore();
     }
 
-    drawWinScreen() {
+    drawVictoire() {
         this.ctx.fillText("Bravo vous avez fini le jeu !", this.width / 2, this.height / 2);
         this.ctx.font = "24px Inconsolata";
         this.ctx.fillText("Appuyez sur une touche pour recommencer", this.width / 2, this.height / 2 + 50);
 
-        this.setupRestartListener(true);
+        window.onkeydown = () => {
+            window.onkeydown = null;
+            this.resetGame(true);
+        };
     }
 
-    drawLevelCompleteScreen() {
+    drawLevelSuivant() {
         this.ctx.fillText("Niveau Terminé !", this.width / 2, this.height / 2 - 50);
         this.ctx.font = "30px Inconsolata";
         this.ctx.fillText("Prochain objectif : " + this.niveauJeu, this.width / 2, this.height / 2);
         this.ctx.font = "24px Arial";
         this.ctx.fillText("Appuyez sur une touche pour continuer", this.width / 2, this.height / 2 + 50);
 
-        this.setupRestartListener(false);
+        window.onkeydown = () => {
+            window.onkeydown = null;
+            this.resetGame(false);
+        };
     }
 
     drawGameOver() {
@@ -293,38 +266,25 @@ export default class Game {
         this.ctx.fillText("Appuyez sur une touche pour rejouer", this.width / 2, this.height / 2 + 20);
         this.ctx.restore();
 
-        this.setupRestartListener(true);
-    }
-
-    setupRestartListener(fullReset) {
-        // Avoid checking keydown multiple times per frame or stacking listeners
-        if (this.waitingForRestart) return;
-        this.waitingForRestart = true;
-
-        const handler = () => {
-            this.waitingForRestart = false;
-            window.removeEventListener("keydown", handler);
-            this.resetGame(fullReset);
+        window.onkeydown = () => {
+            window.onkeydown = null;
+            this.resetGame(true);
         };
-        window.addEventListener("keydown", handler);
     }
 
     resetGame(fullReset) {
         this.etatJeu = etat.JEU_EN_COURS;
+        resetGameOver();
 
         if (fullReset) {
             this.niveauJeu = niveau.LEVEL1;
-            resetScore();
+            this.score = 0;
+            this.updateScore();
         }
 
-        // Reset inputs/state
-        resetCollisionState();
-
-        // Clear Physics World
         this.fruits.forEach((f) => Matter.Composite.remove(this.world, f.body));
         this.fruits.length = 0;
 
-        // Reset Next Fruit Cycle
         this.fruitCourant = getRandomFruit();
         this.fruitSuivant = getRandomFruit();
         this.afficherFruitSuivant();

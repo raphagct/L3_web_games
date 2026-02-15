@@ -30,6 +30,7 @@ export default class BorduresJeu {
     Matter.Composite.add(this.engine.world, [ground, murGauche, murDroit]);
   }
 
+  // Capteur pour détecter si un fruit dépasse la limite rouge
   creeCapteur() {
     this.capteur = Matter.Bodies.rectangle(this.width / 2, 80, this.width, 10, {
       isStatic: true,
@@ -40,6 +41,7 @@ export default class BorduresJeu {
     return this.capteur;
   }
 
+  // On dessine la ligne rouge
   drawLimite(ctx) {
     ctx.strokeStyle = "red";
     ctx.beginPath();

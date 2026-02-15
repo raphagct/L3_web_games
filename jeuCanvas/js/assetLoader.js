@@ -1,4 +1,4 @@
-//Code récupéré sur l'exemple du cours
+//Code récupéré dans l'exemple du cours
 
 async function loadAssets(assetsToLoadURLs) {
   // here we should load the sounds, the sprite sheets etc.

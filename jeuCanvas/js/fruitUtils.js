@@ -1,3 +1,4 @@
+//fonctions utilitaires pour indiquer les evolutions des fruits
 function getProchainTypeFruit(typeActuel) {
   const evolution = {
     myrtille: "cerise",
@@ -45,84 +46,26 @@ function getNbPointsPourFruit(type) {
   return pointsParFruit[type];
 }
 
-// module-level score pour éviter les problèmes de passage par valeur
-let score = 0;
-
-function getHighScore() {
-  return localStorage.getItem("highScore") || 0;
-}
-
-function saveHighScore(newScore) {
-  const currentHigh = getHighScore();
-  if (newScore > currentHigh) {
-    localStorage.setItem("highScore", newScore);
-    updateHighScoreDisplay(newScore);
-    return true;
-  }
-  return false;
-}
-
-function updateHighScoreDisplay(value) {
-  const spanHigh = document.querySelector("#highScoreValue");
-  if (spanHigh) spanHigh.textContent = value;
-}
-
-function addScoreFruits(points) {
-  score += points;
-  const spanScore = document.querySelector("#scoreValue");
-  if (spanScore) spanScore.textContent = score;
-  
-  saveHighScore(score);
-  
-  return score;
-}
-
-function getScore() {
-  return score;
-}
-
-function resetScore() {
-  score = 0;
-  const spanScore = document.querySelector("#scoreValue");
-  if (spanScore) spanScore.textContent = score;
-}
-
 function getRadiusFruit(type) {
-  switch (type) {
-    case "myrtille":
-      return 20;
-    case "cerise":
-      return 30;
-    case "kaki":
-      return 40;
-    case "banane":
-      return 50;
-    case "orange":
-      return 60;
-    case "pomme":
-      return 70;
-    case "coco":
-      return 80;
-    case "melon":
-      return 110;
-    case "ananas":
-      return 140;
-    case "pasteque":
-      return 170;
-    default:
-      return 30;
-  }
+  const rayonParFruit = {
+    myrtille: 20,
+    cerise: 30,
+    kaki: 40,
+    banane: 50,
+    orange: 60,
+    pomme: 70,
+    coco: 80,
+    melon: 110,
+    ananas: 140,
+    pasteque: 170,
+  };
+  return rayonParFruit[type];
 }
 
 export {
   getProchainTypeFruit,
   supprimerFruit,
   getNbPointsPourFruit,
-  addScoreFruits,
   getRandomFruit,
-  getScore,
   getRadiusFruit,
-  resetScore,
-  getHighScore,
-  updateHighScoreDisplay,
 };
