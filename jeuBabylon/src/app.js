@@ -1,4 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
+import Player from "./character.js";
+import { PlayerHUD } from "./ui.js";
 
 export default class App {
   state = 0;
@@ -25,17 +27,23 @@ export default class App {
       this.scene,
     );
     light.intensity = 0.7;
-    const sphere = BABYLON.MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 2, segments: 32 },
-      this.scene,
-    );
-    sphere.position.y = 1;
+    
     const ground = BABYLON.MeshBuilder.CreateGround(
       "ground",
       { width: 6, height: 6 },
       this.scene,
     );
+
+    // On crée le HUD en lui passant la scène (pour le timer)
+    this.hud = new PlayerHUD(this.scene);
+
+    // On crée le joueur en lui passant la scène et le HUD
+    this.player = new Player(this.scene, this.hud);
+
+    setTimeout(() => {
+        this.player.takeDamage(20);
+    }, 2000);
+
     this.engine.runRenderLoop(() => {
       this.scene.render();
     });
