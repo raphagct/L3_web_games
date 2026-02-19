@@ -1,139 +1,202 @@
-html,
 body {
-  height: 100%;
   margin: 0;
-}
-body {
+  padding: 0;
+  font-family: "Inconsolata", sans-serif;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffd59d; /* couleur d'arrière-plan demandée */
-  font-family: Arial, Helvetica, sans-serif;
-  padding: 24px;
+  background: #ffd59d;
 }
 
 main {
+  width: 100%;
+  height: 100vh;
+  background: #dcedc8;
+  color: #5d4037;
+
   display: flex;
-  align-items: flex-start;
-  gap: 24px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.game-area {
+.header-suika {
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.header-suika h1 {
+  font-size: 5rem;
+}
+
+.header-suika img {
+  width: 140px;
+  height: auto;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+
+  height: 85vh;
+  width: 95%;
+}
+
+.canvas-wrapper {
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#monCanvas {
-  display: block;
-  border: 1px solid #333;
-  background-color: lightgrey;
-  border-top: 0;
-  height: auto;
-  margin: 0;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+.canvas-wrapper canvas {
+  background: rgba(255, 255, 255, 0.6);
+  border: 10px solid #8d6e63;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  height: 90%;
+  width: auto;
 }
 
-.sidebar {
+.sidebar-right {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-width: 160px;
-  align-items: center;
+  justify-content: center;
+  gap: 40px;
+
+  width: 300px;
+  height: 100%;
 }
 
-.score,
-.prochainFruit {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  width: 100%;
+.panel-score,
+.panel-next {
+  background: #ffcc80;
+  border: 6px solid #fff;
+  border-radius: 30px;
+  padding: 30px 10px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.score h3,
-.prochainFruit h3 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #333;
+.panel-score {
+  flex: 0 0 auto;
 }
 
-.score-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #444;
+.panel-score h3,
+.panel-next h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  opacity: 1;
 }
 
-.prochainFruit div {
-  margin-top: 6px;
+#scoreValue,
+#highScoreValue {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 3px 3px 0 #e65100;
 }
 
-@media (max-width: 900px) {
-  .wrapper {
-    flex-direction: column;
-    align-items: center;
-  }
-  .sidebar {
-    width: 100%;
-    max-width: 400px;
-  }
+.next-fruit-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
 }
 
-/* --- Menu overlay (affiché au démarrage) --- */
-nav {
+.menu-accueil {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 16px;
-  background: rgba(0, 0, 0, 0.65);
-  color: #fff;
-  z-index: 999; /* menu devant tout */
+  align-items: center;
+  gap: 40px;
+
+  background: #dcedc8;
+  color: #5d4037;
+  z-index: 999;
   transition:
     opacity 300ms ease,
     visibility 300ms ease;
 }
 
-nav h1 {
-  font-size: 5rem;
+.menu-accueil .titre-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
-nav #boutonJouer {
-  padding: 30px 48px;
-  font-size: 3rem;
+.menu-accueil h1 {
+  font-size: 6rem;
+  margin: 0;
+}
+
+.menu-accueil img {
+  width: 160px;
+  height: auto;
+}
+
+.menu-accueil button {
+  width: 400px;
+  padding: 25px 0;
+  font-size: 2.5rem;
+  font-weight: 900;
   cursor: pointer;
+
   border: none;
-  border-radius: 6px;
-  background: #ffd59d;
-  color: #333;
+  border-radius: 80px;
+  background: #ffcc80;
+  color: #5d4037;
+
+  /* Effet 3D */
+  box-shadow: 0 10px 0 #ef6c00;
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
 }
 
-/* Le main est en dessous et masqué au départ */
-main {
-  position: relative;
-  z-index: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 300ms ease;
+/* Effet d'enfoncement au clic */
+.menu-accueil button:active {
+  transform: translateY(10px);
+  box-shadow: 0 0 0 #ef6c00;
 }
 
-/* Quand la partie commence, on fait passer le main devant et on cache le menu */
-body.playing nav {
+body.playing .menu-accueil {
   opacity: 0;
   visibility: hidden;
-  z-index: 0;
   pointer-events: none;
 }
 
-body.playing main {
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 100;
+#niveauActuel {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+#fruitObjectif {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #d84315;
 }
