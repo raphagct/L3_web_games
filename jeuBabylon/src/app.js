@@ -2,13 +2,9 @@ import {
   Engine,
   Scene,
   FreeCamera,
-  ArcRotateCamera,
   Vector3,
-  Color3,
   Color4,
   HemisphericLight,
-  PointLight,
-  MeshBuilder,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
@@ -103,6 +99,7 @@ export default class App {
 
     // Créer le joueur (il gère ses propres inputs et sa caméra)
     this.player = new Player(scene, this.hud);
+    await this.player.load();
   }
 
   async goToGame() {
