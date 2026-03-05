@@ -2,13 +2,9 @@ import {
   Engine,
   Scene,
   FreeCamera,
-  ArcRotateCamera,
   Vector3,
-  Color3,
   Color4,
   HemisphericLight,
-  PointLight,
-  MeshBuilder,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
@@ -75,7 +71,8 @@ export default class App {
     let light = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
 
     // Créer le joueur (il gère ses propres inputs et sa caméra)
-    //this.player = new Player(scene);
+    this.player = new Player(scene);
+    await this.player.load();
   }
 
   async goToGame() {
@@ -85,7 +82,7 @@ export default class App {
     scene.clearColor = new Color4(0.01, 0.01, 0.2);
 
     //--GUI--
-    const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
     scene.detachControl();
 
     //bouton lose pour tester
