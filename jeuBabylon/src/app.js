@@ -75,7 +75,7 @@ export default class App {
     let light = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
 
     // Créer le joueur (il gère ses propres inputs et sa caméra)
-    this.player = new Player(scene);
+    //this.player = new Player(scene);
   }
 
   async goToGame() {
