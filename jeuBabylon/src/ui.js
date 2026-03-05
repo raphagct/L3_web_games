@@ -1,13 +1,11 @@
-import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
 
 export class PlayerHUD {
-    _inGameTimeMinutes = 8 * 60;
-    _timeSpeed = 10;
+    _realTimeSeconds = 0;
     isPaused = false;
 
     constructor(scene) {
-        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 
         this._createTimer();
         this._createStatBars();
@@ -23,7 +21,7 @@ export class PlayerHUD {
 
     _createTimer() {
         this._timeText = new GUI.TextBlock();
-        this._timeText.text = "08:00";
+        this._timeText.text = "00:00";
         this._timeText.color = "white";
         this._timeText.fontSize = 32;
         this._timeText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -106,15 +104,15 @@ export class PlayerHUD {
     }
 
     _updateTimer(deltaTimeInSeconds) {
-        this._inGameTimeMinutes += deltaTimeInSeconds * this._timeSpeed;
+        this._realTimeSeconds += deltaTimeInSeconds;
 
-        const hours = Math.floor(this._inGameTimeMinutes / 60) % 24;
-        const minutes = Math.floor(this._inGameTimeMinutes % 60);
+        const minutes = Math.floor(this._realTimeSeconds / 60);
+        const seconds = Math.floor(this._realTimeSeconds % 60);
 
-        const formattedHours = hours < 10 ? "0" + hours : hours;
         const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+        const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
 
-        this._timeText.text = `${formattedHours}:${formattedMinutes}`;
+        this._timeText.text = `${formattedMinutes}:${formattedSeconds}`;
     }
 
     updateHealth(current, max = 100) {
@@ -135,5 +133,201 @@ export class PlayerHUD {
 
     updateWeapon(weaponName) {
         this._weaponText.text = `Arme: ${weaponName}`;
+    }
+}
+
+export class PauseMenu {
+    constructor(scene, onResume, onSettings, onQuit) {
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("PauseUI", true, scene);
+
+        const background = new GUI.Rectangle();
+        background.width = 1;
+        background.height = 1;
+        background.background = "rgba(0, 0, 0, 0.7)";
+        background.thickness = 0;
+        this._ui.addControl(background);
+
+        const panel = new GUI.StackPanel();
+        panel.width = "300px";
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        background.addControl(panel);
+
+        const title = new GUI.TextBlock();
+        title.text = "PAUSE";
+        title.color = "white";
+        title.fontSize = 48;
+        title.height = "80px";
+        panel.addControl(title);
+
+        const resumeBtn = GUI.Button.CreateSimpleButton("resume", "Continuer");
+        resumeBtn.width = "200px";
+        resumeBtn.height = "40px";
+        resumeBtn.color = "white";
+        resumeBtn.background = "green";
+        resumeBtn.paddingBottom = "10px";
+        resumeBtn.onPointerUpObservable.add(() => {
+            if (onResume) onResume();
+        });
+        panel.addControl(resumeBtn);
+
+        const settingsBtn = GUI.Button.CreateSimpleButton("settings", "Paramètres");
+        settingsBtn.width = "200px";
+        settingsBtn.height = "40px";
+        settingsBtn.color = "white";
+        settingsBtn.background = "gray";
+        settingsBtn.paddingBottom = "10px";
+        settingsBtn.onPointerUpObservable.add(() => {
+            if (onSettings) onSettings();
+        });
+        panel.addControl(settingsBtn);
+
+        const quitBtn = GUI.Button.CreateSimpleButton("quit", "Quitter");
+        quitBtn.width = "200px";
+        quitBtn.height = "40px";
+        quitBtn.color = "white";
+        quitBtn.background = "red";
+        quitBtn.onPointerUpObservable.add(() => {
+            if (onQuit) onQuit();
+        });
+        panel.addControl(quitBtn);
+
+        this.hide();
+    }
+
+    show() {
+        this._ui.rootContainer.isVisible = true;
+    }
+
+    hide() {
+        this._ui.rootContainer.isVisible = false;
+    }
+
+    dispose() {
+        this._ui.dispose();
+    }
+}
+
+export class StartMenu {
+    constructor(scene, onPlayClick) {
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("StartUI", true, scene);
+        this._ui.idealHeight = 720;
+
+        const background = new GUI.Rectangle();
+        background.width = 1;
+        background.height = 1;
+        background.background = "rgba(0, 0, 0, 0.4)";
+        background.thickness = 0;
+        this._ui.addControl(background);
+
+        const panel = new GUI.StackPanel();
+        panel.width = "100%";
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        background.addControl(panel);
+
+        const title = new GUI.TextBlock();
+        title.text = "SURVIE EN MILIEU HOSTILE";
+        title.color = "#FFD700"; 
+        title.fontSize = 52;
+        title.height = "100px";
+        title.fontFamily = "Courier New, monospace";
+        title.fontWeight = "bold";
+        title.shadowColor = "black";
+        title.shadowBlur = 10;
+        title.shadowOffsetX = 3;
+        title.shadowOffsetY = 3;
+        title.resizeToFit = true;
+        panel.addControl(title);
+
+        const subtitle = new GUI.TextBlock();
+        subtitle.text = "Explorez, survolez et combattez.";
+        subtitle.color = "white";
+        subtitle.fontSize = 20;
+        subtitle.height = "40px";
+        subtitle.fontFamily = "Arial";
+        panel.addControl(subtitle);
+
+        const spacer = new GUI.Rectangle();
+        spacer.height = "50px";
+        spacer.thickness = 0;
+        panel.addControl(spacer);
+
+        const startBtn = GUI.Button.CreateSimpleButton("start", "PLAY");
+        startBtn.width = "250px";
+        startBtn.height = "60px";
+        startBtn.color = "white";
+        startBtn.background = "#E53935";
+        startBtn.thickness = 4;
+        startBtn.cornerRadius = 10;
+        startBtn.fontSize = 28;
+        startBtn.fontFamily = "Impact";
+
+        startBtn.onPointerEnterObservable.add(() => {
+            startBtn.background = "#FF5252";
+            startBtn.scaleX = 1.05;
+            startBtn.scaleY = 1.05;
+        });
+        startBtn.onPointerOutObservable.add(() => {
+            startBtn.background = "#E53935";
+            startBtn.scaleX = 1;
+            startBtn.scaleY = 1;
+        });
+
+        startBtn.onPointerDownObservable.add(() => {
+            if (onPlayClick) onPlayClick();
+        });
+        panel.addControl(startBtn);
+    }
+
+    dispose() {
+        this._ui.dispose();
+    }
+}
+
+export class CutsceneMenu {
+    constructor(scene, onNextClick) {
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("CutsceneUI", true, scene);
+
+        const skipText = new GUI.TextBlock();
+        skipText.text = "Appuyez sur Suivant pour passer...";
+        skipText.color = "white";
+        skipText.fontSize = 18;
+        skipText.alpha = 0.7;
+        skipText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        skipText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        skipText.top = "20px";
+        skipText.left = "-20px";
+        this._ui.addControl(skipText);
+
+        const next = GUI.Button.CreateSimpleButton("next", "NEXT \u2192");
+        next.color = "white";
+        next.thickness = 2;
+        next.background = "rgba(0, 0, 0, 0.6)";
+        next.cornerRadius = 8;
+        next.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        next.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        next.width = "120px";
+        next.height = "50px";
+        next.top = "-20px";
+        next.left = "-20px";
+        next.fontSize = 22;
+
+        next.onPointerEnterObservable.add(() => {
+            next.background = "rgba(100, 100, 100, 0.8)";
+        });
+        next.onPointerOutObservable.add(() => {
+            next.background = "rgba(0, 0, 0, 0.6)";
+        });
+
+        next.onPointerUpObservable.add(() => {
+            if (onNextClick) onNextClick();
+        });
+
+        this._ui.addControl(next);
+    }
+
+    dispose() {
+        this._ui.dispose();
     }
 }

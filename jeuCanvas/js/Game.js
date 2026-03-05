@@ -10,7 +10,7 @@ import {
 } from "./fruitUtils.js";
 import { assetsToLoad, etat, niveau } from "./model.js";
 import { loadAssets } from "./assetLoader.js";
-import BorduresJeu from "./borduresjeu.js";
+import BorduresJeu from "./BorduresJeu.js";
 import { initListeners } from "./ecouteurs.js";
 
 export default class Game {
