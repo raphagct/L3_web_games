@@ -9,7 +9,6 @@ export class Player {
   static SPEED = 0.15;
 
   constructor(scene, hud) {
-    super("player", scene);
     this.scene = scene;
     this.mesh = null;
     this.speed = 10; 
@@ -73,6 +72,7 @@ export class Player {
   }
 
   updateMovement() {
+    if (this.scene.isPaused) return;
 
     const dt = this.scene.getEngine().getDeltaTime() / 1000;
     const distance = this.speed * dt;
