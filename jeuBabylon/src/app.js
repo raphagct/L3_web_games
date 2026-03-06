@@ -10,6 +10,7 @@ import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
 import { PlayerHUD, PauseMenu, StartMenu, CutsceneMenu } from "./ui.js";
+import { EnemyType1, EnemyType2 } from "./enemy.js";
 
 const State = {
   START: 0,
@@ -91,6 +92,8 @@ export default class App {
   }
 
   async initializeGameAsync(scene) {
+    scene.collisionsEnabled = true;
+
     // Lumière
     let light = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
 
@@ -100,6 +103,15 @@ export default class App {
     // Créer le joueur (il gère ses propres inputs et sa caméra)
     this.player = new Player(scene, this.hud);
     await this.player.load();
+
+    // Créer les ennemis initialement sur la carte
+    this.enemies = [];
+    // Ennemis de type 1
+    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(10, 0, 10)));
+    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(-10, 0, 10)));
+    // Ennemis de type 2
+    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(10, 0, -10)));
+    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(-10, 0, -10)));
   }
 
   async goToGame() {
