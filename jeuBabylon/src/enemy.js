@@ -12,7 +12,7 @@ export class Enemy {
     this.hp = hp;
     this.damage = damage;
     this.speed = speed;
-    this.mode = "CHASE";
+    this.mode = "WANDER";
 
     this.mesh = this.createMesh(scene);
     this.mesh.position = new Vector3(position.x, position.y + 1, position.z);
