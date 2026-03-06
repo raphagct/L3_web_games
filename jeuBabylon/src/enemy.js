@@ -2,7 +2,8 @@ import {
   MeshBuilder,
   Vector3,
   Color3,
-  StandardMaterial
+  StandardMaterial,
+  Ray
 } from "@babylonjs/core";
 
 export class Enemy {
@@ -23,6 +24,9 @@ export class Enemy {
 
     this.wanderDirection = new Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
     this.changeDirectionTimer = 0;
+
+    this.visionRange = 12; // Distance de vision max (12 unités)
+    this.visionAngle = Math.PI / 3; // Angle de vision (60 degrés de chaque côté, cône de 120 degrés)
 
     this.scene.onBeforeRenderObservable.add(() => {
       this.update();
@@ -52,6 +56,12 @@ export class Enemy {
 
     const dt = this.scene.getEngine().getDeltaTime() / 1000;
 
+    if (this.canSeePlayer()) {
+      this.mode = "CHASE";
+    } else {
+      this.mode = "WANDER";
+    }
+
     if (this.mode === "WANDER") {
       this.changeDirectionTimer -= dt;
       if (this.changeDirectionTimer <= 0) {
@@ -80,6 +90,41 @@ export class Enemy {
     }
 
     this.mesh.position.y = 1;
+  }
+
+  canSeePlayer() {
+    if (!this.player || !this.player.mesh) return false;
+
+    const startPos = this.mesh.position;
+    const targetPos = this.player.mesh.position;
+
+    // 1. Vérifier la distance
+    const distance = Vector3.Distance(startPos, targetPos);
+    if (distance > this.visionRange) return false;
+
+    // 2. Vérifier l'angle de vision
+    const directionToPlayer = targetPos.subtract(startPos).normalize();
+    const forward = this.mesh.getDirection(Vector3.Forward()).normalize();
+
+    // On ignore la hauteur (Y) pour le calcul de l'angle
+    const forward2D = new Vector3(forward.x, 0, forward.z).normalize();
+    const direction2D = new Vector3(directionToPlayer.x, 0, directionToPlayer.z).normalize();
+
+    const dot = Vector3.Dot(forward2D, direction2D);
+    if (dot < Math.cos(this.visionAngle)) return false;
+
+    // 3. Lancer un rayon pour vérifier s'il y a un obstacle (mur, objet) entre l'ennemi et le joueur
+    const ray = new Ray(startPos, directionToPlayer, distance);
+    const hitInfo = this.scene.pickWithRay(ray, (mesh) => {
+      // Ignorer l'ennemi lui-même
+      return mesh.checkCollisions && mesh.name !== "enemyCollider" && !mesh.name.includes("enemyBody") && !mesh.name.includes("enemyHead");
+    });
+
+    if (hitInfo.hit && hitInfo.pickedMesh !== this.player.mesh) {
+      return false; // Il y a un obstacle entre l'ennemi et le joueur
+    }
+
+    return true;
   }
 }
 
