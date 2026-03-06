@@ -1,10 +1,10 @@
 import {
   MeshBuilder,
-  PhotoDome,
   StandardMaterial,
   Texture,
   Vector3,
   Color3,
+  CubeTexture,
 } from "@babylonjs/core";
 
 export class Environment {
@@ -13,7 +13,6 @@ export class Environment {
   }
 
   async load() {
-    // create a flat ground
     const ground = MeshBuilder.CreateGround(
       "ground",
       { width: 24, height: 24 },
@@ -43,15 +42,18 @@ export class Environment {
     obstacle.material = obsMat;
 
     const groundMaterial = new StandardMaterial("groundMat", this.scene);
-    groundMaterial.diffuseTexture = new Texture("ground.jpg", this.scene);
+    groundMaterial.diffuseTexture = new Texture("/ground.jpg", this.scene);
     ground.material = groundMaterial;
 
-    // sky / photo dome
-    const skyDome = new PhotoDome(
-      "skyDome",
-      "Sky1.jpg",
-      { resolution: 32, size: 500 },
-      this.scene,
-    );
+    const skybox = MeshBuilder.CreateBox("skyBox", { size: 100.0 }, this.scene);
+    const skyboxMaterial = new StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.disableLighting = true;
+    skybox.material = skyboxMaterial;
+    skybox.infiniteDistance = true;
+    skyboxMaterial.disableLighting = true;
+    const cubeTex = new CubeTexture("/textures/skybox/skybox", this.scene);
+    skyboxMaterial.reflectionTexture = cubeTex;
+    skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
   }
 }
