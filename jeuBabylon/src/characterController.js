@@ -42,6 +42,14 @@ export class Player {
     });
   }
 
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health < 0) this.health = 0;
+    if (this.hud) {
+      this.hud.updateHealth(this.health, this.maxHealth);
+    }
+  }
+
   async load() {
     // on crée le mesh du perso(qu'on voit pas vu que c'est en 1ere personne)
     this.mesh = MeshBuilder.CreateBox("player", { height: 2, width: 0.8, depth: 0.8 }, this.scene);

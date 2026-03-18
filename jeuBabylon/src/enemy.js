@@ -7,13 +7,15 @@ import {
 } from "@babylonjs/core";
 
 export class Enemy {
-  constructor(scene, player, position, hp, damage, speed) {
+  constructor(scene, player, position, hp, damage, speed, attackCooldownMax = 1.0) {
     this.scene = scene;
     this.player = player;
     this.hp = hp;
     this.damage = damage;
     this.speed = speed;
     this.mode = "WANDER";
+    this.attackCooldown = 0;
+    this.attackCooldownMax = attackCooldownMax;
 
     this.mesh = this.createMesh(scene);
     this.mesh.position = new Vector3(position.x, position.y + 0.6, position.z);
@@ -113,6 +115,19 @@ export class Enemy {
 
     const dt = this.scene.getEngine().getDeltaTime() / 1000;
 
+    if (this.attackCooldown > 0) {
+      this.attackCooldown -= dt;
+    }
+
+    if (this.player && this.player.mesh) {
+      if (this.attackCooldown <= 0 && this.mesh.intersectsMesh(this.player.mesh, false)) {
+        if (typeof this.player.takeDamage === "function") {
+          this.player.takeDamage(this.damage);
+          this.attackCooldown = this.attackCooldownMax; 
+        }
+      }
+    }
+
     if (this.canSeePlayer()) {
       this.mode = "CHASE";
     } else {
@@ -187,14 +202,14 @@ export class Enemy {
 
 export class EnemyType1 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 50, 10, 2);
+    super(scene, player, position, 50, 10, 3, 1.0);
     this.applyColor(new Color3(1, 0.2, 0.2));
   }
 }
 
 export class EnemyType2 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 100, 20, 1);
+    super(scene, player, position, 150, 20, 1, 2.0);
     this.applyColor(new Color3(0.2, 0.8, 1));
   }
 }
