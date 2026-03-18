@@ -10,6 +10,7 @@ export class PlayerHUD {
         this._createTimer();
         this._createStatBars();
         this._createWeaponDisplay();
+        this._createCrosshair();
 
         scene.onBeforeRenderObservable.add(() => {
             if (!this.isPaused) {
@@ -101,6 +102,30 @@ export class PlayerHUD {
         this._weaponText.outlineColor = "black";
         
         this._ui.addControl(this._weaponText);
+    }
+
+    _createCrosshair() {
+        // Ligne horizontale du viseur
+        const horizontal = new GUI.Rectangle();
+        horizontal.width = "20px";
+        horizontal.height = "2px";
+        horizontal.background = "white";
+        horizontal.thickness = 1;
+        horizontal.color = "black";
+        horizontal.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        horizontal.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        this._ui.addControl(horizontal);
+
+        // Ligne verticale du viseur
+        const vertical = new GUI.Rectangle();
+        vertical.width = "2px";
+        vertical.height = "20px";
+        vertical.background = "white";
+        vertical.thickness = 1;
+        vertical.color = "black";
+        vertical.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        vertical.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        this._ui.addControl(vertical);
     }
 
     _updateTimer(deltaTimeInSeconds) {

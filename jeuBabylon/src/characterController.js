@@ -4,6 +4,7 @@ import {
   MeshBuilder,
   FreeCamera
 } from "@babylonjs/core";
+import { Bras } from "./Bras.js";
 
 export class Player {
   static SPEED = 0.15;
@@ -15,6 +16,9 @@ export class Player {
 
     //on stock touches pressées
     this.hud = hud;
+
+    // Bras + Arme (initialisés dans load())
+    this.bras = null;
 
     // Statistiques du joueur
     this.maxHealth = 100;
@@ -50,6 +54,7 @@ export class Player {
 
     this.camera = new FreeCamera("camera", new Vector3(0, 0, 0), this.scene);
     this.camera.parent = this.mesh;
+    this.camera.minZ = 0.01; // Permet de voir les objets proches (bras/arme)
     
     const canvas = this.scene.getEngine().getRenderingCanvas();
     this.camera.attachControl(canvas, true);
@@ -59,6 +64,16 @@ export class Player {
       canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
       if (canvas.requestPointerLock) {
         canvas.requestPointerLock();
+      }
+    });
+
+    // Créer le bras (+ arme attachée) en FPS
+    this.bras = new Bras(this.scene, this.camera);
+
+    // Tir au clic gauche (uniquement en pointer lock)
+    canvas.addEventListener("pointerdown", (e) => {
+      if (e.button === 0 && document.pointerLockElement === canvas) {
+        this.bras.tirer();
       }
     });
 
