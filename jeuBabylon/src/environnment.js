@@ -42,7 +42,10 @@ export class Environment {
     obstacle.material = obsMat;
 
     const groundMaterial = new StandardMaterial("groundMat", this.scene);
-    groundMaterial.diffuseTexture = new Texture("/ground.jpg", this.scene);
+    groundMaterial.diffuseTexture = new Texture(
+      "/textures/skybox/skybox_ny.jpg",
+      this.scene,
+    );
     ground.material = groundMaterial;
 
     const skybox = MeshBuilder.CreateBox("skyBox", { size: 100.0 }, this.scene);
