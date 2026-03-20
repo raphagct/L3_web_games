@@ -4,6 +4,7 @@ import {
   MeshBuilder,
   FreeCamera
 } from "@babylonjs/core";
+import { GameSettings } from "./config.js";
 
 export class Player {
   static SPEED = 0.15;
@@ -66,8 +67,8 @@ export class Player {
     const canvas = this.scene.getEngine().getRenderingCanvas();
     this.camera.attachControl(canvas, true);
 
-    // On active le pointer lock pour bouger la souris sans cliquer
     canvas.addEventListener("click", () => {
+      if (this.scene.isPaused) return;
       canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
       if (canvas.requestPointerLock) {
         canvas.requestPointerLock();
@@ -101,16 +102,16 @@ export class Player {
 
     let displacement = new Vector3(0, 0, 0);
 
-    if (this.inputMap["z"]) {
+    if (this.inputMap[GameSettings.keys.forward]) {
       displacement.addInPlace(forward.scale(distance)); // avant
     }
-    if (this.inputMap["s"]) {
+    if (this.inputMap[GameSettings.keys.backward]) {
       displacement.subtractInPlace(forward.scale(distance)); // arrière
     }
-    if (this.inputMap["q"]) {
+    if (this.inputMap[GameSettings.keys.left]) {
       displacement.subtractInPlace(right.scale(distance)); // gauche
     }
-    if (this.inputMap["d"]) {
+    if (this.inputMap[GameSettings.keys.right]) {
       displacement.addInPlace(right.scale(distance)); // droite
     }
 
