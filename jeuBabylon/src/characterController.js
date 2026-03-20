@@ -4,6 +4,7 @@ import {
   MeshBuilder,
   FreeCamera
 } from "@babylonjs/core";
+import { GameSettings } from "./config.js";
 import { Bras } from "./Bras.js";
 
 export class Player {
@@ -46,11 +47,23 @@ export class Player {
     });
   }
 
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health < 0) this.health = 0;
+    if (this.hud) {
+      this.hud.updateHealth(this.health, this.maxHealth);
+    }
+  }
+
   async load() {
     // on crée le mesh du perso(qu'on voit pas vu que c'est en 1ere personne)
-    this.mesh = MeshBuilder.CreateBox("player", { size: 1 }, this.scene);
+    this.mesh = MeshBuilder.CreateBox("player", { height: 2, width: 0.8, depth: 0.8 }, this.scene);
     this.mesh.position.y = 1;
     this.mesh.isVisible = false; 
+
+    // Activer les collisions pour le joueur
+    this.mesh.checkCollisions = true;
+    this.mesh.ellipsoid = new Vector3(0.4, 1, 0.4); 
 
     this.camera = new FreeCamera("camera", new Vector3(0, 0, 0), this.scene);
     this.camera.parent = this.mesh;
@@ -59,8 +72,8 @@ export class Player {
     const canvas = this.scene.getEngine().getRenderingCanvas();
     this.camera.attachControl(canvas, true);
 
-    // On active le pointer lock pour bouger la souris sans cliquer
     canvas.addEventListener("click", () => {
+      if (this.scene.isPaused) return;
       canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
       if (canvas.requestPointerLock) {
         canvas.requestPointerLock();
@@ -102,17 +115,26 @@ export class Player {
     forward.normalize();
     right.normalize();
 
-    if (this.inputMap["z"]) {
-      this.mesh.position.addInPlace(forward.scale(distance)); // avant
+    let displacement = new Vector3(0, 0, 0);
+
+    if (this.inputMap[GameSettings.keys.forward]) {
+      displacement.addInPlace(forward.scale(distance)); // avant
     }
-    if (this.inputMap["s"]) {
-      this.mesh.position.subtractInPlace(forward.scale(distance)); // arrière
+    if (this.inputMap[GameSettings.keys.backward]) {
+      displacement.subtractInPlace(forward.scale(distance)); // arrière
     }
-    if (this.inputMap["q"]) {
-      this.mesh.position.subtractInPlace(right.scale(distance)); // gauche
+    if (this.inputMap[GameSettings.keys.left]) {
+      displacement.subtractInPlace(right.scale(distance)); // gauche
     }
-    if (this.inputMap["d"]) {
-      this.mesh.position.addInPlace(right.scale(distance)); // droite
+    if (this.inputMap[GameSettings.keys.right]) {
+      displacement.addInPlace(right.scale(distance)); // droite
+    }
+
+    if (displacement.length() > 0) {
+      // Déplacer le joueur avec le système de collision
+      this.mesh.moveWithCollisions(displacement);
+      
+      this.mesh.position.y = 1;
     }
   }
 }

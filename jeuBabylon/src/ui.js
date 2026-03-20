@@ -1,4 +1,5 @@
 import * as GUI from "@babylonjs/gui";
+import { GameSettings } from "./config.js";
 
 export class PlayerHUD {
     _realTimeSeconds = 0;
@@ -252,7 +253,7 @@ export class StartMenu {
         background.addControl(panel);
 
         const title = new GUI.TextBlock();
-        title.text = "SURVIE EN MILIEU HOSTILE";
+        title.text = "Games On Web";
         title.color = "#FFD700"; 
         title.fontSize = 52;
         title.height = "100px";
@@ -350,6 +351,155 @@ export class CutsceneMenu {
         });
 
         this._ui.addControl(next);
+    }
+
+    dispose() {
+        this._ui.dispose();
+    }
+}
+
+export class SettingsMenu {
+    constructor(scene, onBack) {
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("SettingsUI", true, scene);
+
+        const background = new GUI.Rectangle();
+        background.width = 1;
+        background.height = 1;
+        background.background = "rgba(0, 0, 0, 0.9)";
+        background.thickness = 0;
+        this._ui.addControl(background);
+
+        const panel = new GUI.StackPanel();
+        panel.width = "400px";
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        background.addControl(panel);
+
+        const title = new GUI.TextBlock();
+        title.text = "PARAMETRES";
+        title.color = "white";
+        title.fontSize = 40;
+        title.height = "60px";
+        panel.addControl(title);
+        
+        const createKeyMapButton = (label, action) => {
+            const hPanel = new GUI.StackPanel();
+            hPanel.isVertical = false;
+            hPanel.height = "50px";
+            hPanel.paddingBottom = "10px";
+            
+            const text = new GUI.TextBlock();
+            text.text = label;
+            text.color = "white";
+            text.width = "200px";
+            text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            hPanel.addControl(text);
+            
+            const btn = GUI.Button.CreateSimpleButton("btn_" + action, GameSettings.keys[action].toUpperCase());
+            btn.width = "150px";
+            btn.color = "white";
+            btn.background = "grey";
+            
+            let isAssigning = false;
+            
+            const keydownHandler = (e) => {
+                if (!isAssigning) return;
+                e.preventDefault();
+                btn.textBlock.text = e.key.toUpperCase();
+                GameSettings.keys[action] = e.key.toLowerCase();
+                isAssigning = false;
+            };
+
+            btn.onPointerUpObservable.add(() => {
+                btn.textBlock.text = "...";
+                isAssigning = true;
+                const onceHandler = (e) => {
+                    keydownHandler(e);
+                    window.removeEventListener("keydown", onceHandler);
+                };
+                window.addEventListener("keydown", onceHandler);
+            });
+            hPanel.addControl(btn);
+            panel.addControl(hPanel);
+        };
+
+        createKeyMapButton("Avancer", "forward");
+        createKeyMapButton("Reculer", "backward");
+        createKeyMapButton("Gauche", "left");
+        createKeyMapButton("Droite", "right");
+
+        const spacer = new GUI.Rectangle();
+        spacer.height = "30px";
+        spacer.thickness = 0;
+        panel.addControl(spacer);
+
+        const createSlider = (label, settingKey, onChange) => {
+            const hPanel = new GUI.StackPanel();
+            hPanel.isVertical = false;
+            hPanel.height = "60px";
+            hPanel.paddingBottom = "10px";
+            
+            const text = new GUI.TextBlock();
+            text.text = label;
+            text.color = "white";
+            text.width = "200px";
+            text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            hPanel.addControl(text);
+            
+            const slider = new GUI.Slider();
+            slider.minimum = 0;
+            slider.maximum = 1;
+            slider.value = GameSettings[settingKey];
+            slider.width = "150px";
+            slider.color = "green";
+            slider.background = "grey";
+            slider.onValueChangedObservable.add((value) => {
+                GameSettings[settingKey] = value;
+                if (onChange) onChange(value);
+            });
+            hPanel.addControl(slider);
+            panel.addControl(hPanel);
+        };
+
+        createSlider("Volume G\u00e9n\u00e9ral", "masterVolume", (val) => {
+            try {
+                const engine = scene.getEngine();
+                if (engine.audioEngine) {
+                    engine.audioEngine.setGlobalVolume(val);
+                } else if (engine.getAudioEngine && engine.getAudioEngine()) {
+                    engine.getAudioEngine().setGlobalVolume(val);
+                }
+            } catch(e) {}
+        });
+        
+        createSlider("Volume Musique", "musicVolume", (val) => {
+            // Utilisable lorsque des sons ou de la musique seront ajoutés
+        });
+
+        const spacer2 = new GUI.Rectangle();
+        spacer2.height = "20px";
+        spacer2.thickness = 0;
+        panel.addControl(spacer2);
+
+        const backBtn = GUI.Button.CreateSimpleButton("back", "Retour");
+        backBtn.width = "200px";
+        backBtn.height = "40px";
+        backBtn.color = "white";
+        backBtn.background = "red";
+        backBtn.onPointerUpObservable.add(() => {
+            if (onBack) onBack();
+        });
+        panel.addControl(backBtn);
+        
+        this.hide();
+    }
+
+    show() {
+        this._ui.rootContainer.isVisible = true;
+    }
+
+    hide() {
+        this._ui.rootContainer.isVisible = false;
     }
 
     dispose() {

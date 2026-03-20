@@ -9,7 +9,8 @@ import {
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
-import { PlayerHUD, PauseMenu, StartMenu, CutsceneMenu } from "./ui.js";
+import { PlayerHUD, PauseMenu, SettingsMenu, StartMenu, CutsceneMenu } from "./ui.js";
+import { EnemyType1, EnemyType2 } from "./enemy.js";
 
 const State = {
   START: 0,
@@ -59,7 +60,20 @@ export default class App {
 
     window.addEventListener("keydown", (e) => {
       if (this.state === State.GAME && e.key === "Escape") {
-        this.togglePause();
+        if (this.isPaused) {
+          this.togglePause();
+        } 
+        else if (!document.pointerLockElement) {
+          this.togglePause();
+        }
+      }
+    });
+
+    document.addEventListener("pointerlockchange", () => {
+      if (this.state === State.GAME) {
+        if (!document.pointerLockElement && !this.isPaused) {
+          this.togglePause();
+        }
       }
     });
   }
@@ -74,9 +88,18 @@ export default class App {
 
     // Gérer l'affichage du menu
     if (this.isPaused) {
-      this.pauseMenu.show();
+      if (this.pauseMenu) this.pauseMenu.show();
+      if (document.exitPointerLock) {
+        document.exitPointerLock();
+      }
     } else {
-      this.pauseMenu.hide();
+      if (this.pauseMenu) this.pauseMenu.hide();
+      if (this.settingsMenu) this.settingsMenu.hide();
+      
+      const canvas = this.engine.getRenderingCanvas();
+      if (canvas && canvas.requestPointerLock) {
+        canvas.requestPointerLock();
+      }
     }
   }
 
@@ -91,6 +114,8 @@ export default class App {
   }
 
   async initializeGameAsync(scene) {
+    scene.collisionsEnabled = true;
+
     // Lumière
     let light = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
 
@@ -100,6 +125,15 @@ export default class App {
     // Créer le joueur (il gère ses propres inputs et sa caméra)
     this.player = new Player(scene, this.hud);
     await this.player.load();
+
+    // Créer les ennemis initialement sur la carte
+    this.enemies = [];
+    // Ennemis de type 1
+    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(10, 0, 10)));
+    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(-10, 0, 10)));
+    // Ennemis de type 2
+    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(10, 0, -10)));
+    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(-10, 0, -10)));
   }
 
   async goToGame() {
@@ -135,12 +169,22 @@ export default class App {
     // Menu Pause
     this.isPaused = false;
     scene.isPaused = false;
+
+    this.settingsMenu = new SettingsMenu(scene, () => {
+      this.settingsMenu.hide();
+      this.pauseMenu.show();
+    });
+
     this.pauseMenu = new PauseMenu(
       scene,
       () => this.togglePause(),
-      () => console.log("Menu Settings (à implémenter)"),
+      () => {
+        this.pauseMenu.hide();
+        this.settingsMenu.show();
+      },
       () => {
         this.pauseMenu.dispose();
+        if (this.settingsMenu) this.settingsMenu.dispose();
         this.goToStart();
       }
     );
