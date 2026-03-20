@@ -228,7 +228,7 @@ export class StartMenu {
         background.addControl(panel);
 
         const title = new GUI.TextBlock();
-        title.text = "SURVIE EN MILIEU HOSTILE";
+        title.text = "Games On Web";
         title.color = "#FFD700"; 
         title.fontSize = 52;
         title.height = "100px";
