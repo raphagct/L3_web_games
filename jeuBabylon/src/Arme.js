@@ -9,11 +9,12 @@ import { Projectile } from "./Projectile.js";
 export class Arme {
   static COOLDOWN = 0.25; // secondes entre chaque tir
 
-  constructor(scene, camera, parent) {
+  constructor(scene, camera, parent, nom = "Blaster Laser") {
     this.scene = scene;
     this.camera = camera;
     this.tempsCooldown = 0;
     this.projectiles = [];
+    this.nom = nom;
 
     this.creerMesh(parent);
 

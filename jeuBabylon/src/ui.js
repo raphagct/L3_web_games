@@ -92,7 +92,7 @@ export class PlayerHUD {
 
     _createWeaponDisplay() {
         this._weaponText = new GUI.TextBlock();
-        this._weaponText.text = "Arme: Épée en bois";
+        this._weaponText.text = "Blaster Laser";
         this._weaponText.color = "white";
         this._weaponText.fontSize = 24;
         this._weaponText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
@@ -207,6 +207,67 @@ export class PauseMenu {
             if (onSettings) onSettings();
         });
         panel.addControl(settingsBtn);
+
+        const quitBtn = GUI.Button.CreateSimpleButton("quit", "Quitter");
+        quitBtn.width = "200px";
+        quitBtn.height = "40px";
+        quitBtn.color = "white";
+        quitBtn.background = "red";
+        quitBtn.onPointerUpObservable.add(() => {
+            if (onQuit) onQuit();
+        });
+        panel.addControl(quitBtn);
+
+        this.hide();
+    }
+
+    show() {
+        this._ui.rootContainer.isVisible = true;
+    }
+
+    hide() {
+        this._ui.rootContainer.isVisible = false;
+    }
+
+    dispose() {
+        this._ui.dispose();
+    }
+}
+
+export class LoseMenu {
+    constructor(scene, onRestart, onQuit) {
+        this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("LoseUI", true, scene);
+
+        const background = new GUI.Rectangle();
+        background.width = 1;
+        background.height = 1;
+        background.background = "rgba(100, 0, 0, 0.7)";
+        background.thickness = 0;
+        this._ui.addControl(background);
+
+        const panel = new GUI.StackPanel();
+        panel.width = "300px";
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        background.addControl(panel);
+
+        const title = new GUI.TextBlock();
+        title.text = "TU ES MORT";
+        title.color = "red";
+        title.fontSize = 48;
+        title.height = "80px";
+        panel.addControl(title);
+
+        const restartBtn = GUI.Button.CreateSimpleButton("restart", "Recommencer");
+        restartBtn.width = "200px";
+        restartBtn.height = "40px";
+        restartBtn.color = "white";
+        restartBtn.background = "black";
+        restartBtn.paddingBottom = "10px";
+        restartBtn.onPointerUpObservable.add(() => {
+            if (onRestart) onRestart();
+        });
+        panel.addControl(restartBtn);
 
         const quitBtn = GUI.Button.CreateSimpleButton("quit", "Quitter");
         quitBtn.width = "200px";

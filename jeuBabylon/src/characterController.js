@@ -10,9 +10,11 @@ import { Bras } from "./Bras.js";
 export class Player {
   static SPEED = 0.15;
 
-  constructor(scene, hud) {
+  constructor(scene, hud, onDeath) {
     this.scene = scene;
+    this.onDeath = onDeath;
     this.mesh = null;
+    this.isDead = false;
     this.speed = 10; 
 
     //on stock touches pressées
@@ -48,8 +50,13 @@ export class Player {
   }
 
   takeDamage(amount) {
+    if (this.isDead) return;
     this.health -= amount;
-    if (this.health < 0) this.health = 0;
+    if (this.health <= 0) {
+      this.health = 0;
+      this.isDead = true;
+      if (this.onDeath) this.onDeath();
+    }
     if (this.hud) {
       this.hud.updateHealth(this.health, this.maxHealth);
     }
@@ -82,6 +89,9 @@ export class Player {
 
     // Créer le bras (+ arme attachée) en FPS
     this.bras = new Bras(this.scene, this.camera);
+    if (this.hud && this.bras.arme) {
+      this.hud.updateWeapon(this.bras.arme.nom);
+    }
 
     // Tir au clic gauche (uniquement en pointer lock)
     canvas.addEventListener("pointerdown", (e) => {

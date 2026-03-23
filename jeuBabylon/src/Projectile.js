@@ -47,6 +47,17 @@ export class Projectile {
     // Déplacer dans la direction
     const deplacement = this.direction.scale(Projectile.VITESSE * dt);
     this.mesh.position.addInPlace(deplacement);
+
+    // Vérifier les collisions avec les ennemis
+    if (this.scene.enemies) {
+      for (let enemy of this.scene.enemies) {
+        if (!enemy.isDead && enemy.mesh && this.mesh.intersectsMesh(enemy.mesh, false)) {
+          enemy.takeDamage(15); // Dégâts de l'arme !
+          this.detruire(); // Détruire le projectile
+          return;
+        }
+      }
+    }
   }
 
   detruire() {

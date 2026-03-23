@@ -9,7 +9,7 @@ import {
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
-import { PlayerHUD, PauseMenu, SettingsMenu, StartMenu, CutsceneMenu } from "./ui.js";
+import { PlayerHUD, PauseMenu, SettingsMenu, StartMenu, CutsceneMenu, LoseMenu } from "./ui.js";
 import { EnemyType1, EnemyType2 } from "./enemy.js";
 
 const State = {
@@ -123,11 +123,12 @@ export default class App {
     this.hud = new PlayerHUD(scene);
 
     // Créer le joueur (il gère ses propres inputs et sa caméra)
-    this.player = new Player(scene, this.hud);
+    this.player = new Player(scene, this.hud, () => this.goToLose());
     await this.player.load();
 
     // Créer les ennemis initialement sur la carte
     this.enemies = [];
+    scene.enemies = this.enemies;
     // Ennemis de type 1
     this.enemies.push(new EnemyType1(scene, this.player, new Vector3(10, 0, 10)));
     this.enemies.push(new EnemyType1(scene, this.player, new Vector3(-10, 0, 10)));
@@ -175,6 +176,22 @@ export default class App {
       this.pauseMenu.show();
     });
 
+    this.loseMenu = new LoseMenu(
+      scene,
+      () => {
+        if (this.pauseMenu) this.pauseMenu.dispose();
+        if (this.settingsMenu) this.settingsMenu.dispose();
+        if (this.loseMenu) this.loseMenu.dispose();
+        this.goToCutScene();
+      },
+      () => {
+        if (this.pauseMenu) this.pauseMenu.dispose();
+        if (this.settingsMenu) this.settingsMenu.dispose();
+        if (this.loseMenu) this.loseMenu.dispose();
+        this.goToStart();
+      }
+    );
+
     this.pauseMenu = new PauseMenu(
       scene,
       () => this.togglePause(),
@@ -185,6 +202,7 @@ export default class App {
       () => {
         this.pauseMenu.dispose();
         if (this.settingsMenu) this.settingsMenu.dispose();
+        if (this.loseMenu) this.loseMenu.dispose();
         this.goToStart();
       }
     );
@@ -239,31 +257,20 @@ export default class App {
     await this.setUpGame();
   }
 
-  async goToLose() {
-    this.engine.displayLoadingUI();
-
-    this.scene.detachControl();
-    let scene = new Scene(this.engine);
-    scene.clearColor = new Color4(0, 0, 0, 1);
-    let camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
-    camera.setTarget(Vector3.Zero());
-
-    const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    const mainBtn = Button.CreateSimpleButton("mainmenu", "MAIN MENU");
-    mainBtn.width = 0.2;
-    mainBtn.height = "40px";
-    mainBtn.color = "white";
-    guiMenu.addControl(mainBtn);
-
-    mainBtn.onPointerUpObservable.add(() => {
-      this.goToStart();
-    });
-
-    await scene.whenReadyAsync();
-    this.engine.hideLoadingUI();
-    this.scene.dispose();
-    this.scene = scene;
+  goToLose() {
+    if (this.state === State.LOSE) return;
     this.state = State.LOSE;
+
+    this.scene.isPaused = true;
+    if (this.hud) this.hud.isPaused = true;
+
+    if (document.exitPointerLock) {
+      document.exitPointerLock();
+    }
+
+    if (this.loseMenu) {
+      this.loseMenu.show();
+    }
   }
 }
 

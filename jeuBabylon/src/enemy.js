@@ -16,6 +16,7 @@ export class Enemy {
     this.mode = "WANDER";
     this.attackCooldown = 0;
     this.attackCooldownMax = attackCooldownMax;
+    this.isDead = false;
 
     this.mesh = this.createMesh(scene);
     this.mesh.position = new Vector3(position.x, position.y + 0.6, position.z);
@@ -30,9 +31,33 @@ export class Enemy {
     this.visionRange = 12; // Distance de vision max (12 unités)
     this.visionAngle = Math.PI / 3; // Angle de vision (60 degrés de chaque côté, cône de 120 degrés)
 
-    this.scene.onBeforeRenderObservable.add(() => {
-      this.update();
+    this._observateur = this.scene.onBeforeRenderObservable.add(() => {
+      if (!this.isDead) this.update();
     });
+  }
+
+  takeDamage(amount) {
+    if (this.isDead) return;
+    this.hp -= amount;
+    if (this.hp <= 0) {
+      this.die();
+    }
+  }
+
+  die() {
+    this.isDead = true;
+    if (this._observateur) {
+      this.scene.onBeforeRenderObservable.remove(this._observateur);
+    }
+    if (this.mesh) {
+      this.mesh.dispose();
+    }
+    if (this.scene.enemies) {
+      const index = this.scene.enemies.indexOf(this);
+      if (index !== -1) {
+        this.scene.enemies.splice(index, 1);
+      }
+    }
   }
 
   createMesh(scene) {
