@@ -1,14 +1,98 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=jeuCanvas/index.html">
-    <title>Redirection...</title>
-    <script>
-        window.location.href = "jeuCanvas/index.html";
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GamesOnWeb Library</title>
+    <link rel="stylesheet" href="./index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
+
+
 <body>
-    <p>Si vous n'êtes pas redirigé automatiquement, <a href="jeuCanvas/index.html">cliquez ici</a>.</p>
+
+    <div class="toogle" id="toogle">
+
+        <div class="rectangle"></div>
+        <div class="rectangle"></div>
+        <div class="rectangle"></div>
+
+    </div>
+
+<div class="navbar">
+    <img src="./assets/images/logo.png" alt="logo" class="logo">
+    
+    <ul class="navbar-list" id="navbar">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="#">Contact</a></li>
+    </ul>
+
+    <ul class="navbar-login">
+        <li class="librairy"><a href="library.html"><img src="assets/images/library.png" alt=""></a></li>
+        <li class="login"><a href="login.html"><img src="assets/images/person.png" alt=""></a></li>
+    </ul>
+</div>
+
+<!-- SECTION 1 -->
+
+<div class="section1">
+
+    <div class="section1-left">
+        <div class="section1-left-top">
+            <h1>Discover new games, that will give you<br/>
+            Good time and enjoyement</h1>
+
+            <p style="color: gray;">From mastering advanced gameplay mechanics to sharpening reflexes and decision-making abilities, this book offers invaluable insights and strategies for gamers of all levels.</p>
+
+            <div class="btns">
+                <button class="add-librairy" onclick="window.location.href='./jeuBabylon/dist/index.html'">Play this game</button>
+                <button class="discover">Discover</button>
+            </div>
+        </div>
+
+        <div class="section1-left-bottom">
+            <div class="section1-left-bottom-top">
+                <p>Share Your Experience</p>
+            </div>
+            <div class="section1-left-bottom-bottom">
+                <img src="./assets/images/facebook.png" alt="">
+                <img src="./assets/images/youtube.png" alt="">
+                <img src="./assets/images/linkedin.png" alt="">
+                <img src="./assets/images/instagram.png" alt="">
+                <img src="./assets/images/pinterest.png" alt="">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section1-right">
+
+        <img src="./assets/images/game1.png" alt="">
+
+    </div>
+</div>
+
+<!-- SECTION 2 -->
+
+<div class="section2">
+    <h1>Recommendation</h1>
+    <div class="image-jeu">
+        <a href="./jeuCanvas/index.html"><img src="./assets/images/game2.png" alt="Jeu Canvas"></a>
+        <a href="./jeuDOM/index.html"><img src="./assets/images/game2.png" alt="Jeu DOM"></a>
+        <a href="./jeuBabylon/dist/index.html"><img src="./assets/images/game2.png" alt="Jeu Babylon"></a>
+    </div>
+</div>
+
+
+
+<script src="./index.js"></script>
 </body>
+
+<footer>
+    <p>© 2026 GamesOnWeb. All rights reserved.</p>
+</footer>
+
 </html>

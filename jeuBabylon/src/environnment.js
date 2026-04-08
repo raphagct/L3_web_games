@@ -43,7 +43,7 @@ export class Environment {
 
     const groundMaterial = new StandardMaterial("groundMat", this.scene);
     groundMaterial.diffuseTexture = new Texture(
-      "/textures/skybox/skybox_ny.jpg",
+      "./textures/skybox/skybox_ny.jpg",
       this.scene,
     );
     ground.material = groundMaterial;
@@ -55,7 +55,7 @@ export class Environment {
     skybox.material = skyboxMaterial;
     skybox.infiniteDistance = true;
     skyboxMaterial.disableLighting = true;
-    const cubeTex = new CubeTexture("/textures/skybox/skybox", this.scene);
+    const cubeTex = new CubeTexture("./textures/skybox/skybox", this.scene);
     skyboxMaterial.reflectionTexture = cubeTex;
     skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
   }

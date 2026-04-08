@@ -1,0 +1,402 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.navbar-list{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+.navbar-login{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.login{
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.librairy{
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.librairy img{
+    width: 24px;
+    height: 24px;
+}
+
+li{
+    list-style: none;
+}
+
+*{
+    font-family: 'Kufam', sans-serif;
+}
+
+body{
+    background: linear-gradient(to right bottom,#ffd59d, #000000 50%);
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.add-librairy{  
+    background-color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: black;
+}
+
+.discover{
+    background-color: inherit;
+    border: 1px solid white;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: white;
+}
+
+.btns{
+    display: flex;
+    gap: 15px;
+}
+
+.section1{
+    display: flex;
+    justify-content: space-around;
+    padding: 0 20px;
+}
+
+.section1 img{
+    width: 100%;
+}
+
+.section1-left{
+    width: 40%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.section1-left h1{
+    text-align: left;
+    font-size: 28px;
+    font-style: normal;
+}
+
+.section1-left p{
+    text-align: start;
+}
+
+.section1-right{
+    width: 40%;
+}
+
+.section1-left-bottom-bottom{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.section1-left-bottom-bottom img{
+    width: 36px;
+}
+
+
+/* SECTION 2 */
+
+.section2{
+    padding: 0 20px;
+}
+
+.section2 h1{
+    text-align: left;
+    font-size: 28px;
+    font-style: normal;
+}
+
+
+.image-jeu{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+
+
+@media screen and (max-width: 450px) {
+
+    .navbar-list{
+        right: -300px;
+        display: none;
+        
+    }
+
+    .section1{
+            flex-direction: column;
+            align-items: center;
+
+    }
+
+    .section1-left h1{
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .section1-left p{
+        text-align: center;
+        font-size: 14px;
+    }
+    .section1-right{
+        width: 80%;
+        padding-top: 20px;
+    }
+
+    .section1-left-bottom-bottom{
+        justify-content: center;
+    }
+
+    .section2{
+        padding: 0px 20px;
+    }
+
+    .section2 h1{
+        text-align: center;
+    }
+
+    .image-jeu{
+        flex-direction: column;
+    }
+
+   .toogle{
+    position: absolute;
+    top: 28px;
+    right: 45%;
+    display: flex;
+    gap: 6px;
+    flex-direction: column;
+    z-index: 1000;
+   }
+
+   .rectangle{
+    width: 30px;
+    height: 3px;
+    background-color: white;
+   }
+    
+    
+  
+}
+
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    background: black;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 100px;
+    right: 0;
+    margin-top: 0;
+    transition: 0.5s ease-in-out;
+    z-index: 5;
+}
+
+footer{
+    text-align: center;
+    padding: 20px;
+    color: white;
+}
+
+
+/* LOGIN PAGE STYLES */
+
+.auth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding: 20px;
+}
+
+.form {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.form h2 {
+    margin-bottom: 30px;
+    color: white;
+    font-size: 24px;
+}
+
+.form input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    outline: none;
+}
+
+.form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.form button:hover {
+    transform: scale(1.02);
+}
+
+.form p {
+    margin-top: 25px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.form span {
+    color: white;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* LIBRARY PAGE STYLES */
+.library-container {
+    padding: 40px;
+    min-height: calc(100vh - 180px);
+}
+
+.library-container h2 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.login-prompt {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 40px;
+    font-size: 16px;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.game-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: #ffd59d;
+}
+
+.game-placeholder {
+    height: 160px;
+    background: linear-gradient(135deg, rgba(255,213,157,0.2), rgba(0,0,0,0.5));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-info {
+    padding: 20px;
+}
+
+.game-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+}
+
+.game-info p {
+    margin: 0 0 20px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+.play-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid #ffd59d;
+    color: #ffd59d;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.play-btn:hover {
+    background-color: #ffd59d;
+    color: black;
+}

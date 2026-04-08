@@ -5,5 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>jeu DOM</title>
   </head>
-  <body></body>
+  <body>
+    <h1>Jeu DOM</h1>
+    <p>Ce jeu est actuellement en cours de développement.</p>
+    <button onclick="saveDummyScore()">Générer Score Aléatoire (Test BDD)</button>
+    <script>
+      async function saveDummyScore() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (!isLoggedIn) {
+            alert("Vous n'êtes pas connecté");
+            return;
+        }
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr) {
+            const score = Math.floor(Math.random() * 1000);
+            try {
+                const user = JSON.parse(userStr);
+                await fetch('http://localhost:5000/api/scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        gameName: 'dom',
+                        score: score
+                    })
+                });
+                alert('Score de ' + score + ' sauvegardé avec succès !');
+            } catch(e) {
+                console.error('Erreur sauvegarde score', e);
+                alert("Erreur de sauvegarde");
+            }
+        }
+      }
+    </script>
+  </body>
 </html>

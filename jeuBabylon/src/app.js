@@ -262,7 +262,10 @@ export default class App {
     this.state = State.LOSE;
 
     this.scene.isPaused = true;
-    if (this.hud) this.hud.isPaused = true;
+    if (this.hud) {
+        this.hud.isPaused = true;
+        this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
+    }
 
     if (document.exitPointerLock) {
       document.exitPointerLock();
@@ -270,6 +273,28 @@ export default class App {
 
     if (this.loseMenu) {
       this.loseMenu.show();
+    }
+  }
+
+  async saveScoreToDB(score) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) return;
+    const userStr = localStorage.getItem('currentUser');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            await fetch('http://localhost:5000/api/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.id,
+                    gameName: 'babylon',
+                    score: score
+                })
+            });
+        } catch(e) {
+            console.error('Erreur sauvegarde score', e);
+        }
     }
   }
 }
