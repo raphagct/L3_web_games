@@ -3,7 +3,9 @@ import {
   Vector3,
   StandardMaterial,
   Color3,
+  SceneLoader
 } from "@babylonjs/core";
+import "@babylonjs/loaders/glTF";
 import { Projectile } from "./Projectile.js";
 
 export class Arme {
@@ -27,29 +29,38 @@ export class Arme {
     });
   }
 
-  creerMesh(parent) {
-    // L'arme : un petit rectangle foncé (canon) au bout du bras
-    this.mesh = MeshBuilder.CreateBox(
-      "arme",
-      { width: 0.07, height: 0.07, depth: 0.4 },
-      this.scene
-    );
+  async creerMesh(parent) {
+    try {
+      const result = await SceneLoader.ImportMeshAsync("", "/textures/meshes/pistolet/", "scene.gltf", this.scene);
+      
+      this.mesh = result.meshes[0];
 
-    const materiau = new StandardMaterial("matArme", this.scene);
-    materiau.diffuseColor = new Color3(0.2, 0.2, 0.25);
-    materiau.emissiveColor = new Color3(0.1, 0.1, 0.12); // lumière propre
-    materiau.specularColor = new Color3(0.4, 0.4, 0.4);
-    this.mesh.material = materiau;
+      // S'assurer que tous les sous-meshes s'affichent au-dessus du décor (comme le bras)
+      result.meshes.forEach((m) => {
+        m.renderingGroupId = 1;
+      });
 
-    // Rendu au-dessus de tout (même layer que le bras)
-    this.mesh.renderingGroupId = 1;
-
-    // Positionner au bout du bras (dépasse vers l'avant)
-    this.mesh.parent = parent;
-    this.mesh.position = new Vector3(0, 0.05, 0.28);
+      this.mesh.parent = parent;
+      
+      // Normaliser la taille du mesh pour qu'elle s'insère dans un cube de taille 1
+      // Cela définit la propriété `scaling` interne de ce mesh pour compenser la taille originale.
+      this.mesh.normalizeToUnitCube();
+      
+      // On rétrécit l'arme à 60% pour mieux s'aligner avec le bras
+      this.mesh.scaling.scaleInPlace(0.6);
+      
+      // On avance la position sur l'axe Z (vers l'avant du bras, dont la pointe est à ~0.27)
+      this.mesh.position = new Vector3(0, -0.05, 0.32); 
+      
+      // Tourner l'arme si le modèle est à l'envers
+      this.mesh.rotation = new Vector3(0, Math.PI, 0); 
+    } catch(e) {
+      console.error("Erreur gLTF Pistolet:", e);
+    }
   }
 
   tirer() {
+    if (!this.mesh) return; // Si la 3D de l'arme charge encore
     if (this.tempsCooldown > 0) return;
     if (this.scene.isPaused) return;
 

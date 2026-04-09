@@ -300,10 +300,16 @@ export class StartMenu {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("StartUI", true, scene);
         this._ui.idealHeight = 720;
 
+        const bgImage = new GUI.Image("startBg", "/textures/menu/start_bg.png");
+        bgImage.width = 1;
+        bgImage.height = 1;
+        bgImage.stretch = GUI.Image.STRETCH_FILL;
+        this._ui.addControl(bgImage);
+
         const background = new GUI.Rectangle();
         background.width = 1;
         background.height = 1;
-        background.background = "rgba(0, 0, 0, 0.4)";
+        background.background = "rgba(10, 15, 30, 0.65)"; // Filtre sombre et bleuté pour faire ressortir le texte
         background.thickness = 0;
         this._ui.addControl(background);
 
@@ -314,7 +320,7 @@ export class StartMenu {
         background.addControl(panel);
 
         const title = new GUI.TextBlock();
-        title.text = "Games On Web";
+        title.text = "Sudo";
         title.color = "#FFD700"; 
         title.fontSize = 52;
         title.height = "100px";
@@ -328,7 +334,7 @@ export class StartMenu {
         panel.addControl(title);
 
         const subtitle = new GUI.TextBlock();
-        subtitle.text = "Explorez, survolez et combattez.";
+        subtitle.text = "Ne vous laissez pas contrôler par l'IA !";
         subtitle.color = "white";
         subtitle.fontSize = 20;
         subtitle.height = "40px";
@@ -340,7 +346,7 @@ export class StartMenu {
         spacer.thickness = 0;
         panel.addControl(spacer);
 
-        const startBtn = GUI.Button.CreateSimpleButton("start", "PLAY");
+        const startBtn = GUI.Button.CreateSimpleButton("start", "JOUER");
         startBtn.width = "250px";
         startBtn.height = "60px";
         startBtn.color = "white";
@@ -376,6 +382,47 @@ export class CutsceneMenu {
     constructor(scene, onNextClick) {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("CutsceneUI", true, scene);
 
+        // Image de fond pour la cinématique
+        const bgImage = new GUI.Image("cutsceneBg", "/textures/menu/cutscene_bg.png");
+        bgImage.width = 1;
+        bgImage.height = 1;
+        bgImage.stretch = GUI.Image.STRETCH_FILL;
+        this._ui.addControl(bgImage);
+
+        const overlay = new GUI.Rectangle();
+        overlay.width = 1;
+        overlay.height = 1;
+        overlay.background = "rgba(0, 0, 0, 0.75)"; // Assombrit l'image pour lire le lore
+        overlay.thickness = 0;
+        this._ui.addControl(overlay);
+
+        // Le panneau du Lore
+        const lorePanel = new GUI.StackPanel();
+        lorePanel.width = "800px";
+        lorePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        lorePanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        this._ui.addControl(lorePanel);
+
+        const loreTitle = new GUI.TextBlock();
+        loreTitle.text = "MISSION : INFILTRATION";
+        loreTitle.color = "#FFD700";
+        loreTitle.fontSize = 36;
+        loreTitle.height = "60px";
+        loreTitle.fontFamily = "Courier New, monospace";
+        loreTitle.fontWeight = "bold";
+        lorePanel.addControl(loreTitle);
+
+        const loreText = new GUI.TextBlock();
+        loreText.text = "L'an 2142. L'Intelligence Artificielle S.U.D.O. a pris le contrôle total du réseau mondial. Seuls quelques rebelles subsistent, dissimulés dans les ombres des serveurs corrompus.\n\nVotre mission : vous infiltrer et détruire le cœur du système avant qu'il ne détruise les derniers vestiges de l'humanité.";
+        loreText.color = "white";
+        loreText.fontSize = 24;
+        loreText.height = "300px";
+        loreText.textWrapping = GUI.TextWrapping.WordWrap;
+        loreText.fontFamily = "Arial";
+        loreText.fontStyle = "italic";
+        loreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        lorePanel.addControl(loreText);
+
         const skipText = new GUI.TextBlock();
         skipText.text = "Appuyez sur Suivant pour passer...";
         skipText.color = "white";
@@ -387,7 +434,7 @@ export class CutsceneMenu {
         skipText.left = "-20px";
         this._ui.addControl(skipText);
 
-        const next = GUI.Button.CreateSimpleButton("next", "NEXT \u2192");
+        const next = GUI.Button.CreateSimpleButton("next", "SUIVANT \u2192");
         next.color = "white";
         next.thickness = 2;
         next.background = "rgba(0, 0, 0, 0.6)";
