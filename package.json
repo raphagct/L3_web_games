@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix jeuBabylon\"",
     "install-all": "npm install && npm install --prefix backend && npm install --prefix jeuBabylon",
-    "vercel-build": "npm --prefix jeuBabylon install && npm --prefix jeuBabylon run build"
+    "vercel-build": "npm --prefix jeuBabylon install && npm --prefix jeuBabylon run build && cp -r jeuBabylon/dist ./public-games"
   },
   "dependencies": {
     "dotenv": "^17.2.4",
