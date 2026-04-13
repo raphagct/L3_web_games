@@ -283,7 +283,7 @@ export default class App {
     if (userStr) {
         try {
             const user = JSON.parse(userStr);
-            await fetch('http://localhost:5000/api/scores', {
+            await fetch('/api/scores', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
