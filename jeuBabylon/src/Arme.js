@@ -28,7 +28,7 @@ export class Arme {
 
   async creerMesh(parent) {
     try {
-      const result = await SceneLoader.ImportMeshAsync("", "/textures/meshes/pistolet/", "scene.gltf", this.scene);
+      const result = await SceneLoader.ImportMeshAsync("", "./textures/meshes/pistolet/", "scene.gltf", this.scene);
       
       this.mesh = result.meshes[0];
 
