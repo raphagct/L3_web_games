@@ -11,7 +11,7 @@ import { Projectile } from "./Projectile.js";
 export class Arme {
   static COOLDOWN = 0.25; // secondes entre chaque tir
 
-  constructor(scene, camera, parent, nom = "Blaster Laser") {
+  constructor(scene, camera, parent, nom = "Revolver") {
     this.scene = scene;
     this.camera = camera;
     this.tempsCooldown = 0;

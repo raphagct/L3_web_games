@@ -300,7 +300,7 @@ export class StartMenu {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("StartUI", true, scene);
         this._ui.idealHeight = 720;
 
-        const bgImage = new GUI.Image("startBg", "/textures/menu/start_bg.png");
+        const bgImage = new GUI.Image("startBg", "./textures/menu/start_bg.png");
         bgImage.width = 1;
         bgImage.height = 1;
         bgImage.stretch = GUI.Image.STRETCH_FILL;
@@ -383,7 +383,7 @@ export class CutsceneMenu {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("CutsceneUI", true, scene);
 
         // Image de fond pour la cinématique
-        const bgImage = new GUI.Image("cutsceneBg", "/textures/menu/cutscene_bg.png");
+        const bgImage = new GUI.Image("cutsceneBg", "./textures/menu/cutscene_bg.png");
         bgImage.width = 1;
         bgImage.height = 1;
         bgImage.stretch = GUI.Image.STRETCH_FILL;

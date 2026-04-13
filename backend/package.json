@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "npm run build --prefix ../jeuBabylon && nodemon index.js",
     "start": "node index.js"
   },
   "keywords": [],
