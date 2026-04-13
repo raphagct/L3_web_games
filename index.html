@@ -3,96 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GamesOnWeb Library</title>
+    <title>Games on Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
-
-
 <body>
-
-    <div class="toogle" id="toogle">
-
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-
-    </div>
-
-<div class="navbar">
-    <img src="./assets/images/logo.png" alt="logo" class="logo">
-    
-    <ul class="navbar-list" id="navbar">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="#">Contact</a></li>
-    </ul>
-
-    <ul class="navbar-login">
-        <li class="librairy"><a href="library.html"><img src="assets/images/library.png" alt=""></a></li>
-        <li class="login"><a href="login.html"><img src="assets/images/person.png" alt=""></a></li>
-    </ul>
-</div>
-
-<!-- SECTION 1 -->
-
-<div class="section1">
-
-    <div class="section1-left">
-        <div class="section1-left-top">
-            <h1>Discover new games, that will give you<br/>
-            Good time and enjoyement</h1>
-
-            <p style="color: gray;">From mastering advanced gameplay mechanics to sharpening reflexes and decision-making abilities, this book offers invaluable insights and strategies for gamers of all levels.</p>
-
-            <div class="btns">
-                <button class="add-librairy" onclick="window.location.href='./jeuBabylon/dist/index.html'">Play this game</button>
-                <button class="discover">Discover</button>
-            </div>
+    <nav class="navbar">
+        <div class="logo">Games on web</div>
+        
+        <div class="toogle" id="toogle">
+            <div class="rectangle"></div>
+            <div class="rectangle"></div>
+            <div class="rectangle"></div>
         </div>
 
-        <div class="section1-left-bottom">
-            <div class="section1-left-bottom-top">
-                <p>Share Your Experience</p>
-            </div>
-            <div class="section1-left-bottom-bottom">
-                <img src="./assets/images/facebook.png" alt="">
-                <img src="./assets/images/youtube.png" alt="">
-                <img src="./assets/images/linkedin.png" alt="">
-                <img src="./assets/images/instagram.png" alt="">
-                <img src="./assets/images/pinterest.png" alt="">
+        <ul class="nav-links" id="navbar">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="library.html">Library</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+        
+        <div class="nav-actions">
+             <a href="library.html" class="icon-link"><img src="assets/images/library.png" style="filter: invert(1); width: 20px;" alt="Library"></a>
+             <a href="login.html" class="icon-link"><img src="assets/images/person.png" style="filter: invert(1); width: 20px;" alt="Login"></a>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar" style="display: none;">
+        <!-- Retained for index.js -->
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>3 Jeux Web</h1>
+            <p>Dans le cadre du 2ème semestre de notre licence 3 MIAGE, nous avons réalisé 3 jeux en javascript manipulant le DOM, le canvas et babylon.js</p>
+            <div class="hero-buttons">
+                <button class="btn" onclick="window.location.href='./jeuBabylon/dist/index.html'">Jouer au jeu GamesOnWeb 2026</button>
             </div>
         </div>
+        <div class="hero-image">
+            <img src="./assets/images/hero_bw_modern.png" alt="Modern clean gaming concept">
+        </div>
+    </section>
 
-    </div>
+    <!-- GAMES SECTION -->
+    <section class="games-section" id="games">
+        <h2>Bibliothèque de jeux</h2>
+        <div class="games-grid-display">
+            
+            <!-- Game 1-->
+            <a href="./jeuDOM/index.html" class="game-square">
+                <div class="game-thumbnail">
+                    <h4>DOM</h4>
+                </div>
+                <h3>Démineur amélioré</h3>
+                <p>Un jeu du démineur amélioré utilisant le DOM</p>
+            </a>
+            <!-- Game 2 -->
+            <a href="./jeuCanvas/index.html" class="game-square">
+                <div class="game-thumbnail">
+                    <h4>Canvas</h4>
+                </div>
+                <h3>Jeu de la pastèque</h3>
+                <p>Un clone du jeu Suika Game en utilisant le canvas</p>
+            </a>
+            <!-- Game 3 -->
+            <a href="./jeuBabylon/dist/index.html" class="game-square">
+                <div class="game-thumbnail">
+                    <h4>Babylon</h4>
+                </div>
+                <h3>Sudo</h3>
+                <p>Un jeu 3D fait en Babylon.js ou l'on doit battre une IA </p>
+            </a>
+        </div>
+    </section>
 
-    <div class="section1-right">
+    <footer>
+        <p>2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël GUICHET</p>
+    </footer>
 
-        <img src="./assets/images/game1.png" alt="">
-
-    </div>
-</div>
-
-<!-- SECTION 2 -->
-
-<div class="section2">
-    <h1>Recommendation</h1>
-    <div class="image-jeu">
-        <a href="./jeuCanvas/index.html"><img src="./assets/images/game2.png" alt="Jeu Canvas"></a>
-        <a href="./jeuDOM/index.html"><img src="./assets/images/game2.png" alt="Jeu DOM"></a>
-        <a href="./jeuBabylon/dist/index.html"><img src="./assets/images/game2.png" alt="Jeu Babylon"></a>
-    </div>
-</div>
-
-
-
-<script src="./index.js"></script>
+    <script src="./index.js"></script>
 </body>
-
-<footer>
-    <p>© 2026 GamesOnWeb. All rights reserved.</p>
-</footer>
-
 </html>

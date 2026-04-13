@@ -5,29 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - GamesOnWeb</title>
     <link rel="stylesheet" href="./index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet" />
 <style>
     .about-section {
-        padding: 50px 20px;
-        color: white;
+        padding: 80px 20px;
         text-align: center;
         max-width: 800px;
-        margin: 50px auto;
-        min-height: 50vh;
+        margin: 0 auto;
+        min-height: calc(100vh - 200px);
     }
     .about-section h1 {
-        font-family: 'Kufam', sans-serif;
         font-size: 3rem;
         margin-bottom: 30px;
-        color: var(--primary-color, #fff);
     }
     .about-section p {
-        font-family: 'Poppins', sans-serif;
         line-height: 1.8;
-        font-size: 1.1rem;
-        color: #d1d1d1;
+        font-size: 1.2rem;
+        color: #555;
         margin-bottom: 20px;
     }
 </style>
@@ -35,28 +30,26 @@
 
 <body>
 
+<nav class="navbar">
+    <div class="logo">Games on web</div>
+    
     <div class="toogle" id="toogle">
-
         <div class="rectangle"></div>
         <div class="rectangle"></div>
         <div class="rectangle"></div>
-
     </div>
 
-<div class="navbar">
-    <img src="./assets/images/logo.png" alt="logo" class="logo">
-    
-    <ul class="navbar-list" id="navbar">
+    <ul class="nav-links" id="navbar">
         <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="library.html">Library</a></li>
+        <li><a href="about.html" class="active">About</a></li>
     </ul>
-
-    <ul class="navbar-login">
-        <li class="librairy"><a href="library.html"><img src="assets/images/library.png" alt=""></a></li>
-        <li class="login"><a href="login.html"><img src="assets/images/person.png" alt=""></a></li>
-    </ul>
-</div>
+    
+    <div class="nav-actions">
+         <a href="library.html" class="icon-link"><img src="assets/images/library.png" style="filter: invert(1); width: 20px;" alt="Library"></a>
+         <a href="login.html" class="icon-link"><img src="assets/images/person.png" style="filter: invert(1); width: 20px;" alt="Login"></a>
+    </div>
+</nav>
 
 <div class="about-section">
     <h1>About Us</h1>
