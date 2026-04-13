@@ -82,7 +82,7 @@
             if (userStr) {
                 try {
                     const user = JSON.parse(userStr);
-                    const response = await fetch(`http://localhost:5000/api/scores/user/${user.id}`);
+                    const response = await fetch(`/api/scores/user/${user.id}`);
                     if (response.ok) {
                         const scores = await response.json();
                         scores.forEach(s => {
