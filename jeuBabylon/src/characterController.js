@@ -1,5 +1,4 @@
 import {
-  Mesh,
   Vector3,
   MeshBuilder,
   FreeCamera

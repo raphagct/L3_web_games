@@ -1,8 +1,5 @@
 import {
-  MeshBuilder,
   Vector3,
-  StandardMaterial,
-  Color3,
   SceneLoader
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
