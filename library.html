@@ -13,61 +13,69 @@
 
 
 <nav class="navbar">
-    <div class="logo">Games on web</div>
-    
-    <div class="toogle" id="toogle">
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-    </div>
-
-    <ul class="nav-links" id="navbar">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="library.html" class="active">Library</a></li>
-        <li><a href="about.html">About</a></li>
-    </ul>
-    
-    <div class="nav-actions">
-         <a href="library.html" class="icon-link"><img src="assets/images/library.png" style="filter: invert(1); width: 20px;" alt="Library"></a>
-         <a href="login.html" class="icon-link"><img src="assets/images/person.png" style="filter: invert(1); width: 20px;" alt="Login"></a>
-    </div>
-</nav>
+        <div class="logo">Games on web</div>
+        
+        <ul class="nav-links" id="navbar">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="library.html" class="active">Bibliothèque</a></li>
+            <li><a href="about.html">A propos</a></li>
+        </ul>
+        
+        <div class="nav-actions">
+             <a href="library.html" class="icon-link"><img src="assets/images/library.png" style="filter: invert(1); width: 20px;" alt="Library"></a>
+             <a href="login.html" class="icon-link"><img src="assets/images/person.png" style="filter: invert(1); width: 20px;" alt="Login"></a>
+        </div>
+    </nav>
 
 <div class="library-container">
-    <h2>Ma Bibliothèque de Jeux</h2>
+    <h2>Ma bibliothèque de jeux</h2>
     <p class="login-prompt" id="library-login-prompt">Vous devez être connecté pour voir vos meilleurs scores.</p>
     
     <div class="games-grid">
         <!-- Game 1 -->
         <div class="game-card">
-            <div class="game-placeholder">Jeu Canvas</div>
+            <div class="game-image" style="background-image: url('./assets/images/jeu-canvas.png');"></div>
             <div class="game-info">
-                <h3>Jeu Canvas</h3>
-                <p>Score: <span class="score-value" id="score-canvas">Non joué</span></p>
-                <button class="play-btn" onclick="window.location.href='./jeuCanvas/index.html'">Jouer</button>
+                <div class="game-header">
+                    <h3>Jeu de la Pastèque (Canvas)</h3>
+                    <p>Un clone du jeu Suika Game en utilisant le canvas. Fusionnez les fruits pour obtenir la pastèque !</p>
+                </div>
+                <div class="game-actions">
+                    <p class="game-score">Score: <span class="score-value" id="score-canvas">Non joué</span></p>
+                    <button class="play-btn" onclick="window.location.href='./jeuCanvas/index.html'">Jouer</button>
+                </div>
             </div>
         </div>
         
         <!-- Game 2 -->
         <div class="game-card">
-            <div class="game-placeholder">Jeu DOM</div>
+            <div class="game-image">DOM</div>
             <div class="game-info">
-                <h3>Jeu DOM</h3>
-                <p>Score: <span class="score-value" id="score-dom">Non joué</span></p>
-                <button class="play-btn" onclick="window.location.href='./jeuDOM/index.html'">Jouer</button>
+                <div class="game-header">
+                    <h3>Démineur amélioré (DOM)</h3>
+                    <p>Un jeu du démineur amélioré utilisant le DOM pour la manipulation des éléments.</p>
+                </div>
+                <div class="game-actions">
+                    <p class="game-score">Score: <span class="score-value" id="score-dom">Non joué</span></p>
+                    <button class="play-btn" onclick="window.location.href='./jeuDOM/index.html'">Jouer</button>
+                </div>
             </div>
         </div>
 
         <!-- Game 3 -->
         <div class="game-card">
-            <div class="game-placeholder">Jeu Babylon</div>
+            <div class="game-image">BABYLON</div>
             <div class="game-info">
-                <h3>Jeu Babylon</h3>
-                <p>Score: <span class="score-value" id="score-babylon">Non joué</span></p>
-                <button class="play-btn" onclick="window.location.href='./jeuBabylon/dist/index.html'">Jouer</button>
+                <div class="game-header">
+                    <h3>Sudo (Babylon)</h3>
+                    <p>Un jeu 3D fait en Babylon.js ou l'on doit battre une IA.</p>
+                </div>
+                <div class="game-actions">
+                    <p class="game-score">Score: <span class="score-value" id="score-babylon">Non joué</span></p>
+                    <button class="play-btn" onclick="window.location.href='./jeuBabylon/dist/index.html'">Jouer</button>
+                </div>
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -104,6 +112,6 @@
 </script>
 </body>
 <footer>
-    <p>© 2025 Game Book. All rights reserved.</p>
+    <p>2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël GUICHET</p>
 </footer>
 </html>
