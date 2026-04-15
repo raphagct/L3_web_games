@@ -19,7 +19,7 @@ export class Enemy {
     this.isDead = false;
 
     this.mesh = this.createMesh(scene);
-    this.mesh.position = new Vector3(position.x, position.y + 0.6, position.z);
+    this.mesh.position = new Vector3(position.x, position.y + 10, position.z); // tombe depuis le ciel
 
     // Activer les collisions pour l'ennemi (ajusté avec l'échelle)
     this.mesh.checkCollisions = true;
@@ -167,6 +167,7 @@ export class Enemy {
       }
 
       const move = this.wanderDirection.scale(this.speed * dt);
+      move.y = -9.81 * dt; // Gravité
       this.mesh.moveWithCollisions(move);
 
       const targetRotation = this.mesh.position.add(this.wanderDirection);
@@ -179,14 +180,13 @@ export class Enemy {
         direction.normalize();
 
         const move = direction.scale(this.speed * dt);
+        move.y = -9.81 * dt; // Gravité
         this.mesh.moveWithCollisions(move);
 
         const targetRotation = this.mesh.position.add(direction);
         this.mesh.lookAt(targetRotation);
       }
     }
-
-    this.mesh.position.y = 0.6;
   }
 
   canSeePlayer() {
@@ -227,14 +227,14 @@ export class Enemy {
 
 export class EnemyType1 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 50, 10, 3, 1.0);
+    super(scene, player, position, 50, 10, 4, 1.0);
     this.applyColor(new Color3(1, 0.2, 0.2));
   }
 }
 
 export class EnemyType2 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 150, 20, 1, 2.0);
+    super(scene, player, position, 150, 20, 2, 2.0);
     this.applyColor(new Color3(0.2, 0.8, 1));
   }
 }

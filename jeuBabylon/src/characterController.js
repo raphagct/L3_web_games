@@ -14,7 +14,7 @@ export class Player {
     this.onDeath = onDeath;
     this.mesh = null;
     this.isDead = false;
-    this.speed = 10; 
+    this.speed = 5;
 
     //on stock touches pressées
     this.hud = hud;
@@ -64,7 +64,7 @@ export class Player {
   async load() {
     // on crée le mesh du perso(qu'on voit pas vu que c'est en 1ere personne)
     this.mesh = MeshBuilder.CreateBox("player", { height: 2, width: 0.8, depth: 0.8 }, this.scene);
-    this.mesh.position.y = 1;
+    this.mesh.position.y = 10;
     this.mesh.isVisible = false; 
 
     // Activer les collisions pour le joueur
@@ -124,7 +124,7 @@ export class Player {
     forward.normalize();
     right.normalize();
 
-    let displacement = new Vector3(0, 0, 0);
+    let displacement = new Vector3(0, -9.81 * dt, 0);
 
     if (this.inputMap[GameSettings.keys.forward]) {
       displacement.addInPlace(forward.scale(distance)); // avant
@@ -139,11 +139,6 @@ export class Player {
       displacement.addInPlace(right.scale(distance)); // droite
     }
 
-    if (displacement.length() > 0) {
-      // Déplacer le joueur avec le système de collision
-      this.mesh.moveWithCollisions(displacement);
-      
-      this.mesh.position.y = 1;
-    }
+    this.mesh.moveWithCollisions(displacement);
   }
 }

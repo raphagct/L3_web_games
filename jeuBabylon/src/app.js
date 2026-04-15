@@ -129,12 +129,24 @@ export default class App {
     // Créer les ennemis initialement sur la carte
     this.enemies = [];
     scene.enemies = this.enemies;
+    const getRandomArenaPos = () => {
+        const rx = (Math.random() - 0.5) * 12;
+        const rz = (Math.random() - 0.5) * 20;
+        return new Vector3(rx, 0, rz);
+    };
+
     // Ennemis de type 1
-    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(10, 0, 10)));
-    this.enemies.push(new EnemyType1(scene, this.player, new Vector3(-10, 0, 10)));
+    this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
+    this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
     // Ennemis de type 2
-    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(10, 0, -10)));
-    this.enemies.push(new EnemyType2(scene, this.player, new Vector3(-10, 0, -10)));
+    this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+    this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+
+    const spawnMesh = scene.getMeshByName("plateforme_spawn");
+    if (spawnMesh) {
+       this.player.mesh.position.x = spawnMesh.position.x;
+       this.player.mesh.position.z = spawnMesh.position.z;
+    }
   }
 
   async goToGame() {
