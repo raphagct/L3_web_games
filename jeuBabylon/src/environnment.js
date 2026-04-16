@@ -1,4 +1,8 @@
-import { SceneLoader } from "@babylonjs/core";
+import { SceneLoader,Color3 } from "@babylonjs/core";
+
+import NeonScript from "./scripts/NeonScript.ts";
+import LavaScript from "./scripts/LavaScript.ts";
+import PoisonScript from "./scripts/PoisonScript.ts";
 
 export class Environment {
   constructor(scene) {
@@ -27,9 +31,58 @@ export class Environment {
       }
     }
 
+    for (const mesh of this.scene.meshes) {
+  if (mesh.name.toLowerCase().includes("pillier")) {
+    console.log(`${mesh.name} | pos: ${mesh.position} | scaling: ${mesh.scaling}`);
+  }
+}
+
+
+    // Script ne touchez PAS !!!!!!!!!!!!!!!!!
+ 
+    for (const mesh of this.scene.meshes) {
+
+    if (mesh.name.toLowerCase().includes("neonrouge")){
+       const neonColor = new Color3(1.0, 0.0, 0.0); // AJOUT DU CONST ICI
+       const scriptNeon = new NeonScript(mesh, neonColor);
+       scriptNeon.onStart();
+    }
+    if (mesh.name.toLowerCase().includes("neonbleu")){
+       const neonColor = new Color3(0.0, 0.5, 1.0); // AJOUT DU CONST ICI
+       const scriptNeon = new NeonScript(mesh, neonColor);
+       scriptNeon.onStart();
+    }
+    
+    if (mesh.name.toLowerCase().includes("neonrose")){
+       const neonColor = new Color3(1.0, 0.1, 0.8); // AJOUT DU CONST ICI
+       const scriptNeon = new NeonScript(mesh, neonColor);
+       scriptNeon.onStart();
+    }
+    
+    }
+  
+    
+    for (const mesh of this.scene.meshes) {
+    if (mesh.name.toLowerCase().includes("lave") ||mesh.name.toLowerCase().includes("lava")) {
+        const scriptLava = new LavaScript(mesh);
+        scriptLava.onStart();
+    }
+    }
+    
+    for (const mesh of this.scene.meshes) {
+    if (mesh.name.toLowerCase().includes("poison")) {
+        const scriptPoison = new PoisonScript(mesh);
+        scriptPoison.onStart();
+    }
+    }
+    
+
+
+    // ?
     const hasSkybox = this.scene.meshes.some(m => m.name.toLowerCase().includes("skybox"));
     if (!hasSkybox) {
         this.scene.createDefaultSkybox(null, true, 1000, 0.1, true);
     }
+
   }
 }
