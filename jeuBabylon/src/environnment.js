@@ -9,6 +9,11 @@ export class Environment {
     // Charger la map exportée depuis Babylon.js Editor
     await SceneLoader.AppendAsync("./map/scene/", "example.babylon", this.scene);
 
+// Debug : liste tous les meshes chargés
+    for (const mesh of this.scene.meshes) {
+      console.log(`Mesh: "${mesh.name}" | parent: ${mesh.parent?.name ?? "none"}`);
+    }
+
     const MAP_SCALE = 0.005;
 
     // Activer les collisions sur tous les meshes sauf la skybox et le joueur
