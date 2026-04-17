@@ -64,7 +64,7 @@ export class Player {
   async load() {
     // on crée le mesh du perso(qu'on voit pas vu que c'est en 1ere personne)
     this.mesh = MeshBuilder.CreateBox("player", { height: 2, width: 0.8, depth: 0.8 }, this.scene);
-    this.mesh.position.y = 180;
+    this.mesh.position.y = 100;
     this.mesh.isVisible = false; 
 
     // Activer les collisions pour le joueur

@@ -47,7 +47,8 @@ export class Environment {
     const glowLayerIntense = new GlowLayer("neonGlowIntense", this.scene);
     glowLayerIntense.intensity = 0.5;
 
-
+    const glowLayerBase2 = new GlowLayer("neonGlowBase2", this.scene);
+    glowLayerBase2.intensity = 0.05;
  
     for (const mesh of this.scene.meshes) {
       
@@ -114,6 +115,11 @@ export class Environment {
          scriptNeon.onStart();
       }
 
+      if (mesh.name.toLowerCase().includes("jauneneon")){
+         const neonColor = new Color3(1.0, 1.0, 0.0); 
+         const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase2);
+         scriptNeon.onStart();
+      }
 
     }
   
