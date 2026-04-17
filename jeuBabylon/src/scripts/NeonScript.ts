@@ -15,7 +15,7 @@ export default class NeonScript {
         let glowLayer = scene.effectLayers.find(layer => layer.name === "neonGlow") as GlowLayer;
         if (!glowLayer) {
             glowLayer = new GlowLayer("neonGlow", scene);
-            glowLayer.intensity = 2.0;
+            glowLayer.intensity = 0.2;
         }
     }
 }
