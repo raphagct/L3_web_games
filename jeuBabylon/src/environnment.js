@@ -68,8 +68,25 @@ export class Environment {
          const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
          scriptNeon.onStart();
       }
+      //noir
+      if (mesh.name.toLowerCase().includes("nfn")){
+         const neonColor = new Color3(0.0, 0.0, 0.0);
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("nfj")){
+         const neonColor = new Color3(1.0, 1.0, 0.0);
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
+      //green
+      if (mesh.name.toLowerCase().includes("nfg")){
+         const neonColor = new Color3(0.0, 1.0, 0.0);
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
+      
 
-      // --- NÉONS DE BASE (On passe glowLayerBase) ---
       if (mesh.name.toLowerCase().includes("neonrouge")){
          const neonColor = new Color3(1.0, 0.0, 0.0); 
          // Ajoutez le layer en 3ème paramètre
@@ -86,6 +103,18 @@ export class Environment {
         const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
         scriptNeon.onStart();
       }
+      if (mesh.name.toLowerCase().includes("neonjaune")){
+         const neonColor = new Color3(1.0, 1.0, 0.0); 
+         const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
+         scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("neonblanc")){
+         const neonColor = new Color3(1.0, 1.0, 1.0); 
+         const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
+         scriptNeon.onStart();
+      }
+
+
     }
   
     
