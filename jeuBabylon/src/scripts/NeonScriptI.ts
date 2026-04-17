@@ -1,6 +1,7 @@
 import { Mesh, StandardMaterial, Color3, GlowLayer } from "@babylonjs/core";
 
-export default class NeonScript {
+export default class NeonScriptI {
+    // On ajoute glowLayer dans le constructeur
     public constructor(public mesh: Mesh, private neonColor: Color3, private glowLayer: GlowLayer) { }
 
     public onStart(): void {
@@ -11,6 +12,7 @@ export default class NeonScript {
         neonMat.disableLighting = true;
         this.mesh.material = neonMat;
 
+        // On ajoute le mesh au GlowLayer fourni
         this.glowLayer.addIncludedOnlyMesh(this.mesh);
     }
 }

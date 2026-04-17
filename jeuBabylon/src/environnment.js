@@ -1,6 +1,7 @@
-import { SceneLoader,Color3 } from "@babylonjs/core";
+import { SceneLoader,Color3, GlowLayer } from "@babylonjs/core";
 
 import NeonScript from "./scripts/NeonScript.ts";
+import NeonScriptI from "./scripts/NeonScriptI.ts";
 import LavaScript from "./scripts/LavaScript.ts";
 import PoisonScript from "./scripts/PoisonScript.ts";
 
@@ -39,26 +40,52 @@ export class Environment {
 
 
     // Script ne touchez PAS !!!!!!!!!!!!!!!!!
+
+    const glowLayerBase = new GlowLayer("neonGlowBase", this.scene);
+    glowLayerBase.intensity = 0.2;
+
+    const glowLayerIntense = new GlowLayer("neonGlowIntense", this.scene);
+    glowLayerIntense.intensity = 0.5;
+
+
  
     for (const mesh of this.scene.meshes) {
+      
+      // --- NÉONS INTENSES (On passe glowLayerIntense) ---
+      if (mesh.name.toLowerCase().includes("nfr")){
+         const neonColor = new Color3(1.0, 0.0, 0.0); 
+         // Ajoutez le layer en 3ème paramètre
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("nfb")){
+         const neonColor = new Color3(0.0, 0.5, 1.0);
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("nfrose")){
+         const neonColor = new Color3(1.0, 0.1, 0.8);
+         const scriptNeon = new NeonScriptI(mesh, neonColor, glowLayerIntense);
+         scriptNeon.onStart();
+      }
 
-    if (mesh.name.toLowerCase().includes("neonrouge")){
-       const neonColor = new Color3(1.0, 0.0, 0.0); // AJOUT DU CONST ICI
-       const scriptNeon = new NeonScript(mesh, neonColor);
-       scriptNeon.onStart();
-    }
-    if (mesh.name.toLowerCase().includes("neonbleu")){
-       const neonColor = new Color3(0.0, 0.5, 1.0); // AJOUT DU CONST ICI
-       const scriptNeon = new NeonScript(mesh, neonColor);
-       scriptNeon.onStart();
-    }
-    
-    if (mesh.name.toLowerCase().includes("neonrose")){
-       const neonColor = new Color3(1.0, 0.1, 0.8); // AJOUT DU CONST ICI
-       const scriptNeon = new NeonScript(mesh, neonColor);
-       scriptNeon.onStart();
-    }
-    
+      // --- NÉONS DE BASE (On passe glowLayerBase) ---
+      if (mesh.name.toLowerCase().includes("neonrouge")){
+         const neonColor = new Color3(1.0, 0.0, 0.0); 
+         // Ajoutez le layer en 3ème paramètre
+         const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
+         scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("neonbleu")){
+        const neonColor = new Color3(0.0, 0.5, 1.0);
+        const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
+        scriptNeon.onStart();
+      }
+      if (mesh.name.toLowerCase().includes("neonrose")){
+        const neonColor = new Color3(1.0, 0.1, 0.8);
+        const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase);
+        scriptNeon.onStart();
+      }
     }
   
     
