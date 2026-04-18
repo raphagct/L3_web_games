@@ -35,6 +35,45 @@ Les fichiers sources principaux sont :
 
 Les assets sont remplis de texture comme des images (scies) ou de couleurs spécifiques. Il n'y a rien de notable.
 
+Nota Bene : Nous avons voulu au mieux respecter la séparation des responsabilitées de chaque classe car nous voulions respecter le modèle SOLID
+
+### Rapport de Conception  
+
+Au départ nous avions plusieurs idées de jeu,
+Scénario 1 :  
+Faire un monde ouvert avec du loot généré de manière procédurale et des ennemies qui suivent le joueur perpétuellement et le but c'était de survivre, ce scénario rentrait difficilement dans le thème et beaucoup trop complexe a réaliser dans les temps.  
+Scénario 2 :  
+Faire une grande map avec des ennemies qui attaque le joueur et qui le suivent peu importe son emplacement et plus le joueur finissait d'ennemies plus il gagnait de l'exp et avec les lvls du joueur il obtenait des bonus (plus d'attaque, de nouvelles armes, plus de vitesse de déplacements etc...) avec du scaling du côté joueur et ennemie.  
+Scénario 3 :  
+Faire une map zombie comme dans la franchise black ops avec des vagues a survivre et plus on avance dans les vagues plus la difficulté augmente.
+
+Nous avons sélectionné le troisième scénario mais nous nous sommes dit que faire des arènes différentes pour passer des vagues serait plus fun et une meilleure expérience pour les joueurs.  
+NB : Nous avons la barre de nourriture car de base nous voulions partir sur le scénario 2.
+
+
+
+
+### Spécificités Techniques  
+
+Outils :  
+- npm en version 10.9.2
+- Babylon js editor v5.4.0
+- VScode en v1.116
+- Blender v4.4
+
+Sites :  
+- https://editor.babylonjs.com/   (pour la doc en général)  
+- https://forum.babylonjs.com/tag/shaders/90   (pour les shaders)  
+- Youtube pour suivre des tutos
+- https://sandbox.babylonjs.com/  pour éditer des meshs et débugger
+- https://polyhaven.com/   (voir des textures)
+- https://ambientcg.com/   (pour des assets)
+- https://www.textures.com/  (pour avoir des matériaux)
+
+
+### Aide de l'IA  
+
+
 ## Partie Personnelle  
 ### Répartition du travail dans le groupe  
 Raphaël :  
