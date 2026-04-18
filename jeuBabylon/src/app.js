@@ -9,7 +9,7 @@ import {
 } from "@babylonjs/core";
 import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
-import { PlayerHUD, PauseMenu, SettingsMenu, CutsceneMenu, LoseMenu } from "./ui.js";
+import { PlayerHUD, PauseMenu, SettingsMenu, LoseMenu } from "./ui.js";
 import { EnemyType1, EnemyType2 } from "./enemy.js";
 
 const State = {
@@ -51,7 +51,7 @@ export default class App {
     this.menuMusic.loop = true;
     this.menuMusic.preload = "auto";
     this.menuMusic.volume = 0.45;
-    this._stormInterval = null;
+    this._lightningInterval = null;
 
     //on init scene et engine
     this.engine = new Engine(this.canvas, true);
@@ -103,12 +103,59 @@ export default class App {
     this._menuMusicUnlockHandler = null;
   }
 
-  _removeStartMenuDom() {
-    if (this._stormInterval) {
-      clearInterval(this._stormInterval);
-      this._stormInterval = null;
+  _clearLightningInterval() {
+    if (this._lightningInterval) {
+      clearInterval(this._lightningInterval);
+      this._lightningInterval = null;
     }
+  }
+
+  _bindLightningOverlay(overlay, isActive) {
+    this._clearLightningInterval();
+    const lightningLayers = overlay.querySelectorAll(".start-menu-lightning");
+    if (lightningLayers.length === 0) return;
+    this._lightningInterval = setInterval(() => {
+      if (!isActive()) return;
+      if (Math.random() < 0.72) {
+        const burstCount = Math.random() < 0.35 ? 2 : 1;
+        for (let i = 0; i < burstCount; i++) {
+          const layer = lightningLayers[Math.floor(Math.random() * lightningLayers.length)];
+          if (!layer) continue;
+          const delay = i * (50 + Math.random() * 90);
+          setTimeout(() => {
+            layer.classList.add("is-flashing");
+            setTimeout(() => layer.classList.remove("is-flashing"), 190 + Math.random() * 180);
+          }, delay);
+        }
+      }
+    }, 680 + Math.random() * 620);
+  }
+
+  _stormBackdropHtml() {
+    return `
+      <div class="start-menu-vignette"></div>
+      <div class="start-menu-lightning lightning-a"></div>
+      <div class="start-menu-lightning lightning-b"></div>
+      <div class="start-menu-lightning lightning-c"></div>
+      <div class="start-menu-lightning lightning-d"></div>
+      <div class="start-menu-lightning lightning-e"></div>
+      <div class="start-menu-lightning lightning-f"></div>
+      <div class="start-menu-lightning lightning-g"></div>
+      <div class="start-menu-rune"></div>
+    `;
+  }
+
+  _removeStartMenuDom() {
+    this._clearLightningInterval();
     const existing = document.getElementById("start-menu-overlay");
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  _removeCutsceneDom() {
+    this._clearLightningInterval();
+    const existing = document.getElementById("cutscene-overlay");
     if (existing) {
       existing.remove();
     }
@@ -120,15 +167,7 @@ export default class App {
     const overlay = document.createElement("div");
     overlay.id = "start-menu-overlay";
     overlay.innerHTML = `
-      <div class="start-menu-vignette"></div>
-      <div class="start-menu-lightning lightning-a"></div>
-      <div class="start-menu-lightning lightning-b"></div>
-      <div class="start-menu-lightning lightning-c"></div>
-      <div class="start-menu-lightning lightning-d"></div>
-      <div class="start-menu-lightning lightning-e"></div>
-      <div class="start-menu-lightning lightning-f"></div>
-      <div class="start-menu-lightning lightning-g"></div>
-      <div class="start-menu-rune"></div>
+      ${this._stormBackdropHtml()}
       <div class="start-menu-shell">
         <div class="start-menu-brand-wrap">
           <div class="start-menu-brand">S.U.D.O</div>
@@ -146,7 +185,6 @@ export default class App {
 
     const playBtn = document.getElementById("start-play-btn");
     const musicBtn = document.getElementById("start-music-toggle-btn");
-    const lightningLayers = overlay.querySelectorAll(".start-menu-lightning");
 
     const updateMusicLabel = () => {
       if (!musicBtn) return;
@@ -171,23 +209,40 @@ export default class App {
       });
     }
 
-    if (lightningLayers.length > 0) {
-      this._stormInterval = setInterval(() => {
-        if (this.state !== State.START) return;
-        if (Math.random() < 0.72) {
-          const burstCount = Math.random() < 0.35 ? 2 : 1;
-          for (let i = 0; i < burstCount; i++) {
-            const layer = lightningLayers[Math.floor(Math.random() * lightningLayers.length)];
-            if (!layer) continue;
-            const delay = i * (50 + Math.random() * 90);
-            setTimeout(() => {
-              layer.classList.add("is-flashing");
-              setTimeout(() => layer.classList.remove("is-flashing"), 190 + Math.random() * 180);
-            }, delay);
-          }
-        }
-      }, 680 + Math.random() * 620);
+    this._bindLightningOverlay(overlay, () => this.state === State.START);
+  }
+
+  _renderCutsceneDom(title, text, onNext) {
+    this._removeCutsceneDom();
+
+    const overlay = document.createElement("div");
+    overlay.id = "cutscene-overlay";
+    overlay.innerHTML = `
+      ${this._stormBackdropHtml()}
+      <div class="cutscene-shell">
+        <div class="cutscene-chapter" id="cutscene-title"></div>
+        <div class="cutscene-brand-underline"></div>
+        <div class="cutscene-lore" id="cutscene-body"></div>
+        <div class="cutscene-actions">
+          <button type="button" id="cutscene-next-btn" class="start-menu-link start-menu-link-active">SUIVANT</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const titleEl = overlay.querySelector("#cutscene-title");
+    const bodyEl = overlay.querySelector("#cutscene-body");
+    if (titleEl) titleEl.textContent = title;
+    if (bodyEl) bodyEl.textContent = text;
+
+    const nextBtn = overlay.querySelector("#cutscene-next-btn");
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        if (onNext) onNext();
+      });
     }
+
+    this._bindLightningOverlay(overlay, () => this.state === State.CUTSCENE);
   }
 
   async main() {
@@ -452,46 +507,33 @@ export default class App {
       this.cutScene.clearColor = new Color4(0, 0, 0, 1);
       
       const nextData = this.cutsceneTexts[this.currentArenaIndex] || { title: "VICTOIRE", text: "Victoire écrasante" };
-      
-      this.cutsceneMenu = new CutsceneMenu(
-          this.cutScene, 
-          () => {
-              // === ÉTAPE 3 : Le joueur a cliqué SUIVANT ===
-              this.cutsceneMenu.dispose();
-              this.cutScene.dispose();
-              
-              // Restaurer la scène de jeu
-              this.scene = savedGameScene;
-              this.scene.isPaused = false;
-              this.isPaused = false;
-              if (this.hud) this.hud.isPaused = false;
-              
-              // Spawner les ennemis de la nouvelle arène
-              this.spawnEnemiesForArena(this.scene);
-              this.levelCompleteTriggered = false;
-              
-              // Réactiver les contrôles
-              this.state = State.GAME;
-              this.scene.attachControl();
-              
-              // Laisser la souris libre - le joueur cliquera naturellement
-              // pour réacquérir le pointer lock via le click handler du Player
-              // NE PAS appeler requestPointerLock() ici!
-              // Désactiver le flag après un délai pour laisser les events se calmer
-              setTimeout(() => {
-                  this._ignoringPointerLock = false;
-              }, 300);
-          },
-          nextData.title,
-          nextData.text
-      );
-      
-      // === ÉTAPE 4 : Basculer le rendu sur la scène cutscene ===
+
+      this._renderCutsceneDom(nextData.title, nextData.text, () => {
+          this._removeCutsceneDom();
+          this.cutScene.dispose();
+
+          this.scene = savedGameScene;
+          this.scene.isPaused = false;
+          this.isPaused = false;
+          if (this.hud) this.hud.isPaused = false;
+
+          this.spawnEnemiesForArena(this.scene);
+          this.levelCompleteTriggered = false;
+
+          this.state = State.GAME;
+          this.scene.attachControl();
+
+          setTimeout(() => {
+              this._ignoringPointerLock = false;
+          }, 300);
+      });
+
       this.scene = this.cutScene;
   }
 
   async goToStart() {
     this.engine.displayLoadingUI();
+    this._removeCutsceneDom();
     this._removeStartMenuDom();
     this.scene.detachControl();
     let scene = new Scene(this.engine);
@@ -511,6 +553,7 @@ export default class App {
 
   async goToCutScene() {
     this._removeStartMenuDom();
+    this._removeCutsceneDom();
     this._stopMenuMusic();
     this.engine.displayLoadingUI();
     this.scene.detachControl();
@@ -521,23 +564,17 @@ export default class App {
 
     const initData = this.cutsceneTexts[0];
 
-    this.cutsceneMenu = new CutsceneMenu(
-      this.cutScene, 
-      () => {
-        this.cutsceneMenu.dispose();
-        this.goToGame();
-      },
-      initData.title,
-      initData.text
-    );
-
     await this.cutScene.whenReadyAsync();
     this.engine.hideLoadingUI();
     this.scene.dispose();
     this.state = State.CUTSCENE;
     this.scene = this.cutScene;
 
-    // Charger le jeu pendant la cutscene
+    this._renderCutsceneDom(initData.title, initData.text, () => {
+      this._removeCutsceneDom();
+      this.goToGame();
+    });
+
     await this.setUpGame();
   }
 
