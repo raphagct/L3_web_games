@@ -130,6 +130,52 @@ export class PlayerHUD {
         vertical.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         vertical.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         this._ui.addControl(vertical);
+
+        // Hit marker (Container)
+        this._hitMarker = new GUI.Container();
+        this._hitMarker.width = "40px";
+        this._hitMarker.height = "40px";
+        this._hitMarker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this._hitMarker.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        this._hitMarker.alpha = 0; // Invisible par défaut
+        this._ui.addControl(this._hitMarker);
+
+        const hmLine1 = new GUI.Rectangle();
+        hmLine1.width = "40px";
+        hmLine1.height = "2px";
+        hmLine1.background = "white";
+        hmLine1.thickness = 0;
+        hmLine1.rotation = Math.PI / 4;
+        this._hitMarker.addControl(hmLine1);
+
+        const hmLine2 = new GUI.Rectangle();
+        hmLine2.width = "40px";
+        hmLine2.height = "2px";
+        hmLine2.background = "white";
+        hmLine2.thickness = 0;
+        hmLine2.rotation = -Math.PI / 4;
+        this._hitMarker.addControl(hmLine2);
+    }
+
+    showHitMarker() {
+        this._hitMarker.alpha = 1;
+        let alpha = 1;
+        const obs = this.scene.onBeforeRenderObservable.add(() => {
+            if (this.isPaused) return;
+            alpha -= 0.05;
+            this._hitMarker.alpha = Math.max(0, alpha);
+            if (alpha <= 0) {
+                this.scene.onBeforeRenderObservable.remove(obs);
+            }
+        });
+    }
+
+    resetCombo() {
+        this.combo = 0;
+        this.comboTimer = 0;
+        if (this._comboText) {
+            this._comboText.text = "";
+        }
     }
 
     _createComboUI() {
@@ -179,6 +225,7 @@ export class PlayerHUD {
         }
 
         this._comboText.text = txt;
+        this.showHitMarker();
     }
 
     addKill(position) {

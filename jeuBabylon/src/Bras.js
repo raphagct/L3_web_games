@@ -7,14 +7,15 @@ import {
 import { Arme } from "./Arme.js";
 
 export class Bras {
-  constructor(scene, camera) {
+  constructor(scene, camera, hud) {
     this.scene = scene;
     this.camera = camera;
+    this.hud = hud;
 
     this.creerMesh();
 
     // Créer l'arme attachée au bout du bras
-    this.arme = new Arme(scene, camera, this.mesh);
+    this.arme = new Arme(scene, camera, this.mesh, hud);
   }
 
   creerMesh() {

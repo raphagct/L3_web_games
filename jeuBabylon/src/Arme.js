@@ -8,9 +8,10 @@ import { Projectile } from "./Projectile.js";
 export class Arme {
   static COOLDOWN = 0.25; // secondes entre chaque tir
 
-  constructor(scene, camera, parent, nom = "Revolver") {
+  constructor(scene, camera, parent, hud, nom = "Revolver") {
     this.scene = scene;
     this.camera = camera;
+    this.hud = hud;
     this.tempsCooldown = 0;
     this.projectiles = [];
     this.nom = nom;
@@ -69,7 +70,7 @@ export class Arme {
     // Direction = là où la caméra regarde
     const direction = this.camera.getDirection(Vector3.Forward());
 
-    const projectile = new Projectile(this.scene, positionDepart, direction);
+    const projectile = new Projectile(this.scene, positionDepart, direction, this.hud);
     this.projectiles.push(projectile);
   }
 }

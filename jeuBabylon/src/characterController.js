@@ -94,7 +94,7 @@ export class Player {
     });
 
     // Créer le bras (+ arme attachée) en FPS
-    this.bras = new Bras(this.scene, this.camera);
+    this.bras = new Bras(this.scene, this.camera, this.hud);
     if (this.hud && this.bras.arme) {
       this.hud.updateWeapon(this.bras.arme.nom);
     }

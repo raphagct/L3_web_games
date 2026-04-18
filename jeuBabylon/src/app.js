@@ -457,22 +457,66 @@ export default class App {
       }
 
       const getRandomArenaPos = () => {
-          // Spawn dans un arc de 120° DEVANT le joueur, entre 8 et 15m
-          const radius = 8 + Math.random() * 7;
-          // Angle aléatoire dans un arc avant : -60° à +60° par rapport à la direction du joueur
-          const baseAngle = Math.atan2(playerForward.x, playerForward.z);
-          const spread = (Math.random() - 0.5) * (Math.PI * 2 / 3); // ±60°
-          const angle = baseAngle + spread;
-          const rx = Math.sin(angle) * radius;
-          const rz = Math.cos(angle) * radius;
-          return new Vector3(spawnPos.x + rx, spawnPos.y + 2.5, spawnPos.z + rz);
+          let found = false;
+          let finalPos = new Vector3(0, 0, 0);
+          let attempts = 0;
+          
+          while (!found && attempts < 30) {
+              const angle = Math.random() * Math.PI * 2;
+              let radius = 10 + Math.random() * 15; // De 10 à 25m
+              
+              const dirX = Math.sin(angle);
+              const dirZ = Math.cos(angle);
+              const direction = new Vector3(dirX, 0, dirZ).normalize();
+              
+              // 1. Raycast depuis le centre vers l'extérieur pour ne pas traverser les murs
+              const centerRay = new Ray(new Vector3(spawnPos.x, spawnPos.y + 1.5, spawnPos.z), direction, radius);
+              const centerHit = scene.pickWithRay(centerRay, (m) => {
+                  return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
+              });
+
+              if (centerHit && centerHit.hit) {
+                  // Si on tape un mur, on s'arrête avant le mur
+                  // Si le mur est trop proche (ex: < 4m), on annule et on cherche un autre angle
+                  if (centerHit.distance < 4) {
+                      attempts++;
+                      continue; 
+                  }
+                  radius = centerHit.distance - 2; // On se place 2m avant le mur
+              }
+
+              const testX = spawnPos.x + dirX * radius;
+              const testZ = spawnPos.z + dirZ * radius;
+              
+              // 2. Raycast vers le bas pour trouver le sol à cet endroit
+              const downRay = new Ray(new Vector3(testX, spawnPos.y + 50, testZ), new Vector3(0, -1, 0), 100);
+              const downHit = scene.pickWithRay(downRay, (m) => {
+                  return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
+              });
+
+              if (downHit && downHit.hit) {
+                  // On vérifie que le sol n'est pas trop bas (ex: un trou de la mort)
+                  if (downHit.pickedPoint.y >= spawnPos.y - 5) {
+                      finalPos = new Vector3(testX, downHit.pickedPoint.y + 1, testZ);
+                      found = true;
+                  }
+              }
+              attempts++;
+          }
+
+          if (!found) {
+              // Fallback au cas où aucun point valide n'est trouvé
+              finalPos = new Vector3(spawnPos.x + (Math.random() - 0.5) * 5, spawnPos.y + 2.5, spawnPos.z + (Math.random() - 0.5) * 5);
+          }
+
+          return finalPos;
       };
 
-      const num1 = 1 + this.currentArenaIndex * 2;
+      const num1 = 1 + this.currentArenaIndex;
       for(let i=0; i<num1; i++) {
           this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
       }
-      const num2 = 1 + this.currentArenaIndex;
+      const num2 = 1 + Math.floor(this.currentArenaIndex / 2);
       for(let i=0; i<num2; i++) {
           this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
       }
@@ -590,9 +634,7 @@ export default class App {
         this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
     }
 
-    // Détacher la scène pour que les clics sur les boutons
-    // ne passent pas par la caméra du joueur
-    this.scene.detachControl();
+    // On ne détache PAS la scène (this.scene.detachControl()), sinon on ne peut plus cliquer sur les boutons de l'interface GUI !
     if (document.exitPointerLock) {
       document.exitPointerLock();
     }

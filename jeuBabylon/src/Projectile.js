@@ -9,10 +9,12 @@ export class Projectile {
   static VITESSE = 40;
   static DUREE_VIE = 2; // secondes
 
-  constructor(scene, positionDepart, direction) {
+  constructor(scene, positionDepart, direction, hud) {
     this.scene = scene;
     this.direction = direction.normalize();
     this.tempsEcoule = 0;
+    this.hud = hud;
+    this.hasHitEnemy = false;
 
     // Créer le mesh (petite sphère)
     this.mesh = MeshBuilder.CreateSphere(
@@ -40,6 +42,9 @@ export class Projectile {
 
     // Auto-destruction après la durée de vie
     if (this.tempsEcoule >= Projectile.DUREE_VIE) {
+      if (!this.hasHitEnemy && this.hud && typeof this.hud.resetCombo === 'function') {
+        this.hud.resetCombo();
+      }
       this.detruire();
       return;
     }
@@ -52,8 +57,11 @@ export class Projectile {
     if (this.scene.enemies) {
       for (let enemy of this.scene.enemies) {
         if (!enemy.isDead && enemy.mesh && this.mesh.intersectsMesh(enemy.mesh, false)) {
+          this.hasHitEnemy = true;
           enemy.takeDamage(15); // Dégâts de l'arme !
-          if (enemy.player && enemy.player.hud && typeof enemy.player.hud.addHit === 'function') {
+          if (this.hud && typeof this.hud.addHit === 'function') {
+              this.hud.addHit();
+          } else if (enemy.player && enemy.player.hud && typeof enemy.player.hud.addHit === 'function') {
               enemy.player.hud.addHit();
           }
           this.detruire(); // Détruire le projectile
