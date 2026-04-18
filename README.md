@@ -1,6 +1,8 @@
 # Projet - L3_web_games
 
 ## GamesOnWeb
+Lien du concour :
+https://www.cgi.com/france/fr-fr/event/games-on-web-2026
 
 ### Participants :
 - Guichet Raphael
