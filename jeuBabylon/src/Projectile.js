@@ -53,6 +53,9 @@ export class Projectile {
       for (let enemy of this.scene.enemies) {
         if (!enemy.isDead && enemy.mesh && this.mesh.intersectsMesh(enemy.mesh, false)) {
           enemy.takeDamage(15); // Dégâts de l'arme !
+          if (enemy.player && enemy.player.hud && typeof enemy.player.hud.addHit === 'function') {
+              enemy.player.hud.addHit();
+          }
           this.detruire(); // Détruire le projectile
           return;
         }

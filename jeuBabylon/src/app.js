@@ -5,6 +5,7 @@ import {
   Vector3,
   Color4,
   HemisphericLight,
+  Ray
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import { Environment } from "./environnment.js";
@@ -25,6 +26,27 @@ export default class App {
   constructor() {
     this.canvas = document.getElementById("canvas");
 
+    this.arenas = [
+        "sol_lvl2", 
+        "ground", 
+        "ground3", 
+        "ground_arene_4",
+        "New Ground",
+        "ground_coté"
+    ];
+
+    this.cutsceneTexts = [
+        { title: "NIVEAU 1 : L'ÉVEIL", text: "L'an 2142. L'Intelligence Artificielle S.U.D.O. a pris le contrôle total du réseau mondial. Seuls quelques rebelles subsistent...\n\nVotre mission : vous infiltrer et détruire la première ligne de défense." },
+        { title: "NIVEAU 2 : LA PLATEFORME", text: "SUDO a localisé votre position. Des unités d'extermination ont été envoyées sur la plateforme. Préparez-vous au combat !" },
+        { title: "NIVEAU 3 : TERRES DÉSOLÉES", text: "La zone est lourdement gardée. Les défenses de SUDO s'intensifient. Détruisez-les pour avancer." },
+        { title: "NIVEAU 4 : LE BASTION", text: "Vous approchez d'un nœud de serveur critique. Les unités lourdes sont déployées. Ne montrez aucune pitié." },
+        { title: "NIVEAU 5 : CARREFOUR MORTEL", text: "Les réserves énergétiques de la zone sont à leur maximum. Les renforts ennemis arrivent de toute part." },
+        { title: "NIVEAU 6 : L'AFFRONTEMENT FINAL", text: "C'est la dernière arène de ce secteur. Éliminez tous les robots pour pirater définitivement ce quadrant du réseau de SUDO !" }
+    ];
+
+    this.currentArenaIndex = 0;
+    this.levelCompleteTriggered = false;
+
     //on init scene et engine
     this.engine = new Engine(this.canvas, true);
     this.scene = new Scene(this.engine);
@@ -44,6 +66,10 @@ export default class App {
           this.scene.render();
           break;
         case State.GAME:
+          if (!this.isPaused && this.scene.enemies && this.scene.enemies.length === 0 && !this.levelCompleteTriggered) {
+             this.levelCompleteTriggered = true;
+             this.handleArenaComplete();
+          }
           this.scene.render();
           break;
         case State.LOSE:
@@ -70,10 +96,11 @@ export default class App {
     });
 
     document.addEventListener("pointerlockchange", () => {
-      if (this.state === State.GAME) {
-        if (!document.pointerLockElement && !this.isPaused) {
-          this.togglePause();
-        }
+      // Ne déclencher la pause QUE si on est en GAME et pas en transition
+      if (this.state !== State.GAME) return;
+      if (this._ignoringPointerLock) return;
+      if (!document.pointerLockElement && !this.isPaused) {
+        this.togglePause();
       }
     });
   }
@@ -126,53 +153,18 @@ export default class App {
     this.player = new Player(scene, this.hud, () => this.goToLose());
     await this.player.load();
 
-    // Créer les ennemis initialement sur la carte
-    this.enemies = [];
-    scene.enemies = this.enemies;
-    const getRandomArenaPos = () => {
-        const rx = (Math.random() - 0.5) * 12;
-        const rz = (Math.random() - 0.5) * 20;
-        return new Vector3(rx, 0, rz);
-    };
-
-    // Ennemis de type 1
-    this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
-    this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
-    // Ennemis de type 2
-    this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
-    this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
-
-    const spawnMesh = scene.getMeshByName("plateforme_spawn");
-    if (spawnMesh) {
-       this.player.mesh.position.x = spawnMesh.position.x;
-       this.player.mesh.position.z = spawnMesh.position.z;
-    }
+    this.spawnEnemiesForArena(scene);
   }
 
   async goToGame() {
+    this.currentArenaIndex = 0;
+    this.levelCompleteTriggered = false;
     //--SETUP SCENE--
     this.scene.detachControl();
     let scene = this.gamescene;
     scene.clearColor = new Color4(0.01, 0.01, 0.2);
 
-    //--GUI--
-    const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
     scene.detachControl();
-
-    //bouton lose pour tester
-    const loseBtn = Button.CreateSimpleButton("lose", "LOSE");
-    loseBtn.width = 0.2;
-    loseBtn.height = "40px";
-    loseBtn.color = "white";
-    loseBtn.top = "-14px";
-    loseBtn.thickness = 0;
-    loseBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-    playerUI.addControl(loseBtn);
-
-    loseBtn.onPointerDownObservable.add(() => {
-      this.goToLose();
-      scene.detachControl();
-    });
 
     await this.initializeGameAsync(scene);
 
@@ -191,15 +183,20 @@ export default class App {
     this.loseMenu = new LoseMenu(
       scene,
       () => {
+        // Rejouer : on dispose tout et on reconstruit le jeu de zéro
         if (this.pauseMenu) this.pauseMenu.dispose();
         if (this.settingsMenu) this.settingsMenu.dispose();
         if (this.loseMenu) this.loseMenu.dispose();
-        this.goToCutScene();
+        if (this.hud) this.hud.dispose();
+        this.gamescene = null;
+        this.goToStart();
       },
       () => {
         if (this.pauseMenu) this.pauseMenu.dispose();
         if (this.settingsMenu) this.settingsMenu.dispose();
         if (this.loseMenu) this.loseMenu.dispose();
+        if (this.hud) this.hud.dispose();
+        this.gamescene = null;
         this.goToStart();
       }
     );
@@ -224,6 +221,137 @@ export default class App {
     this.scene = scene;
     this.engine.hideLoadingUI();
     this.scene.attachControl();
+  }
+
+  spawnEnemiesForArena(scene) {
+      if (scene.enemies) {
+          scene.enemies.forEach(e => {
+              if (!e.isDead) e.die();
+          });
+      }
+      this.enemies = [];
+      scene.enemies = this.enemies;
+
+      const arenaMeshName = this.arenas[this.currentArenaIndex];
+      const spawnMesh = scene.getMeshByName(arenaMeshName);
+      
+      let spawnPos = new Vector3(0, 0, 0);
+
+      if (spawnMesh) {
+          spawnMesh.computeWorldMatrix(true);
+          const boundingInfo = spawnMesh.getBoundingInfo();
+          if (boundingInfo) {
+              spawnPos = boundingInfo.boundingBox.centerWorld.clone();
+          } else {
+              spawnPos = spawnMesh.getAbsolutePosition().clone();
+          }
+      }
+
+      if (this.player && this.player.mesh) {
+          this.player.mesh.position.x = spawnPos.x;
+          this.player.mesh.position.y = spawnPos.y + 2.5;
+          this.player.mesh.position.z = spawnPos.z;
+          if (typeof this.player.healFull === "function") {
+              this.player.healFull();
+          }
+      }
+
+      // On récupère la direction où le joueur regarde pour spawner les ennemis DEVANT lui
+      let playerForward = new Vector3(0, 0, 1);
+      if (this.player && this.player.mesh && scene.activeCamera) {
+          const cam = scene.activeCamera;
+          playerForward = cam.getDirection(Vector3.Forward());
+          playerForward.y = 0;
+          playerForward.normalize();
+      }
+
+      const getRandomArenaPos = () => {
+          // Spawn dans un arc de 120° DEVANT le joueur, entre 8 et 15m
+          const radius = 8 + Math.random() * 7;
+          // Angle aléatoire dans un arc avant : -60° à +60° par rapport à la direction du joueur
+          const baseAngle = Math.atan2(playerForward.x, playerForward.z);
+          const spread = (Math.random() - 0.5) * (Math.PI * 2 / 3); // ±60°
+          const angle = baseAngle + spread;
+          const rx = Math.sin(angle) * radius;
+          const rz = Math.cos(angle) * radius;
+          return new Vector3(spawnPos.x + rx, spawnPos.y + 2.5, spawnPos.z + rz);
+      };
+
+      const num1 = 1 + this.currentArenaIndex * 2;
+      for(let i=0; i<num1; i++) {
+          this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
+      }
+      const num2 = 1 + this.currentArenaIndex;
+      for(let i=0; i<num2; i++) {
+          this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+      }
+  }
+
+  async handleArenaComplete() {
+      this.currentArenaIndex++;
+      if (this.currentArenaIndex >= this.arenas.length) {
+          this.currentArenaIndex = 0; 
+          this.goToStart();
+          return;
+      }
+      
+      // === ÉTAPE 1 : Bloquer TOUT ===
+      this.state = State.CUTSCENE;
+      this._ignoringPointerLock = true;
+      this.isPaused = true;
+      this.scene.isPaused = true;
+      if (this.hud) this.hud.isPaused = true;
+      
+      // Détacher les inputs de la scène de jeu
+      this.scene.detachControl();
+      if (document.exitPointerLock) document.exitPointerLock();
+      
+      // Sauvegarder la référence au jeu
+      const savedGameScene = this.scene;
+      
+      // === ÉTAPE 2 : Créer une scène de cutscene séparée (comme goToCutScene) ===
+      this.cutScene = new Scene(this.engine);
+      let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
+      camera.setTarget(Vector3.Zero());
+      this.cutScene.clearColor = new Color4(0, 0, 0, 1);
+      
+      const nextData = this.cutsceneTexts[this.currentArenaIndex] || { title: "VICTOIRE", text: "Victoire écrasante" };
+      
+      this.cutsceneMenu = new CutsceneMenu(
+          this.cutScene, 
+          () => {
+              // === ÉTAPE 3 : Le joueur a cliqué SUIVANT ===
+              this.cutsceneMenu.dispose();
+              this.cutScene.dispose();
+              
+              // Restaurer la scène de jeu
+              this.scene = savedGameScene;
+              this.scene.isPaused = false;
+              this.isPaused = false;
+              if (this.hud) this.hud.isPaused = false;
+              
+              // Spawner les ennemis de la nouvelle arène
+              this.spawnEnemiesForArena(this.scene);
+              this.levelCompleteTriggered = false;
+              
+              // Réactiver les contrôles
+              this.state = State.GAME;
+              this.scene.attachControl();
+              
+              // Laisser la souris libre - le joueur cliquera naturellement
+              // pour réacquérir le pointer lock via le click handler du Player
+              // NE PAS appeler requestPointerLock() ici!
+              // Désactiver le flag après un délai pour laisser les events se calmer
+              setTimeout(() => {
+                  this._ignoringPointerLock = false;
+              }, 300);
+          },
+          nextData.title,
+          nextData.text
+      );
+      
+      // === ÉTAPE 4 : Basculer le rendu sur la scène cutscene ===
+      this.scene = this.cutScene;
   }
 
   async goToStart() {
@@ -254,10 +382,17 @@ export default class App {
     camera.setTarget(Vector3.Zero());
     this.cutScene.clearColor = new Color4(0, 0, 0, 1);
 
-    this.cutsceneMenu = new CutsceneMenu(this.cutScene, () => {
-      this.cutsceneMenu.dispose();
-      this.goToGame();
-    });
+    const initData = this.cutsceneTexts[0];
+
+    this.cutsceneMenu = new CutsceneMenu(
+      this.cutScene, 
+      () => {
+        this.cutsceneMenu.dispose();
+        this.goToGame();
+      },
+      initData.title,
+      initData.text
+    );
 
     await this.cutScene.whenReadyAsync();
     this.engine.hideLoadingUI();
@@ -272,13 +407,18 @@ export default class App {
   goToLose() {
     if (this.state === State.LOSE) return;
     this.state = State.LOSE;
+    this._ignoringPointerLock = true;
 
     this.scene.isPaused = true;
+    this.isPaused = true;
     if (this.hud) {
         this.hud.isPaused = true;
         this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
     }
 
+    // Détacher la scène pour que les clics sur les boutons
+    // ne passent pas par la caméra du joueur
+    this.scene.detachControl();
     if (document.exitPointerLock) {
       document.exitPointerLock();
     }

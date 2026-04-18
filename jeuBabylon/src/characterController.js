@@ -61,6 +61,13 @@ export class Player {
     }
   }
 
+  healFull() {
+    this.health = this.maxHealth;
+    if (this.hud) {
+      this.hud.updateHealth(this.health, this.maxHealth);
+    }
+  }
+
   async load() {
     // on crée le mesh du perso(qu'on voit pas vu que c'est en 1ere personne)
     this.mesh = MeshBuilder.CreateBox("player", { height: 2, width: 0.8, depth: 0.8 }, this.scene);
@@ -140,5 +147,10 @@ export class Player {
     }
 
     this.mesh.moveWithCollisions(displacement);
+
+    // Si le joueur tombe de la carte
+    if (this.mesh.position.y < -50) {
+      this.takeDamage(this.health);
+    }
   }
 }

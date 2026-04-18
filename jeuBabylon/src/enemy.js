@@ -19,7 +19,7 @@ export class Enemy {
     this.isDead = false;
 
     this.mesh = this.createMesh(scene);
-    this.mesh.position = new Vector3(position.x, position.y + 10, position.z); // tombe depuis le ciel
+    this.mesh.position = new Vector3(position.x, position.y + 1, position.z);
 
     // Activer les collisions pour l'ennemi (ajusté avec l'échelle)
     this.mesh.checkCollisions = true;
@@ -28,8 +28,8 @@ export class Enemy {
     this.wanderDirection = new Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
     this.changeDirectionTimer = 0;
 
-    this.visionRange = 12; // Distance de vision max (12 unités)
-    this.visionAngle = Math.PI / 3; // Angle de vision (60 degrés de chaque côté, cône de 120 degrés)
+    this.visionRange = 250; // Distance de vision très grande pour toujours voir le joueur
+    this.visionAngle = Math.PI; // Vision à 360 degrés (angle complet) pour ne pas se coincer
 
     this._observateur = this.scene.onBeforeRenderObservable.add(() => {
       if (!this.isDead) this.update();
@@ -46,6 +46,10 @@ export class Enemy {
 
   die() {
     this.isDead = true;
+    if (this.player && this.player.hud && typeof this.player.hud.addKill === 'function') {
+        const killPos = this.mesh ? this.mesh.getAbsolutePosition().clone() : null;
+        this.player.hud.addKill(killPos);
+    }
     if (this._observateur) {
       this.scene.onBeforeRenderObservable.remove(this._observateur);
     }
@@ -144,6 +148,11 @@ export class Enemy {
       this.attackCooldown -= dt;
     }
 
+    if (this.mesh.position.y < -50) {
+      this.die();
+      return;
+    }
+
     if (this.player && this.player.mesh) {
       if (this.attackCooldown <= 0 && this.mesh.intersectsMesh(this.player.mesh, false)) {
         if (typeof this.player.takeDamage === "function") {
@@ -210,31 +219,23 @@ export class Enemy {
     const dot = Vector3.Dot(forward2D, direction2D);
     if (dot < Math.cos(this.visionAngle)) return false;
 
-    // 3. Lancer un rayon pour vérifier s'il y a un obstacle (mur, objet) entre l'ennemi et le joueur
-    const ray = new Ray(startPos, directionToPlayer, distance);
-    const hitInfo = this.scene.pickWithRay(ray, (mesh) => {
-      // Ignorer l'ennemi lui-même
-      return mesh.checkCollisions && mesh.name !== "enemyCollider" && !mesh.name.includes("enemyBody") && !mesh.name.includes("enemyHead");
-    });
-
-    if (hitInfo.hit && hitInfo.pickedMesh !== this.player.mesh) {
-      return false; // Il y a un obstacle entre l'ennemi et le joueur
-    }
-
+    // On ignore le raycast derrière les murs pour que les bots cherchent et glissent sur les parois.
     return true;
   }
 }
 
 export class EnemyType1 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 50, 10, 4, 1.0);
+    // Red (Type1) weakened: HP: 40, Damage: 5, Speed: 3, CD: 1.5
+    super(scene, player, position, 40, 5, 3, 1.5);
     this.applyColor(new Color3(1, 0.2, 0.2));
   }
 }
 
 export class EnemyType2 extends Enemy {
   constructor(scene, player, position) {
-    super(scene, player, position, 150, 20, 2, 2.0);
+    // Blue (Type2) strengthened: HP: 200, Damage: 30, Speed: 4, CD: 1.0
+    super(scene, player, position, 200, 30, 4, 1.0);
     this.applyColor(new Color3(0.2, 0.8, 1));
   }
 }
