@@ -4,14 +4,13 @@ import NeonScript from "./scripts/NeonScript.ts";
 import NeonScriptI from "./scripts/NeonScriptI.ts";
 import LavaScript from "./scripts/LavaScript.ts";
 import PoisonScript from "./scripts/PoisonScript.ts";
-//import DungeonScript from "./scripts/Herbe.ts";
-//import Herbe from "./scripts/Herbe.ts";
-//import Donjon from "./scripts/Donjon.ts";
 import ScieScript from "./scripts/ScieScript.js";
+import LavaDamageScript from "./scripts/LavaDamageScript.js";
 
 export class Environment {
   constructor(scene) {
     this.scene = scene;
+    this.player = null; // sera assigné après le chargement depuis app.js
   }
 
   async load() {
@@ -153,7 +152,7 @@ export class Environment {
          let distance = 3; 
          let vitesse = 1;
          let rotation = 0;
-         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation, this.player);
          scriptScie.onStart();
     }
 
@@ -161,28 +160,28 @@ export class Environment {
          let distance = 2.75; 
          let vitesse = 1;
          let rotation = 45;
-         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation, this.player);
          scriptScie.onStart();
     }
      if (mesh.name.toLowerCase().includes("sy2")) { 
          let distance =2.75; 
          let vitesse =1;
          let rotation = -45;
-         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation, this.player);
          scriptScie.onStart();
     }
     if (mesh.name.toLowerCase().includes("sc3")) { 
          let distance =6; 
          let vitesse =1;
          let rotation = 0;
-         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation, this.player);
          scriptScie.onStart();
     }
     if (mesh.name.toLowerCase().includes("sz3")) { 
          let distance =6; 
          let vitesse =1;
          let rotation = -45;
-         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation, this.player);
          scriptScie.onStart();
     }
    }
@@ -193,9 +192,12 @@ export class Environment {
   
     
     for (const mesh of this.scene.meshes) {
-    if (mesh.name.toLowerCase().includes("lave") ||mesh.name.toLowerCase().includes("lava")) {
+    if (mesh.name.toLowerCase().includes("lave") || mesh.name.toLowerCase().includes("lava")) {
         const scriptLava = new LavaScript(mesh);
         scriptLava.onStart();
+        // Dégâts de lave
+        const scriptLavaDmg = new LavaDamageScript(mesh, this.player);
+        scriptLavaDmg.onStart();
     }
     }
     

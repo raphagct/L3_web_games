@@ -35,12 +35,30 @@ export default class App {
     ];
 
     this.cutsceneTexts = [
-        { title: "NIVEAU 1 : L'ÉVEIL", text: "L'an 2142. L'Intelligence Artificielle S.U.D.O. a pris le contrôle total du réseau mondial. Seuls quelques rebelles subsistent...\n\nVotre mission : vous infiltrer et détruire la première ligne de défense." },
-        { title: "NIVEAU 2 : LA PLATEFORME", text: "SUDO a localisé votre position. Des unités d'extermination ont été envoyées sur la plateforme. Préparez-vous au combat !" },
-        { title: "NIVEAU 3 : TERRES DÉSOLÉES", text: "La zone est lourdement gardée. Les défenses de SUDO s'intensifient. Détruisez-les pour avancer." },
-        { title: "NIVEAU 4 : LE BASTION", text: "Vous approchez d'un nœud de serveur critique. Les unités lourdes sont déployées. Ne montrez aucune pitié." },
-        { title: "NIVEAU 5 : CARREFOUR MORTEL", text: "Les réserves énergétiques de la zone sont à leur maximum. Les renforts ennemis arrivent de toute part." },
-        { title: "NIVEAU 6 : L'AFFRONTEMENT FINAL", text: "C'est la dernière arène de ce secteur. Éliminez tous les robots pour pirater définitivement ce quadrant du réseau de SUDO !" }
+      {
+        title: "NIVEAU 1 : L'ÉVEIL",
+        text: "2048. L'IA S.U.D.O a pris le contrôle total des systèmes d'informations mondiaux. Seuls quelques rebelles subsistent...\n\nVotre mission : vous infiltrer et détruire la première ligne de défense.",
+      },
+      {
+        title: "NIVEAU 2 : LA PLATEFORME",
+        text: "S.U.D.O a localisé votre position. Des unités supplémentaires ont été envoyées sur la plateforme. Préparez-vous au combat !",
+      },
+      {
+        title: "NIVEAU 3 : LE TEST",
+        text: "S.U.D.O a repéré votre potentiel, il a décidé de vous mettre au défi.",
+      },
+      {
+        title: "NIVEAU 4 : LE TERMINAL",
+        text: "S.U.D.O a reconnu votre valeur et a décidé de vous donner des privilèges pour vous déplacer jusqu'a son noyau.",
+      },
+      {
+        title: "NIVEAU 5 : LE FIREWALL",
+        text: "Vous vous approchez du noyau, le pare-feu de S.U.D.O se déclenche !",
+      },
+      {
+        title: "NIVEAU 6 : L'AFFRONTEMENT FINAL",
+        text: "Vous voici à l'intérieur du noyau. Sauvez l'humanité et écrivez l'histoire !",
+      },
     ];
 
     this.currentArenaIndex = 0;
@@ -344,6 +362,9 @@ export default class App {
     this.player = new Player(scene, this.hud, () => this.goToLose());
     await this.player.load();
 
+    // Stocker le joueur sur la scène pour que les scripts (scies, lave...) puissent y accéder dynamiquement
+    scene.player = this.player;
+
     this.spawnEnemiesForArena(scene);
   }
 
@@ -444,6 +465,10 @@ export default class App {
           this.player.mesh.position.z = spawnPos.z;
           if (typeof this.player.healFull === "function") {
               this.player.healFull();
+          }
+          // Protection contre les dégâts au spawn (3 secondes d'invincibilité)
+          if (typeof this.player.setSpawnProtection === "function") {
+              this.player.setSpawnProtection(3);
           }
       }
 

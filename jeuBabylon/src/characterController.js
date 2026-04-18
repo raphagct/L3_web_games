@@ -27,6 +27,9 @@ export class Player {
     this.health = 100;
     this.maxFood = 100;
     this.food = 100;
+    
+    // Invincibilité au spawn (en secondes)
+    this._spawnProtection = 0;
 
     // Initialiser l'affichage au démarrage
     if (this.hud) {
@@ -50,6 +53,8 @@ export class Player {
 
   takeDamage(amount) {
     if (this.isDead) return;
+    // Invincibilité temporaire au spawn
+    if (this._spawnProtection > 0) return;
     this.health -= amount;
     if (this.health <= 0) {
       this.health = 0;
@@ -58,6 +63,16 @@ export class Player {
     }
     if (this.hud) {
       this.hud.updateHealth(this.health, this.maxHealth);
+      if (typeof this.hud.showDamageEffect === 'function') {
+        this.hud.showDamageEffect();
+      }
+    }
+  }
+
+  setSpawnProtection(seconds = 3) {
+    this._spawnProtection = seconds;
+    if (this.hud && typeof this.hud.showSpawnProtection === 'function') {
+      this.hud.showSpawnProtection(seconds);
     }
   }
 
@@ -124,8 +139,16 @@ export class Player {
     
     // Mouvement à chaque frame via l'observable
     this.scene.onBeforeRenderObservable.add(() => {
+      // Décrémenter la protection de spawn
+      if (this._spawnProtection > 0) {
+        const dt = this.scene.getEngine().getDeltaTime() / 1000;
+        this._spawnProtection = Math.max(0, this._spawnProtection - dt);
+      }
       this.updateMovement();
     });
+    
+    // Activer la protection au spawn initial
+    this.setSpawnProtection(3);
   }
 
   updateMovement() {

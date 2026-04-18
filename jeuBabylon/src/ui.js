@@ -24,6 +24,142 @@ export class PlayerHUD {
         });
     }
 
+    showSpawnProtection(duration = 3) {
+        // Nettoyer un éventuel effet précédent
+        const existing = document.getElementById("spawn-protection-overlay");
+        if (existing) existing.remove();
+
+        const overlay = document.createElement("div");
+        overlay.id = "spawn-protection-overlay";
+        overlay.innerHTML = `<span id="spawn-protection-text">INVINCIBLE</span>`;
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            border: 4px solid transparent;
+            box-shadow: inset 0 0 60px 20px rgba(0, 200, 255, 0.35);
+            border-image: none;
+            animation: spawnPulse 0.6s ease-in-out infinite alternate;
+            transition: opacity 0.3s;
+        `;
+
+        const textEl = overlay.querySelector("#spawn-protection-text");
+        textEl.style.cssText = `
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(0, 220, 255, 0.9);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 220, 255, 1);
+            animation: spawnTextBlink 0.6s ease-in-out infinite alternate;
+        `;
+
+        // Injecter les keyframes si pas encore présents
+        if (!document.getElementById("spawn-protection-style")) {
+            const style = document.createElement("style");
+            style.id = "spawn-protection-style";
+            style.textContent = `
+                @keyframes spawnPulse {
+                    from { box-shadow: inset 0 0 40px 10px rgba(0, 200, 255, 0.2); }
+                    to   { box-shadow: inset 0 0 80px 30px rgba(0, 200, 255, 0.55); }
+                }
+                @keyframes spawnTextBlink {
+                    from { opacity: 0.5; }
+                    to   { opacity: 1.0; }
+                }
+                @keyframes spawnFastBlink {
+                    0%   { box-shadow: inset 0 0 80px 30px rgba(255, 80, 0, 0.5); }
+                    50%  { box-shadow: inset 0 0 20px 5px rgba(255, 80, 0, 0.1); }
+                    100% { box-shadow: inset 0 0 80px 30px rgba(255, 80, 0, 0.5); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(overlay);
+
+        // À 1 seconde restante → clignotement rapide orange pour avertir
+        const warnTimeout = setTimeout(() => {
+            if (!document.getElementById("spawn-protection-overlay")) return;
+            overlay.style.animation = "spawnFastBlink 0.18s linear infinite";
+            overlay.style.boxShadow = "none";
+            if (textEl) {
+                textEl.textContent = "FIN IMMINENTE";
+                textEl.style.color = "rgba(255, 120, 0, 0.95)";
+                textEl.style.textShadow = "0 0 10px rgba(255, 120, 0, 1)";
+            }
+        }, (duration - 1) * 1000);
+
+        // Fin : fondu et suppression
+        const endTimeout = setTimeout(() => {
+            clearTimeout(warnTimeout);
+            const el = document.getElementById("spawn-protection-overlay");
+            if (el) {
+                el.style.opacity = "0";
+                setTimeout(() => el.remove(), 300);
+            }
+        }, duration * 1000);
+
+        // Stocker pour nettoyage éventuel
+        this._spawnProtectionCleanup = () => {
+            clearTimeout(warnTimeout);
+            clearTimeout(endTimeout);
+            const el = document.getElementById("spawn-protection-overlay");
+            if (el) el.remove();
+        };
+    }
+
+    hideSpawnProtection() {
+        if (this._spawnProtectionCleanup) {
+            this._spawnProtectionCleanup();
+            this._spawnProtectionCleanup = null;
+        }
+    }
+
+    showDamageEffect() {
+        // Injecter les keyframes si pas encore présents
+        if (!document.getElementById("damage-effect-style")) {
+            const style = document.createElement("style");
+            style.id = "damage-effect-style";
+            style.textContent = `
+                @keyframes damageFlash {
+                    0%   { opacity: 0; }
+                    15%  { opacity: 1; }
+                    100% { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Supprimer un flash précédent si encore en cours
+        const existing = document.getElementById("damage-flash-overlay");
+        if (existing) existing.remove();
+
+        const overlay = document.createElement("div");
+        overlay.id = "damage-flash-overlay";
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            box-shadow: inset 0 0 120px 40px rgba(200, 0, 0, 0.7);
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(180, 0, 0, 0.55) 100%);
+            animation: damageFlash 0.5s ease-out forwards;
+        `;
+        document.body.appendChild(overlay);
+
+        // Nettoyage automatique après l'animation
+        setTimeout(() => {
+            const el = document.getElementById("damage-flash-overlay");
+            if (el) el.remove();
+        }, 520);
+    }
+
     _createTimer() {
         this._timeText = new GUI.TextBlock();
         this._timeText.text = "00:00";
