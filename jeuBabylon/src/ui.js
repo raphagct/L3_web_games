@@ -1,17 +1,20 @@
 import * as GUI from "@babylonjs/gui";
 import { GameSettings } from "./config.js";
+import { MeshBuilder } from "@babylonjs/core";
 
 export class PlayerHUD {
     _realTimeSeconds = 0;
     isPaused = false;
 
     constructor(scene) {
+        this.scene = scene;
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 
         this._createTimer();
         this._createStatBars();
         this._createWeaponDisplay();
         this._createCrosshair();
+        this._createComboUI();
 
         scene.onBeforeRenderObservable.add(() => {
             if (!this.isPaused) {
@@ -129,6 +132,90 @@ export class PlayerHUD {
         this._ui.addControl(vertical);
     }
 
+    _createComboUI() {
+        this._comboText = new GUI.TextBlock();
+        this._comboText.text = "";
+        this._comboText.color = "#FFD700";
+        this._comboText.fontSize = 48;
+        this._comboText.fontStyle = "italic";
+        this._comboText.fontWeight = "bold";
+        this._comboText.outlineWidth = 4;
+        this._comboText.outlineColor = "black";
+        this._comboText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this._comboText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this._comboText.top = "-100px";
+        this._comboText.left = "0px";
+        this._ui.addControl(this._comboText);
+
+        this.combo = 0;
+        this.comboTimer = 0;
+
+        this.scene.onBeforeRenderObservable.add(() => {
+            if (this.comboTimer > 0 && !this.isPaused) {
+                this.comboTimer -= this.scene.getEngine().getDeltaTime() / 1000;
+                if (this.comboTimer <= 0) {
+                    this.combo = 0;
+                    this._comboText.text = "";
+                }
+            }
+        });
+    }
+
+    addHit() {
+        this.combo++;
+        this.comboTimer = 3.0; // 3 seconds to keep combo
+        
+        let txt = "HIT x" + this.combo;
+        if (this.combo >= 5) {
+            txt = "COMBO x" + this.combo + "!";
+            this._comboText.color = "#ff8c00";
+        }
+        if (this.combo >= 10) {
+            txt = "UNSTOPPABLE x" + this.combo + "!!!";
+            this._comboText.color = "#ff0000";
+        }
+        if (this.combo < 5) {
+            this._comboText.color = "#FFD700";
+        }
+
+        this._comboText.text = txt;
+    }
+
+    addKill(position) {
+        if (!position) return;
+
+        const dummy = MeshBuilder.CreateSphere("dummyKill", {diameter: 0.1}, this.scene);
+        dummy.position = position.clone();
+        dummy.isVisible = false;
+
+        const killText = new GUI.TextBlock();
+        killText.text = "ELIMINATION!";
+        killText.color = "#00ffcc";
+        killText.fontFamily = "Impact";
+        killText.fontSize = 28;
+        killText.outlineWidth = 3;
+        killText.outlineColor = "black";
+        
+        this._ui.addControl(killText);
+        killText.linkWithMesh(dummy);
+        
+        let alpha = 1.5; 
+        let offsetY = 0;
+        const obs = this.scene.onBeforeRenderObservable.add(() => {
+            if(this.isPaused) return;
+            alpha -= 0.02;
+            offsetY -= 1;
+            killText.linkOffsetY = offsetY;
+            killText.alpha = Math.min(1, Math.max(0, alpha));
+            if (alpha <= 0) {
+                this.scene.onBeforeRenderObservable.remove(obs);
+                this._ui.removeControl(killText);
+                killText.dispose();
+                dummy.dispose();
+            }
+        });
+    }
+
     _updateTimer(deltaTimeInSeconds) {
         this._realTimeSeconds += deltaTimeInSeconds;
 
@@ -159,6 +246,12 @@ export class PlayerHUD {
 
     updateWeapon(weaponName) {
         this._weaponText.text = `Arme: ${weaponName}`;
+    }
+
+    dispose() {
+        if (this._ui) {
+            this._ui.dispose();
+        }
     }
 }
 
@@ -379,7 +472,7 @@ export class StartMenu {
 }
 
 export class CutsceneMenu {
-    constructor(scene, onNextClick) {
+    constructor(scene, onNextClick, title="CINÉMATIQUE", text="...") {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("CutsceneUI", true, scene);
 
         // Image de fond pour la cinématique
@@ -404,7 +497,7 @@ export class CutsceneMenu {
         this._ui.addControl(lorePanel);
 
         const loreTitle = new GUI.TextBlock();
-        loreTitle.text = "MISSION : INFILTRATION";
+        loreTitle.text = title;
         loreTitle.color = "#FFD700";
         loreTitle.fontSize = 36;
         loreTitle.height = "60px";
@@ -413,7 +506,7 @@ export class CutsceneMenu {
         lorePanel.addControl(loreTitle);
 
         const loreText = new GUI.TextBlock();
-        loreText.text = "L'an 2142. L'Intelligence Artificielle S.U.D.O. a pris le contrôle total du réseau mondial. Seuls quelques rebelles subsistent, dissimulés dans les ombres des serveurs corrompus.\n\nVotre mission : vous infiltrer et détruire le cœur du système avant qu'il ne détruise les derniers vestiges de l'humanité.";
+        loreText.text = text;
         loreText.color = "white";
         loreText.fontSize = 24;
         loreText.height = "300px";
