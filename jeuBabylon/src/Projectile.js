@@ -8,7 +8,6 @@ import {
   ParticleSystem,
   Texture,
   PointLight
-  Mesh,
 } from "@babylonjs/core";
 
 export class Projectile {
