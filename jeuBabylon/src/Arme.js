@@ -1,6 +1,7 @@
 import {
   Vector3,
-  SceneLoader
+  SceneLoader,
+  Ray
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { Projectile } from "./Projectile.js";
@@ -40,17 +41,9 @@ export class Arme {
 
       this.mesh.parent = parent;
       
-      // Normaliser la taille du mesh pour qu'elle s'insère dans un cube de taille 1
-      // Cela définit la propriété `scaling` interne de ce mesh pour compenser la taille originale.
       this.mesh.normalizeToUnitCube();
-      
-      // On rétrécit l'arme à 60% pour mieux s'aligner avec le bras
       this.mesh.scaling.scaleInPlace(0.6);
-      
-      // On avance la position sur l'axe Z (vers l'avant du bras, dont la pointe est à ~0.27)
       this.mesh.position = new Vector3(0, -0.05, 0.32); 
-      
-      // Tourner l'arme si le modèle est à l'envers
       this.mesh.rotation = new Vector3(0, Math.PI, 0); 
     } catch(e) {
       console.error("Erreur gLTF Pistolet:", e);
@@ -64,11 +57,46 @@ export class Arme {
 
     this.tempsCooldown = Arme.COOLDOWN;
 
+    // Animation de recul (recoil) de l'arme
+    if (this._recoilObs) {
+        this.scene.onBeforeRenderObservable.remove(this._recoilObs);
+    }
+    const initialPos = new Vector3(0, -0.05, 0.32);
+    this.mesh.position = new Vector3(0, -0.05, 0.15); // On recule l'arme (recoil)
+    this.mesh.rotation.x = -0.3; // On lève légèrement le canon
+
+    this._recoilObs = this.scene.onBeforeRenderObservable.add(() => {
+        this.mesh.position = Vector3.Lerp(this.mesh.position, initialPos, 0.2);
+        this.mesh.rotation.x = this.mesh.rotation.x * 0.8;
+        if (Vector3.Distance(this.mesh.position, initialPos) < 0.001 && Math.abs(this.mesh.rotation.x) < 0.001) {
+            this.mesh.position = initialPos;
+            this.mesh.rotation.x = 0;
+            this.scene.onBeforeRenderObservable.remove(this._recoilObs);
+            this._recoilObs = null;
+        }
+    });
+
     // Position de départ = position absolue du bout de l'arme
     const positionDepart = this.mesh.getAbsolutePosition().clone();
 
-    // Direction = là où la caméra regarde
-    const direction = this.camera.getDirection(Vector3.Forward());
+    // 1. Raycast depuis la caméra pour trouver EXACTEMENT ce que le joueur vise
+    const camPos = this.camera.globalPosition.clone();
+    const camDir = this.camera.getDirection(Vector3.Forward());
+    const ray = new Ray(camPos, camDir, 1000);
+    
+    const hitInfo = this.scene.pickWithRay(ray, (m) => {
+        return m.checkCollisions && m.name !== "player" && !m.name.includes("arme");
+    });
+
+    let targetPoint;
+    if (hitInfo && hitInfo.hit) {
+        targetPoint = hitInfo.pickedPoint; // Le point exact sur le mur ou l'ennemi
+    } else {
+        targetPoint = camPos.add(camDir.scale(1000)); // Loin dans le vide
+    }
+
+    // 2. La vraie direction va du bout du canon de l'arme vers le point visé !
+    const direction = targetPoint.subtract(positionDepart).normalize();
 
     const projectile = new Projectile(this.scene, positionDepart, direction, this.hud);
     this.projectiles.push(projectile);
