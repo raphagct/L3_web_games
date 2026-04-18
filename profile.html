@@ -1,22 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile - Game Book</title>
-    <link rel="stylesheet" href="./index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-<style>
-    .profile-container {
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .profile-container {
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: calc(100vh - 100px);
         padding: 20px;
-    }
-    .profile-card {
+      }
+      .profile-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
         padding: 40px;
@@ -25,22 +28,22 @@
         width: 350px;
         text-align: center;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    }
-    .profile-card h2 {
+      }
+      .profile-card h2 {
         color: #ffd59d;
         margin-bottom: 20px;
-    }
-    .profile-info {
+      }
+      .profile-info {
         margin-bottom: 30px;
-    }
-    .profile-info p {
+      }
+      .profile-info p {
         margin: 10px 0;
         color: white;
-    }
-    .profile-info strong {
-        color: rgba(255,255,255,0.7);
-    }
-    .btn-logout {
+      }
+      .profile-info strong {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .btn-logout {
         width: 100%;
         padding: 15px;
         background-color: transparent;
@@ -51,71 +54,70 @@
         font-weight: bold;
         font-size: 16px;
         transition: all 0.3s ease;
-    }
-    .btn-logout:hover {
+      }
+      .btn-logout:hover {
         background-color: #ffd59d;
         color: black;
-    }
-</style>
-</head>
-<body>
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Games on web</div>
 
-    <div class="toogle" id="toogle">
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-        <div class="rectangle"></div>
-    </div>
+      <ul class="nav-links" id="navbar">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="library.html">Bibliothèque</a></li>
+        <li><a href="about.html">A propos</a></li>
+      </ul>
 
-<div class="navbar">
-    <img src="./assets/images/logo.png" alt="logo" class="logo">
-    
-    <ul class="navbar-list" id="navbar">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="#">Contact</a></li>
-    </ul>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-login">Connexion</a>
+      </div>
+    </nav>
 
-    <ul class="navbar-login">
-        <li class="librairy"><a href="library.html"><img src="assets/images/library.png" alt=""></a></li>
-        <li class="login"><a href="profile.html"><img src="assets/images/person.png" alt=""></a></li>
-    </ul>
-</div>
-
-<div class="profile-container">
-    <div class="profile-card">
+    <div class="profile-container">
+      <div class="profile-card">
         <h2>Mon Profil</h2>
         <div class="profile-info">
-            <p><strong>Nom d'utilisateur:</strong> <span id="prof-username">-</span></p>
-            <p><strong>Email:</strong> <span id="prof-email">-</span></p>
+          <p>
+            <strong>Nom d'utilisateur:</strong>
+            <span id="prof-username">-</span>
+          </p>
+          <p><strong>Email:</strong> <span id="prof-email">-</span></p>
         </div>
         <button class="btn-logout" id="logout-btn">Se Déconnecter</button>
+      </div>
     </div>
-</div>
 
-<script src="./index.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const currentUserStr = localStorage.getItem('currentUser');
+    <script src="./index.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const currentUserStr = localStorage.getItem("currentUser");
         if (currentUserStr) {
-            try {
-                const user = JSON.parse(currentUserStr);
-                document.getElementById('prof-username').textContent = user.username;
-                document.getElementById('prof-email').textContent = user.email;
-            } catch(e) {}
+          try {
+            const user = JSON.parse(currentUserStr);
+            document.getElementById("prof-username").textContent =
+              user.username;
+            document.getElementById("prof-email").textContent = user.email;
+          } catch (e) {}
         } else {
-            // Pas connecté, rediriger
-            window.location.href = 'login.html';
+          // Pas connecté, rediriger
+          window.location.href = "login.html";
         }
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("currentUser");
+          window.location.href = "index.html";
         });
-    });
-</script>
-</body>
-<footer>
-    <p>© 2025 Game Book. All rights reserved.</p>
-</footer>
+      });
+    </script>
+    <footer>
+      <p>
+        2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+        GUICHET
+      </p>
+    </footer>
+  </body>
 </html>
