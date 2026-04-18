@@ -28,8 +28,8 @@ export class Enemy {
     this.wanderDirection = new Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
     this.changeDirectionTimer = 0;
 
-    this.visionRange = 250; // Distance de vision très grande pour toujours voir le joueur
-    this.visionAngle = Math.PI; // Vision à 360 degrés (angle complet) pour ne pas se coincer
+    this.visionRange = 20; // Distance de vision réduite pour qu'ils ne nous voient pas de trop loin
+    this.visionAngle = Math.PI / 2.5; // Angle de vision réaliste (environ 72 degrés de chaque côté)
 
     this._observateur = this.scene.onBeforeRenderObservable.add(() => {
       if (!this.isDead) this.update();
@@ -39,6 +39,7 @@ export class Enemy {
   takeDamage(amount) {
     if (this.isDead) return;
     this.hp -= amount;
+    this.mode = "CHASE"; // Le bot devient agressif s'il est touché !
     if (this.hp <= 0) {
       this.die();
     }
@@ -226,16 +227,16 @@ export class Enemy {
 
 export class EnemyType1 extends Enemy {
   constructor(scene, player, position) {
-    // Red (Type1) weakened: HP: 40, Damage: 5, Speed: 3, CD: 1.5
-    super(scene, player, position, 40, 5, 3, 1.5);
+    // Red (Type1) weakened: HP: 40, Damage: 5, Speed: 5, CD: 2
+    super(scene, player, position, 40, 5, 5, 2);
     this.applyColor(new Color3(1, 0.2, 0.2));
   }
 }
 
 export class EnemyType2 extends Enemy {
   constructor(scene, player, position) {
-    // Blue (Type2) strengthened: HP: 200, Damage: 30, Speed: 4, CD: 1.0
-    super(scene, player, position, 200, 30, 4, 1.0);
+    // Blue (Type2) strengthened: HP: 80, Damage: 30, Speed: 2, CD: 1.0
+    super(scene, player, position, 80, 30, 2, 1.0);
     this.applyColor(new Color3(0.2, 0.8, 1));
   }
 }

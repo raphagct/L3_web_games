@@ -94,7 +94,7 @@ export class Player {
     });
 
     // Créer le bras (+ arme attachée) en FPS
-    this.bras = new Bras(this.scene, this.camera);
+    this.bras = new Bras(this.scene, this.camera, this.hud);
     if (this.hud && this.bras.arme) {
       this.hud.updateWeapon(this.bras.arme.nom);
     }
@@ -108,7 +108,20 @@ export class Player {
 
     // Désactiver les touches par défaut de la caméra Babylon
     this.camera.inputs.removeByType("FreeCameraKeyboardMoveInput");
+    
+    // Caméra plus fluide : inertie et sensibilité optimisées
+    this.camera.inertia = 0.35;
+    this.camera.angularSensibility = 850;
+    
     this.scene.activeCamera = this.camera;
+    
+    // State pour l'animation du bras
+    this._bobTime = 0;
+    this._isWalking = false;
+    this._brasSway = new Vector3(0, 0, 0);
+    this._brasBasePosX = 0.35;
+    this._brasBasePosY = -0.25;
+    
     // Mouvement à chaque frame via l'observable
     this.scene.onBeforeRenderObservable.add(() => {
       this.updateMovement();
@@ -147,6 +160,36 @@ export class Player {
     }
 
     this.mesh.moveWithCollisions(displacement);
+    
+    // Animation du bras (bob en marchant + sway latéral)
+    if (this.bras && this.bras.mesh) {
+      const moving = this.inputMap[GameSettings.keys.forward] ||
+                     this.inputMap[GameSettings.keys.backward] ||
+                     this.inputMap[GameSettings.keys.left] ||
+                     this.inputMap[GameSettings.keys.right];
+
+      const brasTarget = this.bras.mesh;
+      
+      if (moving && !this.scene.isPaused) {
+        this._bobTime += dt * 7; // Vitesse du balancement
+        // Balancement vertical (haut/bas) et latéral léger
+        const bobY = Math.sin(this._bobTime) * 0.025;
+        const bobX = Math.cos(this._bobTime * 0.5) * 0.015;
+        
+        brasTarget.position.x = this._brasBasePosX + bobX;
+        brasTarget.position.y = this._brasBasePosY + bobY;
+      } else {
+        // Retour doux à la position de base
+        brasTarget.position.x += (this._brasBasePosX - brasTarget.position.x) * 0.12;
+        brasTarget.position.y += (this._brasBasePosY - brasTarget.position.y) * 0.12;
+      }
+
+      // Inclinaison latérale du bras lors du strafe
+      let targetTilt = 0;
+      if (this.inputMap[GameSettings.keys.left])  targetTilt =  0.07;
+      if (this.inputMap[GameSettings.keys.right]) targetTilt = -0.07;
+      brasTarget.rotation.z += (targetTilt - 0.1 - brasTarget.rotation.z) * 0.1;
+    }
 
     // Si le joueur tombe de la carte
     if (this.mesh.position.y < -50) {

@@ -1,117 +1,166 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Library - Game Book</title>
-    <link rel="stylesheet" href="./index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Games on web</div>
 
+      <ul class="nav-links" id="navbar">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="library.html" class="active">Bibliothèque</a></li>
+        <li><a href="about.html">A propos</a></li>
+      </ul>
 
-<nav class="navbar">
-        <div class="logo">Games on web</div>
-        
-        <ul class="nav-links" id="navbar">
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="library.html" class="active">Bibliothèque</a></li>
-            <li><a href="about.html">A propos</a></li>
-        </ul>
-        
-        <div class="nav-actions">
-             <a href="library.html" class="icon-link"><img src="assets/images/library.png" style="filter: invert(1); width: 20px;" alt="Library"></a>
-             <a href="login.html" class="icon-link"><img src="assets/images/person.png" style="filter: invert(1); width: 20px;" alt="Login"></a>
-        </div>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-login">Connexion</a>
+      </div>
     </nav>
 
-<div class="library-container">
-    <h2>Ma bibliothèque de jeux</h2>
-    <p class="login-prompt" id="library-login-prompt">Vous devez être connecté pour voir vos meilleurs scores.</p>
-    
-    <div class="games-grid">
+    <div class="library-container">
+      <h2>Ma bibliothèque de jeux</h2>
+      <p class="login-prompt" id="library-login-prompt">
+        Vous devez être connecté pour voir vos meilleurs scores.
+      </p>
+
+      <div class="games-grid">
         <!-- Game 1 -->
         <div class="game-card">
-            <div class="game-image" style="background-image: url('./assets/images/jeu-canvas.png');"></div>
-            <div class="game-info">
-                <div class="game-header">
-                    <h3>Jeu de la Pastèque (Canvas)</h3>
-                    <p>Un clone du jeu Suika Game en utilisant le canvas. Fusionnez les fruits pour obtenir la pastèque !</p>
-                </div>
-                <div class="game-actions">
-                    <p class="game-score">Score: <span class="score-value" id="score-canvas">Non joué</span></p>
-                    <button class="play-btn" onclick="window.location.href='./jeuCanvas/index.html'">Jouer</button>
-                </div>
+          <div
+            class="game-image"
+            style="
+              background-image: url(&quot;./assets/images/jeu-canvas.png&quot;);
+            "
+          ></div>
+          <div class="game-info">
+            <div class="game-header">
+              <h3>Jeu de la Pastèque (Canvas)</h3>
+              <p>
+                Un clone du jeu Suika Game en utilisant le canvas. Fusionnez les
+                fruits pour obtenir la pastèque !
+              </p>
             </div>
+            <div class="game-actions">
+              <p class="game-score">
+                Score:
+                <span class="score-value" id="score-canvas">Non joué</span>
+              </p>
+              <button
+                class="play-btn"
+                onclick="window.location.href = './jeuCanvas/index.html'"
+              >
+                Jouer
+              </button>
+            </div>
+          </div>
         </div>
-        
+
         <!-- Game 2 -->
         <div class="game-card">
-            <div class="game-image">DOM</div>
-            <div class="game-info">
-                <div class="game-header">
-                    <h3>2048 (DOM)</h3>
-                    <p>Un jeu du 2048 utilisant le DOM pour la manipulation des éléments.</p>
-                </div>
-                <div class="game-actions">
-                    <p class="game-score">Score: <span class="score-value" id="score-dom">Non joué</span></p>
-                    <button class="play-btn" onclick="window.location.href='./jeuDOM/index.html'">Jouer</button>
-                </div>
+          <div
+            class="game-image"
+            style="
+              background-image: url(&quot;./assets/images/2048-jeuDOM.png&quot;);
+            "
+          ></div>
+          <div class="game-info">
+            <div class="game-header">
+              <h3>2048 (DOM)</h3>
+              <p>
+                Un jeu du 2048 utilisant le DOM pour la manipulation des
+                éléments.
+              </p>
             </div>
+            <div class="game-actions">
+              <p class="game-score">
+                Score: <span class="score-value" id="score-dom">Non joué</span>
+              </p>
+              <button
+                class="play-btn"
+                onclick="window.location.href = './jeuDOM/index.html'"
+              >
+                Jouer
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Game 3 -->
         <div class="game-card">
-            <div class="game-image">BABYLON</div>
-            <div class="game-info">
-                <div class="game-header">
-                    <h3>Sudo (Babylon)</h3>
-                    <p>Un jeu 3D fait en Babylon.js ou l'on doit battre une IA.</p>
-                </div>
-                <div class="game-actions">
-                    <p class="game-score">Score: <span class="score-value" id="score-babylon">Non joué</span></p>
-                    <button class="play-btn" onclick="window.location.href='./jeuBabylon/dist/index.html'">Jouer</button>
-                </div>
+          <div
+            class="game-image"
+            style="
+              background-image: url(&quot;./assets/images/screen-jeuBabylon.png&quot;);
+            "
+          ></div>
+          <div class="game-info">
+            <div class="game-header">
+              <h3>Sudo (Babylon)</h3>
+              <p>Un jeu 3D fait en Babylon.js ou l'on doit battre une IA.</p>
             </div>
+            <div class="game-actions">
+              <p class="game-score">
+                Score:
+                <span class="score-value" id="score-babylon">Non joué</span>
+              </p>
+              <button
+                class="play-btn"
+                onclick="window.location.href = './jeuBabylon/dist/index.html'"
+              >
+                Jouer
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<script src="./index.js"></script>
-<script>    
-    document.addEventListener("DOMContentLoaded", async () => {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        const loginPrompt = document.getElementById('library-login-prompt');
-        
+    <script src="./index.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const loginPrompt = document.getElementById("library-login-prompt");
+
         if (isLoggedIn) {
-            loginPrompt.style.display = 'none';
-            const userStr = localStorage.getItem('currentUser');
-            if (userStr) {
-                try {
-                    const user = JSON.parse(userStr);
-                    const response = await fetch(`/api/scores/user/${user.id}`);
-                    if (response.ok) {
-                        const scores = await response.json();
-                        scores.forEach(s => {
-                            const el = document.getElementById(`score-${s.gameName}`);
-                            if (el) {
-                                el.textContent = s.score + " pts";
-                                el.style.color = "#ffd59d";
-                                el.style.fontWeight = "bold";
-                            }
-                        });
-                    }
-                } catch(e) {
-                    console.error("Erreur de récupération des scores", e);
-                }
+          loginPrompt.style.display = "none";
+          const userStr = localStorage.getItem("currentUser");
+          if (userStr) {
+            try {
+              const user = JSON.parse(userStr);
+              const response = await fetch(`/api/scores/user/${user.id}`);
+              if (response.ok) {
+                const scores = await response.json();
+                scores.forEach((s) => {
+                  const el = document.getElementById(`score-${s.gameName}`);
+                  if (el) {
+                    el.textContent = s.score + " pts";
+                    el.style.color = "#000";
+                    el.style.fontWeight = "bold";
+                  }
+                });
+              }
+            } catch (e) {
+              console.error("Erreur de récupération des scores", e);
             }
+          }
         }
-    });
-</script>
-</body>
-<footer>
-    <p>2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël GUICHET</p>
-</footer>
+      });
+    </script>
+    <footer>
+      <p>
+        2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+        GUICHET
+      </p>
+    </footer>
+  </body>
 </html>

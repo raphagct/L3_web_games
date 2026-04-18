@@ -2,6 +2,7 @@
   "name": "games-on-web",
   "version": "1.0.0",
   "scripts": {
+    "predev": "npm run install-all",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix jeuBabylon\"",
     "install-all": "npm install && npm install --prefix backend && npm install --prefix jeuBabylon"
   },
