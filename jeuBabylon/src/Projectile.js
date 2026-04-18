@@ -3,6 +3,7 @@ import {
   Vector3,
   StandardMaterial,
   Color3,
+  Mesh,
 } from "@babylonjs/core";
 
 export class Projectile {
@@ -14,18 +15,44 @@ export class Projectile {
     this.direction = direction.normalize();
     this.tempsEcoule = 0;
 
-    // Créer le mesh (petite sphère)
-    this.mesh = MeshBuilder.CreateSphere(
-      "projectile",
-      { diameter: 0.15 },
-      scene
-    );
+    // --- Création de la balle (cylindre + pointe) ---
+    const corps = MeshBuilder.CreateCylinder("corps", {
+      height: 0.4,
+      diameter: 0.12,
+      tessellation: 8,
+    }, scene);
+
+    const pointe = MeshBuilder.CreateCylinder("pointe", {
+      height: 0.15,
+      diameterTop: 0,
+      diameterBottom: 0.12,
+      tessellation: 8,
+    }, scene);
+    pointe.position.y = 0.275;
+
+    // Culasse (petit cylindre arrière légèrement plus large)
+    const culasse = MeshBuilder.CreateCylinder("culasse", {
+      height: 0.02,
+      diameter: 0.14,
+      tessellation: 8,
+    }, scene);
+    culasse.position.y = -0.24;
+
+    // Fusionner en un seul mesh
+    this.mesh = Mesh.MergeMeshes([corps, pointe, culasse], true, true);
     this.mesh.position = positionDepart.clone();
 
-    // Matériau jaune lumineux
+    const cible = positionDepart.add(direction);
+    this.mesh.lookAt(cible);
+    // La balle est orientée verticalement par défaut, on corrige l'axe
+    this.mesh.rotate(new Vector3(1, 0, 0), Math.PI / 2);
+
+    // --- Matériau métal doré ---
     const materiau = new StandardMaterial("matProjectile", scene);
-    materiau.diffuseColor = new Color3(1, 0.9, 0.2);
-    materiau.emissiveColor = new Color3(1, 0.7, 0);
+    materiau.diffuseColor = new Color3(0.85, 0.65, 0.1);  
+    materiau.specularColor = new Color3(1, 0.9, 0.4);       
+    materiau.specularPower = 64;
+    materiau.emissiveColor = new Color3(0.2, 0.15, 0.0);   
     this.mesh.material = materiau;
 
     // Déplacer le projectile à chaque frame
@@ -52,11 +79,11 @@ export class Projectile {
     if (this.scene.enemies) {
       for (let enemy of this.scene.enemies) {
         if (!enemy.isDead && enemy.mesh && this.mesh.intersectsMesh(enemy.mesh, false)) {
-          enemy.takeDamage(15); // Dégâts de l'arme !
+          enemy.takeDamage(15);
           if (enemy.player && enemy.player.hud && typeof enemy.player.hud.addHit === 'function') {
-              enemy.player.hud.addHit();
+            enemy.player.hud.addHit();
           }
-          this.detruire(); // Détruire le projectile
+          this.detruire();
           return;
         }
       }
@@ -64,10 +91,7 @@ export class Projectile {
   }
 
   detruire() {
-    // Retirer l'observateur de la boucle de rendu
     this.scene.onBeforeRenderObservable.remove(this._observateur);
-
-    // Supprimer le matériau et le mesh
     if (this.mesh.material) {
       this.mesh.material.dispose();
     }

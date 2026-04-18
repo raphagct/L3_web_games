@@ -4,6 +4,10 @@ import NeonScript from "./scripts/NeonScript.ts";
 import NeonScriptI from "./scripts/NeonScriptI.ts";
 import LavaScript from "./scripts/LavaScript.ts";
 import PoisonScript from "./scripts/PoisonScript.ts";
+//import DungeonScript from "./scripts/Herbe.ts";
+//import Herbe from "./scripts/Herbe.ts";
+//import Donjon from "./scripts/Donjon.ts";
+import ScieScript from "./scripts/ScieScript.js";
 
 export class Environment {
   constructor(scene) {
@@ -129,7 +133,49 @@ export class Environment {
          const scriptNeon = new NeonScript(mesh, neonColor, glowLayerBase2);
          scriptNeon.onStart();
       }
+      /*
+      if (mesh.name.toLowerCase().includes("herbe")) {
+         const scriptDungeon = new Herbe(mesh);
+         scriptDungeon.onStart();
+     }
+     if (mesh.name.toLowerCase().includes("dd3") || mesh.name.toLowerCase().includes("pierre")) {
+         const scriptDungeon = new Donjon(mesh);
+         scriptDungeon.onStart();
+     }
+     if (mesh.name.toLowerCase().includes("conduit")) {
+         const scriptDungeon = new Conduit(mesh);
+         scriptDungeon.onStart();
+     }
+   */
+   }
+     for (const mesh of this.scene.meshes) {
+    if (mesh.name.toLowerCase().includes("scie")) { 
+         let distance = 3; 
+         let vitesse = 1;
+         let rotation = 0;
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         scriptScie.onStart();
     }
+
+    if (mesh.name.toLowerCase().includes("sz2")) { 
+         let distance = 2.75; 
+         let vitesse = 1;
+         let rotation = 45;
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         scriptScie.onStart();
+    }
+     if (mesh.name.toLowerCase().includes("sy2")) { 
+         let distance =2.75; 
+         let vitesse =1;
+         let rotation = -45;
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         scriptScie.onStart();
+    }
+   }
+
+   
+
+    
   
     
     for (const mesh of this.scene.meshes) {
