@@ -1,8 +1,13 @@
 # Projet - L3_web_games
 
 ## GamesOnWeb
-Lien du concour :
+Lien du concours :
 https://www.cgi.com/france/fr-fr/event/games-on-web-2026
+
+Vidéo youtube présentant le site, les jeux en 2 minutes :
+
+Lien vers le jeu hébergé : 
+
 
 ### Participants :
 - Guichet Raphael
@@ -11,4 +16,7 @@ https://www.cgi.com/france/fr-fr/event/games-on-web-2026
 
 ### Objectifs 
 
-Par équipe, vous devez programmer votre propre jeu 3D, il devra être exécutable dans un navigateur web à jour et développé à l'aide des langages HTML / CSS / Javascript et du framework open source BabylonJS facilitant la programmation des jeux 3D. Toute autre librairie ou framework 3D est interdite. Néanmoins l’usage de librairies utilitaires est permis. Le thème à respecter est "IA Edition".
+Par équipe, vous devez programmer votre propre jeu 3D, il devra être exécutable dans un navigateur web à jour et développé à l'aide des langages HTML / CSS / Javascript et du framework open source BabylonJS facilitant la programmation des jeux 3D. Toute autre librairie ou framework 3D est interdite. Néanmoins l’usage de librairies utilitaires est permis. Le thème à respecter est "IA Edition".  
+
+## Descriptif du repository  
+
