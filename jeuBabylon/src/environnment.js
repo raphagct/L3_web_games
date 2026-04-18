@@ -171,6 +171,20 @@ export class Environment {
          const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
          scriptScie.onStart();
     }
+    if (mesh.name.toLowerCase().includes("sc3")) { 
+         let distance =6; 
+         let vitesse =1;
+         let rotation = 0;
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         scriptScie.onStart();
+    }
+    if (mesh.name.toLowerCase().includes("sz3")) { 
+         let distance =6; 
+         let vitesse =1;
+         let rotation = -45;
+         const scriptScie = new ScieScript(mesh, distance, vitesse, rotation);
+         scriptScie.onStart();
+    }
    }
 
    
