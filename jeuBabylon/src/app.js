@@ -45,7 +45,7 @@ export default class App {
 
     this.currentArenaIndex = 0;
     this.levelCompleteTriggered = false;
-    this.menuMusic = new Audio("/sfx/menu-music.mp3");
+    this.menuMusic = new Audio("./sfx/menu-music.mp3");
     this.menuMusicMuted = false;
     this._menuMusicUnlockHandler = null;
     this.menuMusic.loop = true;
