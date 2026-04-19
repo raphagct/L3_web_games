@@ -33,6 +33,8 @@ Les fichiers sources principaux sont :
 - style.css va contenir le css du site et mettre en forme pour le tout. 
 - ui.js comme son nom l'indique c'est tout ce qui est UI, playerHUD etc...
 
+![Classes dans le code](assets/images/classes.png) 
+
 Les assets sont remplis de texture comme des images (scies) ou de couleurs spécifiques. Il n'y a rien de notable.
 
 Nota Bene : Nous avons voulu au mieux respecter la séparation des responsabilitées de chaque classe car nous voulions respecter le modèle SOLID
@@ -105,8 +107,18 @@ Répartition égal, les travaux effectués par chacun sont trop différent pour 
 Une partie de notre jeu qui nous a posé beaucoup de difficultés c'est la création de la map, nous avons passés beaucoup de temps a tester des textures a regarder la doc pour les meshs etc... a force de se renseigner en regardant youtube notamment nous sommes tombés sur une vidéo qui parle de babylon js editor, un éditeur qui est beaucoup plus visuel et facile a prendre en main, même si le logiciel est très très récent avec pleins de bug et de fonctionnalitées qui manque, nous avons pu faire des maps complexes avec des formes simples a base de cube etc...  
 Un autre point qui nous a posé problème c'est la mise en place de l'UI / UX pour avoir les cutscene pour passer les niveaux et avoir les bons affichages. Nous avons régler ce problème grâce à ...
 
-### Pourquoi ce jeu et pas un autre 
+### Pourquoi ce jeu et pas un autre ? 
 
 Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos, un jeu qui a un décor qui change souvent, une difficulté qui augmente au fur et a mesure qu'on avance dans le jeu et le style de jeu survie est la chose la plus fun qu'on connaisse, nous sommes des 2005 nous sommes la génération Minecraft, Fortnite et Call of duty, ces franchises sont le coeur des découvertes des jeux pour nous. C'est pour cela que nous avons choisit le scénario 3 au final pour avoir un jeu qui ressemble a ce qu'on aime le plus jouer. 
+
+
+## Comment lancer le projet ?
+
+### Cloner le projet
+~~~
+git clone https://github.com/raphagct/L3_web_games.git
+~~~
+
+
 
 
