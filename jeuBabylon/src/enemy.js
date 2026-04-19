@@ -355,7 +355,7 @@ export class Boss extends Enemy {
 
     if (this.player && this.player.hud && typeof this.player.hud.addKill === 'function') {
       const killPos = this.mesh ? this.mesh.getAbsolutePosition().clone() : null;
-      this.player.hud.addKill(killPos);
+      this.player.hud.addKill(killPos, true);
     }
 
     setTimeout(() => {

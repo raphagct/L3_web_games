@@ -708,7 +708,10 @@ export default class App {
       this._ignoringPointerLock = true;
       this.isPaused = true;
       this.scene.isPaused = true;
-      if (this.hud) this.hud.isPaused = true;
+      if (this.hud) {
+        this.hud.isPaused = true;
+        this.saveScoreToDB(this.hud._score);
+      }
 
       this.scene.detachControl();
       if (document.exitPointerLock) document.exitPointerLock();
@@ -863,7 +866,7 @@ export default class App {
     SoundManager.setFootsteps(false);
     if (this.hud) {
       this.hud.isPaused = true;
-      this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
+      this.saveScoreToDB(this.hud._score);
     }
 
     if (document.exitPointerLock) {

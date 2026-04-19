@@ -4,6 +4,8 @@ import { MeshBuilder } from "@babylonjs/core";
 
 export class PlayerHUD {
     _realTimeSeconds = 0;
+    _score = 0;
+    _bossStartTime = 0;
     isPaused = false;
 
     constructor(scene) {
@@ -11,6 +13,7 @@ export class PlayerHUD {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 
         this._createTimer();
+        this._createScoreDisplay();
         this._createStatBars();
         this._createWeaponDisplay();
         this._createCrosshair();
@@ -167,6 +170,22 @@ export class PlayerHUD {
             const el = document.getElementById("damage-flash-overlay");
             if (el) el.remove();
         }, 520);
+    }
+
+    _createScoreDisplay() {
+        this._scoreText = new GUI.TextBlock();
+        this._scoreText.text = "SCORE: 0";
+        this._scoreText.color = "#FFD700";
+        this._scoreText.fontSize = 24;
+        this._scoreText.fontFamily = "Impact";
+        this._scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        this._scoreText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this._scoreText.top = "60px";
+        this._scoreText.left = "-20px";
+        this._scoreText.outlineWidth = 3;
+        this._scoreText.outlineColor = "black";
+
+        this._ui.addControl(this._scoreText);
     }
 
     _createTimer() {
@@ -404,20 +423,38 @@ export class PlayerHUD {
         this.showHitMarker();
     }
 
-    addKill(position) {
+    addKill(position, isBoss = false) {
         if (!position) return;
+
+        // Augmenter le score
+        let points = isBoss ? 1000 : 100;
+        let timeBonus = 0;
+
+        if (isBoss && this._bossStartTime > 0) {
+            const timeTaken = this._realTimeSeconds - this._bossStartTime;
+            // Bonus maximum de 2000 points si tué en 0s, diminue jusqu'à 0 après 120s (2 min)
+            timeBonus = Math.max(0, Math.floor(2000 - (timeTaken * (2000 / 120))));
+            points += timeBonus;
+        }
+
+        this._score += points;
+        this._scoreText.text = "SCORE: " + this._score;
 
         const dummy = MeshBuilder.CreateSphere("dummyKill", { diameter: 0.1 }, this.scene);
         dummy.position = position.clone();
         dummy.isVisible = false;
 
         const killText = new GUI.TextBlock();
-        killText.text = "ELIMINATION!";
-        killText.color = "#00ffcc";
+        let displayMsg = isBoss ? "BOSS DÉTRUIT! +1000" : "ELIMINATION! +100";
+        if (timeBonus > 0) displayMsg += `\nBONUS TEMPS! +${timeBonus}`;
+
+        killText.text = displayMsg;
+        killText.color = isBoss ? "#ff00ff" : "#00ffcc";
         killText.fontFamily = "Impact";
-        killText.fontSize = 28;
+        killText.fontSize = isBoss ? 32 : 28;
         killText.outlineWidth = 3;
         killText.outlineColor = "black";
+        killText.lineSpacing = "5px";
 
         this._ui.addControl(killText);
         killText.linkWithMesh(dummy);
@@ -513,6 +550,7 @@ export class PlayerHUD {
         this._bossMaxHp = maxHp;
         this._bossNameText.text = name;
         this._bossHealthContainer.isVisible = true;
+        this._bossStartTime = this._realTimeSeconds;
         this.updateBossHealthBar(currentHp);
     }
 
