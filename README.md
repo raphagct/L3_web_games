@@ -50,7 +50,9 @@ Faire une map zombie comme dans la franchise black ops avec des vagues a survivr
 Nous avons sélectionné le troisième scénario mais nous nous sommes dit que faire des arènes différentes pour passer des vagues serait plus fun et une meilleure expérience pour les joueurs.  
 NB : Nous avons la barre de nourriture car de base nous voulions partir sur le scénario 2.
 
+### Diagramme de classe et conception en Milestones
 
+![Diagramme_de_classe](assets/images/Diagramme_classe_GOW.drawio.png)
 
 
 ### Spécificités Techniques  
