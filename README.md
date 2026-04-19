@@ -5,8 +5,10 @@ Lien du concours :
 https://www.cgi.com/france/fr-fr/event/games-on-web-2026
 
 Vidéo youtube présentant le site, les jeux en 2 minutes :
+https://www.youtube.com/watch?v=hxdhP2aKxVc
 
 Lien vers le jeu hébergé : 
+https://l3-web-games-git-develop-raphagcts-projects.vercel.app/
 
 
 ### Participants :
