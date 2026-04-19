@@ -54,6 +54,17 @@ NB : Nous avons la barre de nourriture car de base nous voulions partir sur le s
 
 ![Diagramme_de_classe](assets/images/Diagramme_classe_GOW.drawio.png)
 
+°  
+°  
+
+Milestone détail 1 :  
+![Milestone 1 détails](assets/images/Milestone1.png)  
+
+Milestone détail 2 :  
+![Milestone 2 détails](assets/images/Milestone2.png)
+
+Milestone détail global :  
+![Milestone au global](assets/images/Milestone_Global.png)
 
 ### Spécificités Techniques  
 
