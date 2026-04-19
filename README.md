@@ -114,7 +114,7 @@ Une partie de notre jeu qui nous a posé beaucoup de difficultés c'est la créa
 
 ### Pourquoi ce jeu et pas un autre ? 
 
-Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos, un jeu qui a un décor qui change souvent, une difficulté qui augmente au fur et a mesure qu'on avance dans le jeu et le style de jeu survie est la chose la plus fun qu'on connaisse, nous sommes des 2005 nous sommes la génération Minecraft, Fortnite et Call of duty, ces franchises sont le coeur des découvertes des jeux pour nous. C'est pour cela que nous avons choisit le scénario 3 au final pour avoir un jeu qui ressemble a ce qu'on aime le plus jouer. 
+Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos un jeu qui a un décor qui change souvent, une difficulté qui augmente au fur et a mesure qu'on avance et le style de jeu survie est la chose la plus fun qu'on connaisse, nous sommes des 2005 nous sommes la génération Minecraft, Fortnite et Call of duty, ces franchises sont le coeur des découvertes des jeux pour nous. C'est pour cela que nous avons choisit le scénario 3 au final pour avoir un jeu qui ressemble a ce qu'on aime le plus jouer. 
 
 
 ## Comment lancer le projet ?
