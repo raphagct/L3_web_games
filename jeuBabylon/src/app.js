@@ -419,93 +419,168 @@ export default class App {
     // Ne PAS spawner les ennemis ici - on attend que la scène soit entièrement prête
   }
 
+  _showCustomLoader(message = "CHARGEMENT...") {
+    const existing = document.getElementById("custom-loader-overlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "custom-loader-overlay";
+    overlay.innerHTML = `
+      <style>
+        #custom-loader-overlay {
+          position: fixed; inset: 0; z-index: 99999;
+          background: linear-gradient(135deg, #020818 0%, #0a0f2e 60%, #050e1f 100%);
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          font-family: 'Courier New', monospace;
+        }
+        .loader-title { color: #00e5ff; font-size: 36px; font-weight: bold;
+          letter-spacing: 8px; text-transform: uppercase;
+          text-shadow: 0 0 30px rgba(0,229,255,0.7); margin-bottom: 12px; }
+        .loader-subtitle { color: rgba(0,229,255,0.5); font-size: 12px;
+          letter-spacing: 4px; margin-bottom: 48px; }
+        .loader-bar-outer { width: 420px; height: 6px; background: rgba(0,229,255,0.1);
+          border-radius: 3px; border: 1px solid rgba(0,229,255,0.2); overflow: hidden; }
+        .loader-bar-inner { height: 100%; width: 0%; background: linear-gradient(90deg, #00b4d8, #00e5ff);
+          border-radius: 3px; transition: width 0.3s ease;
+          box-shadow: 0 0 12px rgba(0,229,255,0.8); }
+        .loader-phase { color: rgba(0,229,255,0.6); font-size: 11px; letter-spacing: 2px;
+          margin-top: 16px; min-height: 16px; }
+        .loader-dots::after { content: ''; animation: dots 1.2s steps(4, end) infinite; }
+        @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:''} }
+        .loader-scanlines { position: absolute; inset: 0; pointer-events: none;
+          background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px); }
+      </style>
+      <div class="loader-scanlines"></div>
+      <div class="loader-title">S.U.D.O CORE</div>
+      <div class="loader-subtitle">INITIALISATION DU SYSTÈME</div>
+      <div class="loader-bar-outer">
+        <div class="loader-bar-inner" id="loader-bar"></div>
+      </div>
+      <div class="loader-phase loader-dots" id="loader-phase">${message}</div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  _updateLoader(percent, phase) {
+    const bar = document.getElementById("loader-bar");
+    const phaseEl = document.getElementById("loader-phase");
+    if (bar) bar.style.width = `${Math.min(100, percent)}%`;
+    if (phaseEl) phaseEl.textContent = phase;
+  }
+
+  _hideCustomLoader() {
+    const overlay = document.getElementById("custom-loader-overlay");
+    if (!overlay) return;
+    overlay.style.transition = "opacity 0.6s ease";
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 650);
+  }
+
   async goToGame() {
     this.currentArenaIndex = 0;
     this.levelCompleteTriggered = false;
-    //--SETUP SCENE--
-    this.scene.detachControl();
-    let scene = this.gamescene;
-    scene.clearColor = new Color4(0.01, 0.01, 0.2);
 
+    this._showCustomLoader("DÉMARRAGE");
+    this._updateLoader(5, "DÉMARRAGE DU MOTEUR");
+
+    const oldScene = this.scene;
+    const scene = this.gamescene;
+    scene.clearColor = new Color4(0.01, 0.01, 0.2);
+    oldScene.detachControl();
     scene.detachControl();
 
+    // 1. Load player + lights
+    this._updateLoader(15, "CHARGEMENT DE L'ENVIRONNEMENT");
     await this.initializeGameAsync(scene);
 
-    //--WHEN SCENE FINISHED LOADING--
+    // 2. Wait for scene graph to be declared ready
+    this._updateLoader(35, "INITIALISATION DES SYSTÈMES");
     await scene.whenReadyAsync();
 
-    // Préchauffer les shaders pour éviter les freezes au début
+    // 3. Wait for textures
+    this._updateLoader(50, "CHARGEMENT DES TEXTURES");
     await new Promise(resolve => {
-      scene.executeWhenReady(() => {
-        // Force shader compilation on all materials
-        scene.meshes.forEach(mesh => {
-          if (mesh.material) {
-            mesh.material.freeze(); // lock the material state for perf
-          }
-        });
-        resolve();
-      });
+      const check = () => scene.isReady(true) ? resolve() : setTimeout(check, 40);
+      check();
     });
 
-    // Maintenant tout est prêt : on spawne les ennemis
-    this.spawnEnemiesForArena(scene);
-
-    // Menu Pause
+    // 4. Build menus (before spawn to avoid race)
     this.isPaused = false;
     scene.isPaused = false;
-
     this.settingsMenu = new SettingsMenu(scene, () => {
-      this.settingsMenu.hide();
-      this.pauseMenu.show();
+      this.settingsMenu.hide(); this.pauseMenu.show();
     }, () => this.updateVolumes());
-
-    this.loseMenu = new LoseMenu(
-      scene,
-      () => {
-        // Rejouer : on dispose tout et on reconstruit le jeu de zéro
-        if (this.pauseMenu) this.pauseMenu.dispose();
-        if (this.settingsMenu) this.settingsMenu.dispose();
-        if (this.loseMenu) this.loseMenu.dispose();
-        if (this.hud) this.hud.dispose();
-        this.gamescene = null;
-        this.goToStart();
-      },
-      () => {
-        if (this.pauseMenu) this.pauseMenu.dispose();
-        if (this.settingsMenu) this.settingsMenu.dispose();
-        if (this.loseMenu) this.loseMenu.dispose();
-        if (this.hud) this.hud.dispose();
-        if (this.bossMusic) this.bossMusic.pause();
-        this.gamescene = null;
-        this.goToStart();
-      }
+    this.loseMenu = new LoseMenu(scene,
+      () => { if (this.pauseMenu) this.pauseMenu.dispose(); if (this.settingsMenu) this.settingsMenu.dispose(); if (this.loseMenu) this.loseMenu.dispose(); if (this.hud) this.hud.dispose(); this.gamescene = null; this.goToStart(); },
+      () => { if (this.pauseMenu) this.pauseMenu.dispose(); if (this.settingsMenu) this.settingsMenu.dispose(); if (this.loseMenu) this.loseMenu.dispose(); if (this.hud) this.hud.dispose(); if (this.bossMusic) this.bossMusic.pause(); this.gamescene = null; this.goToStart(); }
+    );
+    this.pauseMenu = new PauseMenu(scene, () => this.togglePause(),
+      () => { this.pauseMenu.hide(); this.settingsMenu.show(); },
+      () => { this.pauseMenu.dispose(); if (this.settingsMenu) this.settingsMenu.dispose(); if (this.loseMenu) this.loseMenu.dispose(); if (this.bossMusic) this.bossMusic.pause(); this.goToStart(); }
     );
 
-    this.pauseMenu = new PauseMenu(
-      scene,
-      () => this.togglePause(),
-      () => {
-        this.pauseMenu.hide();
-        this.settingsMenu.show();
-      },
-      () => {
-        this.pauseMenu.dispose();
-        if (this.settingsMenu) this.settingsMenu.dispose();
-        if (this.loseMenu) this.loseMenu.dispose();
-        if (this.bossMusic) this.bossMusic.pause();
-        this.goToStart();
-      }
-    );
+    // 5. Spawn enemies BEFORE warmup so their shaders compile too
+    this._updateLoader(60, "SPAWN DES ENNEMIS");
+    this.spawnEnemiesForArena(scene);
 
-    this.scene.dispose();
+    // Force all bounding boxes now so intersectsMesh works on frame 1
+    scene.meshes.forEach(m => { m.computeWorldMatrix(true); m.refreshBoundingInfo(); });
+
+    // 6. Switch to game scene
+    oldScene.dispose();
     this.state = State.GAME;
     this.scene = scene;
-    this.engine.hideLoadingUI();
+    scene.attachControl();
 
-    // Reset pointer lock guards after the full transition
+    // 7. WARMUP: stop the engine render loop, render manually
+    //    This avoids double-render and gives us full control over frame count.
+    //    The custom loader covers the canvas so the player sees nothing.
+    this._updateLoader(65, "COMPILATION DES SHADERS");
+    this.engine.stopRenderLoop();
+
+    await new Promise(resolve => {
+      let frames = 0;
+      const WARMUP_FRAMES = 120; // ~2 seconds of compilation
+
+      const warmup = () => {
+        try { scene.render(); } catch(e) {}
+        frames++;
+        const pct = 65 + Math.round((frames / WARMUP_FRAMES) * 30);
+        this._updateLoader(Math.min(95, pct), `COMPILATION DES SHADERS (${frames}/${WARMUP_FRAMES})`);
+        if (frames < WARMUP_FRAMES) {
+          requestAnimationFrame(warmup);
+        } else {
+          resolve();
+        }
+      };
+      requestAnimationFrame(warmup);
+    });
+
+    // 8. Restart the normal render loop
+    this._updateLoader(100, "PRÊT !");
+    this.engine.runRenderLoop(() => {
+      switch (this.state) {
+        case State.START:
+        case State.CUTSCENE:
+        case State.LOSE:
+          if (this.scene) this.scene.render();
+          break;
+        case State.GAME:
+          if (!this.isPaused && this.scene.enemies && this.scene.enemies.length === 0 && !this.levelCompleteTriggered) {
+            this.levelCompleteTriggered = true;
+            this.handleArenaComplete();
+          }
+          if (this.scene) this.scene.render();
+          break;
+      }
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 250));
+    this.engine.hideLoadingUI();
     this._ignoringPointerLock = false;
     this._skipNextPointerLockEvent = false;
-    this.scene.attachControl();
+    this._hideCustomLoader();
   }
 
   spawnEnemiesForArena(scene) {
