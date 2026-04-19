@@ -431,6 +431,65 @@ export class PlayerHUD {
         this._weaponText.text = `Arme: ${weaponName}`;
     }
 
+    showBossHealthBar(name, maxHp, currentHp) {
+        if (!this._bossHealthContainer) {
+            this._bossHealthContainer = new GUI.Rectangle();
+            this._bossHealthContainer.width = "600px";
+            this._bossHealthContainer.height = "35px";
+            this._bossHealthContainer.thickness = 3;
+            this._bossHealthContainer.color = "red";
+            this._bossHealthContainer.background = "rgba(0,0,0,0.7)";
+            this._bossHealthContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            this._bossHealthContainer.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            this._bossHealthContainer.top = "80px";
+            this._ui.addControl(this._bossHealthContainer);
+
+            this._bossHealthInner = new GUI.Rectangle();
+            this._bossHealthInner.width = "100%";
+            this._bossHealthInner.background = "purple";
+            this._bossHealthInner.thickness = 0;
+            this._bossHealthInner.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._bossHealthContainer.addControl(this._bossHealthInner);
+
+            this._bossNameText = new GUI.TextBlock();
+            this._bossNameText.text = name;
+            this._bossNameText.color = "white";
+            this._bossNameText.fontSize = 20;
+            this._bossNameText.top = "-30px";
+            this._bossNameText.fontFamily = "Impact";
+            this._bossNameText.outlineWidth = 3;
+            this._bossNameText.outlineColor = "black";
+            this._bossHealthContainer.addControl(this._bossNameText);
+
+            this._bossHealthText = new GUI.TextBlock();
+            this._bossHealthText.text = `${currentHp}/${maxHp}`;
+            this._bossHealthText.color = "white";
+            this._bossHealthText.fontSize = 18;
+            this._bossHealthText.outlineWidth = 2;
+            this._bossHealthText.outlineColor = "black";
+            this._bossHealthContainer.addControl(this._bossHealthText);
+        }
+        
+        this._bossMaxHp = maxHp;
+        this._bossNameText.text = name;
+        this._bossHealthContainer.isVisible = true;
+        this.updateBossHealthBar(currentHp);
+    }
+
+    updateBossHealthBar(currentHp) {
+        if (!this._bossHealthContainer) return;
+        const clamp = Math.max(0, Math.min(this._bossMaxHp, currentHp));
+        const percentage = (clamp / this._bossMaxHp) * 100;
+        this._bossHealthInner.width = `${percentage}%`;
+        this._bossHealthText.text = `${Math.round(clamp)}/${this._bossMaxHp}`;
+    }
+
+    hideBossHealthBar() {
+        if (this._bossHealthContainer) {
+            this._bossHealthContainer.isVisible = false;
+        }
+    }
+
     dispose() {
         if (this._ui) {
             this._ui.dispose();

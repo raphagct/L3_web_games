@@ -46,6 +46,18 @@ export default class ScieScript {
                 if (this.mesh.intersectsMesh(player.mesh, false)) {
                     player.takeDamage(this._DAMAGE_PER_HIT);
                     this._damageCooldown = this._DAMAGE_INTERVAL;
+                    return;
+                }
+            }
+
+            // Lecture des ennemis
+            if (scene.enemies) {
+                for (const enemy of scene.enemies) {
+                    if (!enemy.isDead && this.mesh.intersectsMesh(enemy.mesh, false)) {
+                        enemy.takeDamage(this._DAMAGE_PER_HIT);
+                        this._damageCooldown = this._DAMAGE_INTERVAL;
+                        return;
+                    }
                 }
             }
         });

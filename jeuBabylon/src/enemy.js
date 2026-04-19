@@ -21,6 +21,15 @@ export class Enemy {
     this.mesh = this.createMesh(scene);
     this.mesh.position = new Vector3(position.x, position.y + 1, position.z);
 
+    this.arms = [];
+    this.mesh.getChildMeshes().forEach(child => {
+        if (child.name === "enemyArmL" || child.name === "enemyArmR") {
+            this.arms.push(child);
+        }
+    });
+
+    this.attackAnimTimer = 0;
+
     // Activer les collisions pour l'ennemi (ajusté avec l'échelle)
     this.mesh.checkCollisions = true;
     this.mesh.ellipsoid = new Vector3(0.24, 0.6, 0.24);
@@ -159,8 +168,20 @@ export class Enemy {
         if (typeof this.player.takeDamage === "function") {
           this.player.takeDamage(this.damage);
           this.attackCooldown = this.attackCooldownMax; 
+          this.attackAnimTimer = 0.3; // Animation de coup
         }
       }
+    }
+
+    if (this.attackAnimTimer > 0) {
+        this.attackAnimTimer -= dt;
+        this.arms.forEach(arm => {
+            arm.rotation.x = -Math.PI / 2;
+        });
+    } else {
+        this.arms.forEach(arm => {
+            arm.rotation.x = arm.rotation.x * 0.9;
+        });
     }
 
     if (this.canSeePlayer()) {
@@ -238,5 +259,226 @@ export class EnemyType2 extends Enemy {
     // Blue (Type2) strengthened: HP: 80, Damage: 30, Speed: 2, CD: 1.0
     super(scene, player, position, 80, 30, 2, 1.0);
     this.applyColor(new Color3(0.2, 0.8, 1));
+  }
+}
+
+export class Boss extends Enemy {
+  constructor(scene, player, position) {
+    // Huge HP, moderate damage on touch, fast
+    super(scene, player, position, 500, 10, 4, 2.0);
+    this.applyColor(new Color3(0.8, 0.1, 0.8)); // Purple
+    
+    // Make him imposing
+    this.mesh.scaling = new Vector3(3, 3, 3);
+    this.mesh.ellipsoid = new Vector3(0.72, 1.8, 0.72);
+    
+
+    
+    this.bossState = "WANDER"; // WANDER, PREPARE_LASER, SHOOT_LASER
+    this.stateTimer = 6.0; 
+    
+    // Laser beam mesh
+    this.laserMesh = MeshBuilder.CreateCylinder("bossLaser", { height: 80, diameter: 0.8 }, scene);
+    this.laserMesh.rotation.x = Math.PI / 2;
+    this.laserMesh.position.z = 40; // Offset forward
+    this.laserMesh.isVisible = false;
+    this.laserMesh.parent = this.mesh;
+    this.laserMesh.checkCollisions = false;
+
+    const laserMat = new StandardMaterial("bossLaserMat", scene);
+    laserMat.emissiveColor = new Color3(1, 0, 0);
+    laserMat.diffuseColor = new Color3(1, 0, 0);
+    laserMat.disableLighting = true;
+    laserMat.alpha = 0.7;
+    this.laserMesh.material = laserMat;
+
+    this.laserDamageTimer = 0;
+    
+    // Health bar setup in HUD
+    if (this.player && this.player.hud) {
+        this.player.hud.showBossHealthBar("S.U.D.O CORE (BOSS)", this.hp, this.hp);
+    }
+  }
+
+  takeDamage(amount) {
+    if (this.isDead) return;
+    this.hp -= amount;
+    if (this.player && this.player.hud) {
+        this.player.hud.updateBossHealthBar(this.hp);
+    }
+    if (this.hp <= 0) {
+      if (this.player && this.player.hud) {
+          this.player.hud.hideBossHealthBar();
+      }
+      this.die();
+    }
+  }
+
+  die() {
+    this.isDead = true;
+    this.bossState = "DEAD";
+    if (this.laserMesh) {
+        this.laserMesh.isVisible = false;
+        this.laserMesh.dispose();
+    }
+
+    // Custom death animation
+    let targetRot = this.mesh.rotation.x - Math.PI / 2;
+    let animObs = this.scene.onBeforeRenderObservable.add(() => {
+        if (!this.mesh) return;
+        const dt = this.scene.getEngine().getDeltaTime() / 1000;
+        this.mesh.rotation.x += (targetRot - this.mesh.rotation.x) * dt * 3;
+        
+        // Turn black
+        this.mesh.getChildMeshes().forEach(c => {
+            if (c.material) {
+                if (c.material.emissiveColor) {
+                    c.material.emissiveColor = c.material.emissiveColor.scale(0.9);
+                }
+                if (c.material.diffuseColor) {
+                    c.material.diffuseColor = c.material.diffuseColor.scale(0.9);
+                }
+            }
+        });
+    });
+
+    if (this.player && this.player.hud && typeof this.player.hud.addKill === 'function') {
+        const killPos = this.mesh ? this.mesh.getAbsolutePosition().clone() : null;
+        this.player.hud.addKill(killPos);
+    }
+    
+    // Remove observer after animation
+    setTimeout(() => {
+        if (this.scene) this.scene.onBeforeRenderObservable.remove(animObs);
+        
+        // NOW remove from enemies to trigger level complete
+        if (this.scene && this.scene.enemies) {
+            const index = this.scene.enemies.indexOf(this);
+            if (index !== -1) {
+                this.scene.enemies.splice(index, 1);
+            }
+        }
+    }, 4000); // 4 seconds of death animation before transitioning
+  }
+
+  update() {
+    if (this.scene.isPaused || this.isDead) return;
+
+    const dt = this.scene.getEngine().getDeltaTime() / 1000;
+    
+    if (this.mesh.position.y < -50) {
+      this.die();
+      if (this.player && this.player.hud) {
+          this.player.hud.hideBossHealthBar();
+      }
+      return;
+    }
+
+    if (this.attackCooldown > 0) {
+      this.attackCooldown -= dt;
+    }
+
+    // Boss touch damage
+    if (this.player && this.player.mesh) {
+      if (this.attackCooldown <= 0 && this.mesh.intersectsMesh(this.player.mesh, false)) {
+        if (typeof this.player.takeDamage === "function") {
+          this.player.takeDamage(this.damage);
+          this.attackCooldown = this.attackCooldownMax; 
+          this.attackAnimTimer = 0.3;
+        }
+      }
+    }
+
+    if (this.attackAnimTimer > 0 && this.bossState === "WANDER") {
+        this.attackAnimTimer -= dt;
+        this.arms.forEach(arm => {
+            arm.rotation.x = -Math.PI / 2;
+        });
+    }
+
+    this.stateTimer -= dt;
+
+    if (this.bossState === "WANDER") {
+        this.laserMesh.isVisible = false;
+        
+        // Move towards player fast
+        if (this.player && this.player.mesh) {
+            const direction = this.player.mesh.position.subtract(this.mesh.position);
+            direction.y = 0;
+            direction.normalize();
+
+            const move = direction.scale(this.speed * dt);
+            move.y = -9.81 * dt; 
+            this.mesh.moveWithCollisions(move);
+
+            const targetRotation = this.mesh.position.add(direction);
+            this.mesh.lookAt(targetRotation);
+        }
+
+        // Arms return to normal if not attacking
+        if (this.attackAnimTimer <= 0) {
+            this.arms.forEach(arm => {
+                arm.rotation.x = arm.rotation.x * 0.9;
+            });
+        }
+
+        if (this.stateTimer <= 0) {
+            this.bossState = "PREPARE_LASER";
+            this.stateTimer = 2.0; // 2.0 sec to prepare, aim at player but stop moving
+        }
+    } else if (this.bossState === "PREPARE_LASER") {
+        // Stop turning and aiming ! The laser will be fired where the boss is currently facing.
+        // Apply gravity only
+        const move = new Vector3(0, -9.81 * dt, 0);
+        this.mesh.moveWithCollisions(move);
+
+        // Raise arms to aim !
+        this.arms.forEach(arm => {
+            arm.rotation.x = arm.rotation.x + (-Math.PI / 2 - arm.rotation.x) * dt * 5;
+        });
+
+        // Show a thinner laser to indicate aiming
+        this.laserMesh.isVisible = true;
+        this.laserMesh.scaling = new Vector3(0.2, 1, 0.2);
+        this.laserMesh.material.alpha = 0.5;
+        this.laserMesh.material.emissiveColor = new Color3(1, 0, 0);
+
+        if (this.stateTimer <= 0) {
+            this.bossState = "SHOOT_LASER";
+            this.stateTimer = 1.5; // shoot for 1.5 seconds
+            this.laserDamageTimer = 0;
+        }
+    } else if (this.bossState === "SHOOT_LASER") {
+        // Stop moving and turning, just shoot
+        const move = new Vector3(0, -9.81 * dt, 0);
+        this.mesh.moveWithCollisions(move);
+
+        // Arms shake during shooting
+        this.arms.forEach(arm => {
+            arm.rotation.x = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
+        });
+
+        this.laserMesh.isVisible = true;
+        this.laserMesh.scaling = new Vector3(2, 1, 2); // thick laser (2 * 0.8 = 1.6 diameter)
+        this.laserMesh.material.alpha = 1.0;
+        this.laserMesh.material.emissiveColor = new Color3(1, 0.2, 0.2);
+
+        // Damage calculation
+        this.laserDamageTimer -= dt;
+        if (this.laserDamageTimer <= 0) {
+            // Check intersection with laser cylinder
+            if (this.player && this.player.mesh && this.laserMesh.intersectsMesh(this.player.mesh, false)) {
+                if (typeof this.player.takeDamage === "function") {
+                    this.player.takeDamage(10);
+                    this.laserDamageTimer = 0.3; // apply damage every 0.3s while in laser
+                }
+            }
+        }
+
+        if (this.stateTimer <= 0) {
+            this.bossState = "WANDER";
+            this.stateTimer = 6.0;
+        }
+    }
   }
 }

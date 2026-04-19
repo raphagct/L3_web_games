@@ -119,7 +119,19 @@ export class Projectile {
       for (let enemy of this.scene.enemies) {
         if (!enemy.isDead && enemy.mesh && this.mesh.intersectsMesh(enemy.mesh, false)) {
           this.hasHitEnemy = true;
-          enemy.takeDamage(15);
+          
+          // Calcul de la hauteur de l'impact pour les multiplicateurs de dégâts
+          const dy = this.mesh.position.y - enemy.mesh.position.y;
+          const localY = dy / enemy.mesh.scaling.y;
+          
+          let multiplier = 1;
+          if (localY > 0.2) {
+              multiplier = 2.0; // Headshot
+          } else if (localY < -0.3) {
+              multiplier = 0.5; // Legshot
+          }
+
+          enemy.takeDamage(15 * multiplier);
           if (this.hud && typeof this.hud.addHit === 'function') {
               this.hud.addHit();
           } else if (enemy.player && enemy.player.hud && typeof enemy.player.hud.addHit === 'function') {

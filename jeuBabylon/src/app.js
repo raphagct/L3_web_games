@@ -10,7 +10,7 @@ import {
 import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
 import { PlayerHUD, PauseMenu, SettingsMenu, LoseMenu } from "./ui.js";
-import { EnemyType1, EnemyType2 } from "./enemy.js";
+import { EnemyType1, EnemyType2, Boss } from "./enemy.js";
 
 const State = {
   START: 0,
@@ -537,21 +537,59 @@ export default class App {
           return finalPos;
       };
 
-      const num1 = 1 + this.currentArenaIndex;
-      for(let i=0; i<num1; i++) {
-          this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
-      }
-      const num2 = 1 + Math.floor(this.currentArenaIndex / 2);
-      for(let i=0; i<num2; i++) {
-          this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+      if (this.currentArenaIndex === this.arenas.length - 1) {
+          this.enemies.push(new Boss(scene, this.player, getRandomArenaPos()));
+      } else {
+          const num1 = 1 + this.currentArenaIndex;
+          for(let i=0; i<num1; i++) {
+              this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
+          }
+          const num2 = 1 + Math.floor(this.currentArenaIndex / 2);
+          for(let i=0; i<num2; i++) {
+              this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+          }
       }
   }
 
   async handleArenaComplete() {
       this.currentArenaIndex++;
       if (this.currentArenaIndex >= this.arenas.length) {
-          this.currentArenaIndex = 0; 
-          this.goToStart();
+          this.state = State.CUTSCENE;
+          this._ignoringPointerLock = true;
+          this.isPaused = true;
+          this.scene.isPaused = true;
+          if (this.hud) this.hud.isPaused = true;
+          
+          this.scene.detachControl();
+          if (document.exitPointerLock) document.exitPointerLock();
+          
+          this.cutScene = new Scene(this.engine);
+          let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
+          this.cutScene.clearColor = new Color4(0, 0, 0, 1);
+          
+          this._renderCutsceneDom("VICTOIRE", "L'IA S.U.D.O est détruite. Son noyau est hors-ligne. Vous avez sauvé l'humanité !", () => {
+              this._removeCutsceneDom();
+              this.cutScene.dispose();
+              
+              if (this.pauseMenu) this.pauseMenu.dispose();
+              if (this.settingsMenu) this.settingsMenu.dispose();
+              if (this.loseMenu) this.loseMenu.dispose();
+              if (this.hud) this.hud.dispose();
+              if (this.gamescene) {
+                  this.gamescene.dispose();
+                  this.gamescene = null;
+              }
+              
+              this.currentArenaIndex = 0; 
+              this.goToStart();
+          });
+
+          const nextBtn = document.getElementById("cutscene-next-btn");
+          if (nextBtn) {
+              nextBtn.textContent = "RETOUR AU MENU";
+          }
+          
+          this.scene = this.cutScene;
           return;
       }
       
