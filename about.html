@@ -10,92 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
       rel="stylesheet"
     />
-    <style>
-      .about-section {
-        padding: 80px 20px;
-        text-align: left;
-        max-width: 900px;
-        margin: 0 auto;
-        min-height: calc(100vh - 200px);
-      }
-      .about-section h1 {
-        font-size: 3rem;
-        margin-bottom: 50px;
-        text-align: center;
-      }
-      .game-about {
-        margin-bottom: 60px;
-        padding-bottom: 40px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      }
-      .game-about:last-child {
-        border-bottom: none;
-      }
-      .game-about h2 {
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        color: #000;
-      }
-      .game-about h3 {
-        font-size: 1.5rem;
-        margin-top: 30px;
-        margin-bottom: 15px;
-        color: #000;
-      }
-      .game-about p {
-        line-height: 1.8;
-        font-size: 1.1rem;
-        color: #333;
-        margin-bottom: 15px;
-      }
-      .game-about ul {
-        margin-left: 0;
-        margin-bottom: 15px;
-        list-style-type: none;
-        padding-left: 0;
-      }
-      .game-about ul li {
-        position: relative;
-        padding-left: 20px;
-        font-size: 1.1rem;
-        color: #333;
-        line-height: 1.6;
-        margin-bottom: 10px;
-      }
-      .game-about ul li::before {
-        content: "-";
-        position: absolute;
-        left: 0;
-        color: #000;
-        font-weight: bold;
-      }
-      .game-about a {
-        color: #000;
-        text-decoration: underline;
-        word-break: break-all;
-      }
-      .game-about blockquote {
-        border-left: 4px solid #000;
-        padding-left: 15px;
-        margin-top: 10px;
-        margin-left: 0;
-        margin-bottom: 15px;
-        font-style: italic;
-        color: #555;
-        background: #f9f9f9;
-        padding: 10px 15px;
-      }
-      .game-about strong {
-        color: #000;
-      }
-      .game-about code {
-        background-color: #f0f0f0;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: inherit;
-        font-size: 1rem;
-      }
-    </style>
+    <link rel="stylesheet" href="./about.css" />
   </head>
 
   <body>
@@ -117,8 +32,12 @@
       <h1>À propos des jeux</h1>
 
       <div class="game-about">
-        <h2>Jeu DOM</h2>
-        <p><em>Description à venir...</em></p>
+        <h2>Jeu DOM (2048)</h2>
+        <h3>Le jeu</h3>
+        <p>
+          Ce projet est une recréation du célèbre jeu <strong>2048</strong> en utilisant la manipulation du DOM HTML et du JavaScript vanilla.
+          Le but est simple : faire glisser les tuiles sur la grille pour combiner celles de même valeur (2 avec 2 donne 4, etc.) avec pour objectif d'atteindre la fameuse tuile 2048 !
+        </p>
       </div>
 
       <div class="game-about">
@@ -254,8 +173,45 @@
       </div>
 
       <div class="game-about">
-        <h2>Jeu Babylon</h2>
-        <p><em>Description à venir...</em></p>
+        <h2>Jeu Babylon (S.U.D.O)</h2>
+
+        <h3>Le jeu</h3>
+        <p>
+          Développé à l'aide de <strong>BabylonJS</strong> pour le concours GamesOnWeb (Thème : "IA Edition"), notre jeu est un jeu de tir et de survie en arènes, s'inspirant des modes de survie par vagues. 
+          Le joueur doit vaincre des vagues d'ennemis, déclenchant ensuite une téléportation dans de nouvelles arènes aux décors évolutifs, avec une difficulté sans cesse croissante !
+        </p>
+
+        <h3>Ressources utilisées</h3>
+        <p>
+          Nous avons utilisé plusieurs outils pour mener à bien ce jeu 3D :
+        </p>
+        <ul>
+          <li><strong>Babylon JS Editor v5.4.0</strong> : essentiel pour la conception visuelle et spatiale des maps.</li>
+          <li><strong>Blender v4.4</strong> : pour la manipulation et la création en 3D.</li>
+          <li><strong>Polyhaven, AmbientCG & Textures.com</strong> : pour dénicher des matériaux et textures réalistes.</li>
+        </ul>
+
+        <h3>Parties du projet réussies</h3>
+        <p>
+          Nous sommes très fiers de l'architecture logicielle du jeu. Nous avons réfléchi le projet avec une vraie programmation orientée objet, en veillant à respecter les principes <strong>SOLID</strong> et la séparation des responsabilités. Le code est réparti proprement (des classes dédiées pour <code>CharacterController</code>, <code>Arme</code>, <code>Projectile</code>, <code>Enemy</code>, ou encore la gestion de l'état global et des sons dans <code>app.js</code>).
+        </p>
+        <p>
+          De plus, le rendu visuel dynamique avec des <strong>shaders personnalisés</strong> (néon, poison, lave) et la robustesse de l'UI ajoutent un aspect vraiment unique au projet.
+        </p>
+
+        <h3>Difficultés rencontrées</h3>
+        <p>
+          Construire des scènes 3D performantes et ajuster des textures uniquement via le code s'est avéré extrêmement complexe et chronophage. Fort heureusement, la découverte de l'éditeur visuel <strong>Babylon JS Editor</strong> a débloqué la création de nos arènes. Le logiciel étant assez récent, nous avons tout de même dû contourner quelques bugs de l'éditeur.
+        </p>
+        <p>
+          Enfin, le développement du système de menus, des <em>cutscenes</em> pour l'histoire, et la gestion propre de la caméra et du plein écran (Pointer Lock) sans conflits avec l'UI a représenté un gros défi technique au vu des comportements par défaut du navigateur.
+        </p>
+
+        <h3>Pourquoi ce jeu et pas un autre ?</h3>
+        <p>
+          Enfants de la génération 2005, nous avons grandi avec des licences qui ont marqué l'industrie comme Minecraft, Fortnite et Call of Duty. 
+          Pour nous, un jeu basé sur la survie face à des vagues d'ennemis, où la difficulté pousse à se dépasser, représente l'essence même du "fun" ludique. C'est le type d'expérience que l'on préfère et que nous étions très motivés à programmer !
+        </p>
       </div>
     </div>
 

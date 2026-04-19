@@ -34,7 +34,6 @@
       </p>
 
       <div class="games-grid">
-        <!-- Game 1 -->
         <div class="game-card">
           <div
             class="game-image"
@@ -65,7 +64,6 @@
           </div>
         </div>
 
-        <!-- Game 2 -->
         <div class="game-card">
           <div
             class="game-image"
@@ -95,7 +93,6 @@
           </div>
         </div>
 
-        <!-- Game 3 -->
         <div class="game-card">
           <div
             class="game-image"
@@ -126,36 +123,7 @@
     </div>
 
     <script src="./index.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-        const loginPrompt = document.getElementById("library-login-prompt");
-
-        if (isLoggedIn) {
-          loginPrompt.style.display = "none";
-          const userStr = localStorage.getItem("currentUser");
-          if (userStr) {
-            try {
-              const user = JSON.parse(userStr);
-              const response = await fetch(`/api/scores/user/${user.id}`);
-              if (response.ok) {
-                const scores = await response.json();
-                scores.forEach((s) => {
-                  const el = document.getElementById(`score-${s.gameName}`);
-                  if (el) {
-                    el.textContent = s.score + " pts";
-                    el.style.color = "#000";
-                    el.style.fontWeight = "bold";
-                  }
-                });
-              }
-            } catch (e) {
-              console.error("Erreur de récupération des scores", e);
-            }
-          }
-        }
-      });
-    </script>
+    <script src="./library.js"></script>
     <footer>
       <p>
         2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël

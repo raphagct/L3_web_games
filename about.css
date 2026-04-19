@@ -1,0 +1,84 @@
+.about-section {
+  padding: 80px 20px;
+  text-align: left;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: calc(100vh - 200px);
+}
+.about-section h1 {
+  font-size: 3rem;
+  margin-bottom: 50px;
+  text-align: center;
+}
+.game-about {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.game-about:last-child {
+  border-bottom: none;
+}
+.game-about h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #000;
+}
+.game-about h3 {
+  font-size: 1.5rem;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #000;
+}
+.game-about p {
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+.game-about ul {
+  margin-left: 0;
+  margin-bottom: 15px;
+  list-style-type: none;
+  padding-left: 0;
+}
+.game-about ul li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.game-about ul li::before {
+  content: "-";
+  position: absolute;
+  left: 0;
+  color: #000;
+  font-weight: bold;
+}
+.game-about a {
+  color: #000;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.game-about blockquote {
+  border-left: 4px solid #000;
+  padding-left: 15px;
+  margin-top: 10px;
+  margin-left: 0;
+  margin-bottom: 15px;
+  font-style: italic;
+  color: #555;
+  background: #f9f9f9;
+  padding: 10px 15px;
+}
+.game-about strong {
+  color: #000;
+}
+.game-about code {
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
