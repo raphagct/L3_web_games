@@ -90,6 +90,8 @@ Sites :
 
 ### Aide de l'IA  
 
+Aide pour mettre des effets sur le menu de lancement en général une bonne partie de l'UI / UX, 
+
 
 ## Partie Personnelle  
 ### Répartition du travail dans le groupe  
@@ -119,6 +121,17 @@ Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos, un
 ### Cloner le projet
 ~~~
 git clone https://github.com/raphagct/L3_web_games.git
+~~~
+
+~~~
+npm install
+~~~
+
+~~~
+cd jeuBabylon
+~~~
+~~~
+npm run dev
 ~~~
 
 
