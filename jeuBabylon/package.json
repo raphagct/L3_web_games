@@ -12,6 +12,9 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
-    "@babylonjs/core": "^8.50.0"
+    "@babylonjs/core": "^8.54.1",
+    "@babylonjs/gui": "^8.54.1",
+    "@babylonjs/loaders": "^8.54.1",
+    "games-on-web": "file:.."
   }
 }

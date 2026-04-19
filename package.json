@@ -1,0 +1,19 @@
+{
+  "name": "games-on-web",
+  "version": "1.0.0",
+  "scripts": {
+    "predev": "npm run install-all",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix jeuBabylon\"",
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix jeuBabylon"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

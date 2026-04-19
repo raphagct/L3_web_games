@@ -1,0 +1,11 @@
+Model Information:
+* title:	Call of Duty: Black Ops Cold War - Magnum
+* source:	https://sketchfab.com/3d-models/call-of-duty-black-ops-cold-war-magnum-3a6599a42ed944dba63f659fedac5e73
+* author:	thientrung2004pr (https://sketchfab.com/U.SSCIFI)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Call of Duty: Black Ops Cold War - Magnum" (https://sketchfab.com/3d-models/call-of-duty-black-ops-cold-war-magnum-3a6599a42ed944dba63f659fedac5e73) by thientrung2004pr (https://sketchfab.com/U.SSCIFI) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

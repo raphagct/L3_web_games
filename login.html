@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - Game Book</title>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Games on web</div>
+
+      <ul class="nav-links" id="navbar">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="library.html">Bibliothèque</a></li>
+        <li><a href="about.html">A propos</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-login">Connexion</a>
+      </div>
+    </nav>
+
+    <div class="auth">
+      <div class="form" id="login-form">
+        <h2>Login</h2>
+        <form id="form-login">
+          <input type="email" id="login-email" placeholder="Email" required />
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <p>
+          Don't have an account? <span onclick="toggleAuth()">Register</span>
+        </p>
+      </div>
+
+      <div class="form hidden" id="register-form">
+        <h2>Register</h2>
+        <form id="form-register">
+          <input
+            type="text"
+            id="register-username"
+            placeholder="Username"
+            required
+          />
+          <input
+            type="email"
+            id="register-email"
+            placeholder="Email"
+            required
+          />
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Password"
+            required
+          />
+          <input
+            type="password"
+            id="register-confirm-password"
+            placeholder="Confirm Password"
+            required
+          />
+          <button type="submit">Register</button>
+        </form>
+        <p>
+          Already have an account? <span onclick="toggleAuth()">Login</span>
+        </p>
+      </div>
+    </div>
+
+    <script src="./login.js"></script>
+    <script src="./index.js"></script>
+  </body>
+  <footer>
+    <p>
+      2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+      GUICHET
+    </p>
+  </footer>
+</html>

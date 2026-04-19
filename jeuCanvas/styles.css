@@ -200,3 +200,26 @@ body.playing .menu-accueil {
   font-weight: bold;
   color: #d84315;
 }
+
+.bouton-retour {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  background: #ffcc80;
+  color: #5d4037;
+  box-shadow: 0 5px 0 #ef6c00;
+  z-index: 1000;
+  font-family: inherit;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.bouton-retour:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 #ef6c00;
+}

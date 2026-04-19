@@ -1,14 +1,103 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=jeuCanvas/index.html">
-    <title>Redirection...</title>
-    <script>
-        window.location.href = "jeuCanvas/index.html";
-    </script>
-</head>
-<body>
-    <p>Si vous n'êtes pas redirigé automatiquement, <a href="jeuCanvas/index.html">cliquez ici</a>.</p>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Games on Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Games on web</div>
+
+      <ul class="nav-links" id="navbar">
+        <li><a href="index.html" class="active">Accueil</a></li>
+        <li><a href="library.html">Bibliothèque</a></li>
+        <li><a href="about.html">A propos</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-login">Connexion</a>
+      </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar" style="display: none">
+    </div>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>3 Jeux Web</h1>
+        <p>
+          Dans le cadre du 2ème semestre de notre licence 3 MIAGE, nous avons
+          réalisé 3 jeux en javascript manipulant le DOM, le canvas et
+          babylon.js
+        </p>
+        <div class="hero-buttons">
+          <button
+            class="btn"
+            onclick="window.location.href = './jeuBabylon/dist/index.html'"
+          >
+            Jouer au jeu GamesOnWeb 2026
+          </button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img
+          src="./assets/images/hero_bw_modern.png"
+          alt="Modern clean gaming concept"
+        />
+      </div>
+    </section>
+
+    <section class="games-section" id="games">
+      <h2>Bibliothèque de jeux</h2>
+      <div class="games-grid-display">
+        <a href="./jeuDOM/index.html" class="game-square">
+          <div
+            class="game-thumbnail"
+            style="
+              background-image: url(&quot;./assets/images/2048-jeuDOM.png&quot;);
+            "
+          ></div>
+          <h3>2048</h3>
+          <p>Un jeu du 2048 utilisant le DOM</p>
+        </a>
+        <a href="./jeuCanvas/index.html" class="game-square">
+          <div
+            class="game-thumbnail"
+            style="
+              background-image: url(&quot;./assets/images/jeu-canvas.png&quot;);
+            "
+          ></div>
+          <h3>Jeu de la pastèque</h3>
+          <p>Un clone du jeu Suika Game en utilisant le canvas</p>
+        </a>
+        <a href="./jeuBabylon/dist/index.html" class="game-square">
+          <div
+            class="game-thumbnail"
+            style="
+              background-image: url(&quot;./assets/images/screen-jeuBabylon.png&quot;);
+            "
+          ></div>
+          <h3>Sudo</h3>
+          <p>Un jeu 3D fait en Babylon.js ou l'on doit battre une IA</p>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+        GUICHET
+      </p>
+    </footer>
+
+    <script src="./index.js"></script>
+  </body>
 </html>

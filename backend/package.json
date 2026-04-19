@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npm run build --prefix ../jeuBabylon && nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "daemon": "^1.1.0",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "games-on-web": "file:..",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

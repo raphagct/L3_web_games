@@ -93,7 +93,32 @@ export default class Game {
 
     checkSiNiveauTermine() {
         if (isGameOver()) {
-            this.etatJeu = etat.GAME_OVER;
+            if (this.etatJeu !== etat.GAME_OVER) {
+                this.etatJeu = etat.GAME_OVER;
+                this.saveScoreToDB();
+            }
+        }
+    }
+
+    async saveScoreToDB() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (!isLoggedIn) return;
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                await fetch('/api/scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        gameName: 'canvas',
+                        score: this.score
+                    })
+                });
+            } catch(e) {
+                console.error('Erreur sauvegarde score', e);
+            }
         }
     }
 

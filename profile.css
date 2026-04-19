@@ -1,0 +1,47 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  padding: 20px;
+}
+.profile-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+.profile-card h2 {
+  color: #ffd59d;
+  margin-bottom: 20px;
+}
+.profile-info {
+  margin-bottom: 30px;
+}
+.profile-info p {
+  margin: 10px 0;
+  color: white;
+}
+.profile-info strong {
+  color: rgba(255, 255, 255, 0.7);
+}
+.btn-logout {
+  width: 100%;
+  padding: 15px;
+  background-color: transparent;
+  border: 1px solid #ffd59d;
+  color: #ffd59d;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.btn-logout:hover {
+  background-color: #ffd59d;
+  color: black;
+}

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us - GamesOnWeb</title>
+  <link rel="stylesheet" href="./index.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./about.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">Games on web</div>
+
+    <ul class="nav-links" id="navbar">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="library.html">Bibliothèque</a></li>
+      <li><a href="about.html" class="active">A propos</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn-login">Connexion</a>
+    </div>
+  </nav>
+
+  <div class="about-section">
+    <h1>À propos des jeux</h1>
+
+    <div class="game-about">
+      <h2>Jeu DOM (2048)</h2>
+      <h3>Le jeu</h3>
+      <p>
+        Ce projet est une recréation du célèbre jeu <strong>2048</strong> en utilisant la manipulation du DOM HTML et du
+        JavaScript vanilla.
+        Le but est simple : faire glisser les tuiles sur la grille pour combiner celles de même valeur (2 avec 2 donne
+        4, etc.) avec pour objectif d'atteindre la fameuse tuile 2048 !
+      </p>
+    </div>
+
+    <div class="game-about">
+      <h2>Jeu de la Pastèque (Canvas)</h2>
+
+      <h3>Composition de l'équipe</h3>
+      <ul>
+        <li><strong>GUICHET Raphaël</strong></li>
+        <li><strong>LECHEVALIER Mathis</strong></li>
+      </ul>
+
+      <h3>Le jeu</h3>
+      <p>
+        Le but de notre jeu est de faire fusionner des fruits pour en créer de
+        plus gros. L’objectif est d’atteindre la pastèque avant que les fruits
+        n’atteignent la limite rouge située en haut de l’écran.<br />
+        Pour simuler la physique des fruits, nous avons utilisé la librairie
+        <strong>Matter.js</strong>.
+      </p>
+      <p>
+        Dans le but de respecter au maximum la consigne initiale, nous n’avons
+        pas utilisé <code>Render</code> ni <code>Runner</code> de Matter.js.
+        Nous avons préféré développer notre propre moteur de rendu ainsi que
+        notre propre boucle de jeu.
+      </p>
+
+      <h3>Aide externe</h3>
+      <p>
+        Pour les images des fruits, nous avons demandé à un ami externe au
+        projet de les dessiner.
+      </p>
+
+      <h3>Ressources utilisées</h3>
+      <p>
+        Pour réaliser ce mini-jeu, nous avons utilisé les ressources suivantes
+        :
+      </p>
+      <ul>
+        <li>Les jeux canvas du cours (char qui tire, etc.)</li>
+        <li>Le MOOC sur les canvas</li>
+        <li>
+          La documentation officielle de Matter.js : <br /><a href="https://www.brm.io/matter-js/"
+            target="_blank">https://www.brm.io/matter-js/</a>
+        </li>
+        <li>
+          La playlist YouTube de TheCodingTrain sur Matter.js : <br /><a
+            href="https://www.youtube.com/watch?v=urR596FsU68&list=PLRqwX-V7Uu6bLh3T_4wtrmVHOrOEM1ig_"
+            target="_blank">https://www.youtube.com/watch?v=urR596FsU68&amp;list=PLRqwX-V7Uu6bLh3T_4wtrmVHOrOEM1ig_</a>
+        </li>
+      </ul>
+
+      <h3>Utilisation de l’IA générative</h3>
+      <p>Nous nous sommes également aidés d’IA générative pour :</p>
+      <ul>
+        <li>
+          <strong>Comprendre Matter.js</strong><br />
+          <em>Exemple de prompt</em> :
+          <blockquote>
+            « Fais une balle qui rebondit via Matter.js »
+          </blockquote>
+        </li>
+        <li>
+          <strong>Améliorer le CSS</strong><br />
+          <em>Exemple de prompt</em> :
+          <blockquote>
+            « Améliore l’UX de notre jeu (boutons, etc.) »
+          </blockquote>
+        </li>
+        <li>
+          <strong>Réaliser des effets complexes</strong><br />
+          <em>Exemple de prompt</em> :
+          <blockquote>
+            « Réalise un effet de particules quand les fruits fusionnent »
+          </blockquote>
+        </li>
+        <li>
+          <strong>Résoudre des problèmes complexes dans le code</strong><br />
+          <em>Exemple de prompt</em> :
+          <blockquote>
+            « Comment modifier le rayon de collision des fruits selon la
+            position du fruit dans l’image ? »
+          </blockquote>
+        </li>
+      </ul>
+
+      <h3>Parties du projet réussies</h3>
+      <p>
+        Nous sommes fiers de la logique de chute et de la fusion des fruits,
+        qui nous a demandé de bien réfléchir et de bien comprendre le
+        fonctionnement de Matter.js.<br />
+        L’<code>Engine</code>, qui joue le rôle du moteur physique, possède un
+        monde (<code>World</code>) dans lequel on ajoute des corps
+        (<code>Bodies</code>), qui sont ici des fruits. Ces corps ont des
+        propriétés physiques comme la masse, la vélocité, etc.<br />
+        Les collisions sont directement gérées par
+        <strong>Matter.js</strong> : il détecte quand deux corps entrent en
+        collision et déclenche un événement (<code>Matter.Events.on</code>).
+      </p>
+      <p>
+        Nous sommes aussi fiers de notre logique de game over dans sa
+        globalité.<br />
+        Nous avons, dans un premier temps, utilisé un attribut du body qui
+        joue le rôle de capteur (<code>isSensor: true</code>), qui détecte les
+        collisions mais ne réagit pas physiquement.<br />
+        Puis, nous avons vérifié si le fruit était au-dessus de la ligne rouge
+        (donc en collision avec le capteur) et s’il était à l’arrêt.
+      </p>
+
+      <h3>Difficultés rencontrées</h3>
+      <p>
+        Nous avons aussi rencontré quelques problèmes, notamment avec les
+        images des fruits.<br />
+        Les fruits n’étaient pas toujours bien positionnés au centre de
+        l’image, ils n’étaient pas parfaitement ronds et certains avaient en
+        plus des "tiges" (ananas, cerise...).<br />
+        Pour résoudre ce problème, nous avons modifié les rayons de collision
+        des fruits selon le type de fruit.<br />
+        Et mis à part l’ananas et sa couronne qui nous pose problème, les
+        collisions des autres fruits fonctionnent correctement.
+      </p>
+      <p>
+        Nous avons aussi rencontré des problèmes avec la structure du code.<br />
+        Nous avons eu du mal à séparer la logique dans différents fichiers
+        (collisions.js, ecouteurs.js...) de façon propre et sans tout
+        casser...<br />
+        Mais nous sommes parvenus à un résultat plutôt satisfaisant.
+      </p>
+    </div>
+
+    <div class="game-about">
+      <h2>Jeu Babylon (S.U.D.O)</h2>
+
+      <h3>Le jeu</h3>
+      <p>
+        Développé à l'aide de <strong>BabylonJS</strong> pour le concours GamesOnWeb (Thème : "IA Edition"), notre jeu
+        est un jeu de tir et de survie en arènes, s'inspirant des modes de survie par vagues.
+        Le joueur doit vaincre des vagues d'ennemis, déclenchant ensuite une téléportation dans de nouvelles arènes aux
+        décors évolutifs, avec une difficulté sans cesse croissante !
+      </p>
+
+      <h3>Ressources utilisées</h3>
+      <p>
+        Nous avons utilisé plusieurs outils pour mener à bien ce jeu 3D :
+      </p>
+      <ul>
+        <li><strong>Babylon JS Editor v5.4.0</strong> : essentiel pour la conception visuelle et spatiale des maps.</li>
+        <li><strong>Blender v4.4</strong> : pour la manipulation et la création en 3D.</li>
+        <li><strong>Polyhaven, AmbientCG & Textures.com</strong> : pour dénicher des matériaux et textures réalistes.
+        </li>
+      </ul>
+
+      <h3>Parties du projet réussies</h3>
+      <p>
+        Nous sommes très fiers de l'architecture logicielle du jeu. Nous avons réfléchi le projet avec une vraie
+        programmation orientée objet, en veillant à respecter les principes <strong>SOLID</strong> et la séparation des
+        responsabilités. Le code est réparti proprement (des classes dédiées pour <code>CharacterController</code>,
+        <code>Arme</code>, <code>Projectile</code>, <code>Enemy</code>, ou encore la gestion de l'état global et des
+        sons dans <code>app.js</code>).
+      </p>
+      <p>
+        De plus, le rendu visuel dynamique avec des <strong>shaders personnalisés</strong> (néon, poison, lave) et la
+        robustesse de l'UI ajoutent un aspect vraiment unique au projet.
+      </p>
+
+      <h3>Difficultés rencontrées</h3>
+      <p>
+        Construire des scènes 3D performantes et ajuster des textures uniquement via le code s'est avéré extrêmement
+        complexe et chronophage. Fort heureusement, la découverte de l'éditeur visuel <strong>Babylon JS Editor</strong>
+        a débloqué la création de nos arènes. Le logiciel étant assez récent, nous avons tout de même dû contourner
+        quelques bugs de l'éditeur.
+      </p>
+      <p>
+        Enfin, le développement du système de menus, des <em>cutscenes</em> pour l'histoire, et la gestion propre de la
+        caméra et du plein écran (Pointer Lock) sans conflits avec l'UI a représenté un gros défi technique au vu des
+        comportements par défaut du navigateur.
+      </p>
+
+      <h3>Pourquoi ce jeu et pas un autre ?</h3>
+      <p>
+        Enfants de la génération 2005, nous avons grandi avec des licences qui ont marqué l'industrie comme Minecraft,
+        Fortnite et Call of Duty.
+        Pour nous, un jeu basé sur la survie face à des vagues d'ennemis, où la difficulté pousse à se dépasser,
+        représente l'essence même du "fun" ludique. C'est le type d'expérience que l'on préfère et que nous étions très
+        motivés à programmer !
+      </p>
+    </div>
+  </div>
+
+  <script src="./index.js"></script>
+</body>
+
+<footer>
+  <p>
+    2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+    GUICHET
+  </p>
+</footer>
+
+</html>

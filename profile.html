@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - Game Book</title>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./profile.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Games on web</div>
+
+      <ul class="nav-links" id="navbar">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="library.html">Bibliothèque</a></li>
+        <li><a href="about.html">A propos</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="btn-login">Connexion</a>
+      </div>
+    </nav>
+
+    <div class="profile-container">
+      <div class="profile-card">
+        <h2>Mon Profil</h2>
+        <div class="profile-info">
+          <p>
+            <strong>Nom d'utilisateur:</strong>
+            <span id="prof-username">-</span>
+          </p>
+          <p><strong>Email:</strong> <span id="prof-email">-</span></p>
+        </div>
+        <button class="btn-logout" id="logout-btn">Se Déconnecter</button>
+      </div>
+    </div>
+
+    <script src="./index.js"></script>
+    <script src="./profile.js"></script>
+    <footer>
+      <p>
+        2026 Games on web - Valentin FOUILLOUD, Mathis LECHEVALIER, Raphaël
+        GUICHET
+      </p>
+    </footer>
+  </body>
+</html>
