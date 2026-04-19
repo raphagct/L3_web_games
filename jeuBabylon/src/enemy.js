@@ -5,6 +5,7 @@ import {
   StandardMaterial,
   Ray
 } from "@babylonjs/core";
+import { SoundManager } from "./soundManager.js";
 
 export class Enemy {
   constructor(scene, player, position, hp, damage, speed, attackCooldownMax = 1.0) {
@@ -169,6 +170,7 @@ export class Enemy {
           this.player.takeDamage(this.damage);
           this.attackCooldown = this.attackCooldownMax; 
           this.attackAnimTimer = 0.3; // Animation de coup
+          SoundManager.play('enemyAttack');
         }
       }
     }
@@ -265,7 +267,7 @@ export class EnemyType2 extends Enemy {
 export class Boss extends Enemy {
   constructor(scene, player, position) {
     // Huge HP, moderate damage on touch, fast
-    super(scene, player, position, 500, 10, 4, 2.0);
+    super(scene, player, position, 1500, 20, 3, 2.0);
     this.applyColor(new Color3(0.8, 0.1, 0.8)); // Purple
     
     // Make him imposing
@@ -317,10 +319,36 @@ export class Boss extends Enemy {
   die() {
     this.isDead = true;
     this.bossState = "DEAD";
+    SoundManager.play('bossDeath');
+    
+    // Fade out boss music
+    if (this.scene.gameApp) {
+        this.scene.gameApp.stopBossMusicWithFade();
+    }
+
     if (this.laserMesh) {
         this.laserMesh.isVisible = false;
         this.laserMesh.dispose();
     }
+
+    const fadeDiv = document.createElement("div");
+    fadeDiv.id = "boss-fade-out";
+    fadeDiv.style.position = "absolute";
+    fadeDiv.style.top = "0";
+    fadeDiv.style.left = "0";
+    fadeDiv.style.width = "100%";
+    fadeDiv.style.height = "100%";
+    fadeDiv.style.backgroundColor = "black";
+    fadeDiv.style.opacity = "0";
+    fadeDiv.style.transition = "opacity 3s ease-in";
+    fadeDiv.style.zIndex = "9999";
+    fadeDiv.style.pointerEvents = "none";
+    document.body.appendChild(fadeDiv);
+    
+    setTimeout(() => {
+        const fade = document.getElementById("boss-fade-out");
+        if (fade) fade.style.opacity = "1";
+    }, 500);
 
     // Custom death animation
     let targetRot = this.mesh.rotation.x - Math.PI / 2;
@@ -385,6 +413,7 @@ export class Boss extends Enemy {
           this.player.takeDamage(this.damage);
           this.attackCooldown = this.attackCooldownMax; 
           this.attackAnimTimer = 0.3;
+          SoundManager.play('enemyAttack');
         }
       }
     }
@@ -447,6 +476,7 @@ export class Boss extends Enemy {
             this.bossState = "SHOOT_LASER";
             this.stateTimer = 1.5; // shoot for 1.5 seconds
             this.laserDamageTimer = 0;
+            SoundManager.play('laser');
         }
     } else if (this.bossState === "SHOOT_LASER") {
         // Stop moving and turning, just shoot
@@ -466,10 +496,18 @@ export class Boss extends Enemy {
         // Damage calculation
         this.laserDamageTimer -= dt;
         if (this.laserDamageTimer <= 0) {
-            // Check intersection with laser cylinder
-            if (this.player && this.player.mesh && this.laserMesh.intersectsMesh(this.player.mesh, false)) {
+            // Precise intersection check + distance check to avoid damage behind the boss
+            const playerPos = this.player.mesh.getAbsolutePosition();
+            const bossPos = this.mesh.getAbsolutePosition();
+            const toPlayer = playerPos.subtract(bossPos);
+            const bossForward = this.mesh.forward;
+            
+            // Player must be in front of the boss
+            const dot = Vector3.Dot(toPlayer.normalize(), bossForward);
+            
+            if (dot > 0 && this.laserMesh.intersectsMesh(this.player.mesh, true)) {
                 if (typeof this.player.takeDamage === "function") {
-                    this.player.takeDamage(10);
+                    this.player.takeDamage(30);
                     this.laserDamageTimer = 0.3; // apply damage every 0.3s while in laser
                 }
             }

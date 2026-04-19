@@ -5,6 +5,7 @@ import {
 } from "@babylonjs/core";
 import { GameSettings } from "./config.js";
 import { Bras } from "./Bras.js";
+import { SoundManager } from "./soundManager.js";
 
 export class Player {
   static SPEED = 0.15;
@@ -34,7 +35,6 @@ export class Player {
     // Initialiser l'affichage au démarrage
     if (this.hud) {
       this.hud.updateHealth(this.health, this.maxHealth);
-      this.hud.updateFood(this.food, this.maxFood);
     }
 
     // Inputs clavier
@@ -98,21 +98,38 @@ export class Player {
     this.camera.minZ = 0.01; // Permet de voir les objets proches (bras/arme)
     
     const canvas = this.scene.getEngine().getRenderingCanvas();
-    this.camera.attachControl(canvas, true);
+
+    // ------------------------------------------------------------------
+    // CUSTOM MOUSE LOOK — Only rotates when pointer lock is ON
+    // This prevents the "camera teleport" bug caused by accumulated mouse
+    // deltas being applied in one frame when pointer lock is re-acquired.
+    // ------------------------------------------------------------------
+    this.camera.inputs.clear(); // Remove ALL default camera inputs
+    this.camera.inputs.removeByType("FreeCameraKeyboardMoveInput");
+
+    const SENSITIVITY = 0.0012; // radians per pixel
+    this._onMouseMove = (e) => {
+      if (document.pointerLockElement !== canvas) return;
+      if (this.scene.isPaused) return;
+
+      // Clamp each delta to prevent huge single-frame jumps
+      const dx = Math.max(-50, Math.min(50, e.movementX));
+      const dy = Math.max(-50, Math.min(50, e.movementY));
+
+      this.camera.rotation.y += dx * SENSITIVITY;
+      this.camera.rotation.x += dy * SENSITIVITY;
+
+      // Clamp vertical rotation to avoid flipping upside-down
+      this.camera.rotation.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, this.camera.rotation.x));
+    };
+    document.addEventListener("mousemove", this._onMouseMove);
 
     canvas.addEventListener("click", () => {
+      // Only request pointer lock when in game and not paused
       if (this.scene.isPaused) return;
-      canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
-      if (canvas.requestPointerLock) {
-        canvas.requestPointerLock();
-      }
+      if (document.pointerLockElement === canvas) return;
+      if (canvas.requestPointerLock) canvas.requestPointerLock();
     });
-
-    // Créer le bras (+ arme attachée) en FPS
-    this.bras = new Bras(this.scene, this.camera, this.hud);
-    if (this.hud && this.bras.arme) {
-      this.hud.updateWeapon(this.bras.arme.nom);
-    }
 
     // Tir au clic gauche (uniquement en pointer lock)
     canvas.addEventListener("pointerdown", (e) => {
@@ -122,13 +139,16 @@ export class Player {
     });
 
     // Désactiver les touches par défaut de la caméra Babylon
-    this.camera.inputs.removeByType("FreeCameraKeyboardMoveInput");
-    
-    // Caméra plus fluide : inertie et sensibilité optimisées
-    this.camera.inertia = 0.35;
-    this.camera.angularSensibility = 850;
-    
+    this.camera.inertia = 0; // Custom input = no inertia needed
+    this.camera.speed = 0;   // We handle movement ourselves
+
     this.scene.activeCamera = this.camera;
+
+    // Créer le bras (+ arme attachée) en FPS
+    this.bras = new Bras(this.scene, this.camera, this.hud);
+    if (this.hud && this.bras.arme) {
+      this.hud.updateWeapon(this.bras.arme.nom);
+    }
     
     // State pour l'animation du bras
     this._bobTime = 0;
@@ -152,7 +172,10 @@ export class Player {
   }
 
   updateMovement() {
-    if (this.scene.isPaused) return;
+    if (this.scene.isPaused) {
+      SoundManager.setFootsteps(false);
+      return;
+    }
 
     const dt = this.scene.getEngine().getDeltaTime() / 1000;
     const distance = this.speed * dt;
@@ -167,7 +190,15 @@ export class Player {
     forward.normalize();
     right.normalize();
 
-    let displacement = new Vector3(0, -9.81 * dt, 0);
+    let displacement = new Vector3(0, 0, 0);
+
+    // Gravity: clamp to avoid excessive accumulation
+    this._verticalVelocity = (this._verticalVelocity || 0) - 9.81 * dt;
+    this._verticalVelocity = Math.max(this._verticalVelocity, -20); // terminal velocity cap
+    displacement.y = this._verticalVelocity * dt;
+
+    // Reset vertical velocity when grounded (detect collision below)
+    const prevY = this.mesh.position.y;
 
     if (this.inputMap[GameSettings.keys.forward]) {
       displacement.addInPlace(forward.scale(distance)); // avant
@@ -183,6 +214,11 @@ export class Player {
     }
 
     this.mesh.moveWithCollisions(displacement);
+    
+    // If position barely changed vertically, we're on ground -> reset velocity
+    if (Math.abs(this.mesh.position.y - prevY - displacement.y) > 0.001) {
+      this._verticalVelocity = 0;
+    }
     
     // Animation du bras (bob en marchant + sway latéral)
     if (this.bras && this.bras.mesh) {
@@ -201,7 +237,10 @@ export class Player {
         
         brasTarget.position.x = this._brasBasePosX + bobX;
         brasTarget.position.y = this._brasBasePosY + bobY;
+
+        SoundManager.setFootsteps(true);
       } else {
+        SoundManager.setFootsteps(false);
         // Retour doux à la position de base
         brasTarget.position.x += (this._brasBasePosX - brasTarget.position.x) * 0.12;
         brasTarget.position.y += (this._brasBasePosY - brasTarget.position.y) * 0.12;

@@ -1,5 +1,5 @@
 import * as GUI from "@babylonjs/gui";
-import { GameSettings } from "./config.js";
+import { GameSettings, saveSettings } from "./config.js";
 import { MeshBuilder } from "@babylonjs/core";
 
 export class PlayerHUD {
@@ -15,11 +15,28 @@ export class PlayerHUD {
         this._createWeaponDisplay();
         this._createCrosshair();
         this._createComboUI();
+        this._createFpsCounter();
 
+        this._fpsUpdateTimer = 0;
         scene.onBeforeRenderObservable.add(() => {
             if (!this.isPaused) {
                 const deltaTimeInSeconds = scene.getEngine().getDeltaTime() / 1000;
                 this._updateTimer(deltaTimeInSeconds);
+
+                // Update FPS every 0.25 seconds
+                this._fpsUpdateTimer += deltaTimeInSeconds;
+                if (this._fpsUpdateTimer >= 0.25) {
+                    this._fpsUpdateTimer = 0;
+                    const fps = Math.round(scene.getEngine().getFps());
+                    this._fpsText.text = `${fps} FPS`;
+                    if (fps >= 50) {
+                        this._fpsText.color = "#2ecc71";
+                    } else if (fps >= 30) {
+                        this._fpsText.color = "#f39c12";
+                    } else {
+                        this._fpsText.color = "#e74c3c";
+                    }
+                }
             }
         });
     }
@@ -175,58 +192,94 @@ export class PlayerHUD {
     }
 
     _createStatBars() {
+        // Main stats container - anchored bottom-left
         const statsPanel = new GUI.StackPanel();
-        statsPanel.width = "250px";
+        statsPanel.width = "280px";
         statsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         statsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        statsPanel.top = "20px";
-        statsPanel.left = "20px";
+        statsPanel.top = "16px";
+        statsPanel.left = "16px";
         this._ui.addControl(statsPanel);
 
-        const healthContainer = new GUI.Rectangle();
-        healthContainer.width = "200px";
-        healthContainer.height = "25px";
-        healthContainer.thickness = 2;
-        healthContainer.background = "black";
-        statsPanel.addControl(healthContainer);
+        // --- Label row ---
+        const labelRow = new GUI.StackPanel();
+        labelRow.isVertical = false;
+        labelRow.height = "22px";
+        labelRow.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        statsPanel.addControl(labelRow);
 
-        this._healthBarInner = new GUI.Rectangle();
-        this._healthBarInner.width = "100%"; 
-        this._healthBarInner.background = "red";
-        this._healthBarInner.thickness = 0;
-        this._healthBarInner.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        healthContainer.addControl(this._healthBarInner);
+        const heartIcon = new GUI.TextBlock();
+        heartIcon.text = "♥";
+        heartIcon.color = "#ff4d6d";
+        heartIcon.fontSize = 16;
+        heartIcon.width = "22px";
+        heartIcon.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelRow.addControl(heartIcon);
+
+        this._healthLabel = new GUI.TextBlock();
+        this._healthLabel.text = "SANTE";
+        this._healthLabel.color = "rgba(255,120,140,0.85)";
+        this._healthLabel.fontSize = 12;
+        this._healthLabel.fontFamily = "'Courier New', monospace";
+        this._healthLabel.letterSpacing = 2;
+        this._healthLabel.width = "100px";
+        this._healthLabel.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelRow.addControl(this._healthLabel);
 
         this._healthText = new GUI.TextBlock();
-        this._healthText.text = "100/100";
-        this._healthText.color = "white";
-        this._healthText.fontSize = 14;
-        this._healthText.outlineWidth = 2;
-        this._healthText.outlineColor = "black";
-        healthContainer.addControl(this._healthText);
+        this._healthText.text = "100 / 100";
+        this._healthText.color = "rgba(255,255,255,0.9)";
+        this._healthText.fontSize = 12;
+        this._healthText.fontFamily = "'Courier New', monospace";
+        this._healthText.width = "100px";
+        this._healthText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        labelRow.addControl(this._healthText);
 
-        const foodContainer = new GUI.Rectangle();
-        foodContainer.width = "200px";
-        foodContainer.height = "25px";
-        foodContainer.thickness = 2;
-        foodContainer.background = "black";
-        foodContainer.paddingTop = "10px"; 
-        statsPanel.addControl(foodContainer);
+        // --- Health bar outer shell ---
+        const healthOuter = new GUI.Rectangle();
+        healthOuter.width = "260px";
+        healthOuter.height = "16px";
+        healthOuter.cornerRadius = 8;
+        healthOuter.thickness = 1;
+        healthOuter.color = "rgba(255, 80, 100, 0.5)";
+        healthOuter.background = "rgba(0, 0, 0, 0.6)";
+        healthOuter.paddingTop = "4px";
+        statsPanel.addControl(healthOuter);
 
-        this._foodBarInner = new GUI.Rectangle();
-        this._foodBarInner.width = "100%";
-        this._foodBarInner.background = "orange";
-        this._foodBarInner.thickness = 0;
-        this._foodBarInner.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        foodContainer.addControl(this._foodBarInner);
+        // Inner fill (we fake a gradient by layering two rectangles)
+        this._healthBarInner = new GUI.Rectangle();
+        this._healthBarInner.width = "100%";
+        this._healthBarInner.height = "100%";
+        this._healthBarInner.cornerRadius = 7;
+        this._healthBarInner.thickness = 0;
+        this._healthBarInner.background = "#e63950"; // base red
+        this._healthBarInner.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        healthOuter.addControl(this._healthBarInner);
 
-        this._foodText = new GUI.TextBlock();
-        this._foodText.text = "100/100";
-        this._foodText.color = "white";
-        this._foodText.fontSize = 14;
-        this._foodText.outlineWidth = 2;
-        this._foodText.outlineColor = "black";
-        foodContainer.addControl(this._foodText);
+        // Highlight shine on the bar (top lighter strip)
+        const barShine = new GUI.Rectangle();
+        barShine.width = "100%";
+        barShine.height = "50%";
+        barShine.cornerRadius = 7;
+        barShine.thickness = 0;
+        barShine.background = "rgba(255,255,255,0.15)";
+        barShine.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this._healthBarInner.addControl(barShine);
+    }
+
+    _createFpsCounter() {
+        this._fpsText = new GUI.TextBlock();
+        this._fpsText.text = "-- FPS";
+        this._fpsText.color = "#2ecc71";
+        this._fpsText.fontSize = 13;
+        this._fpsText.fontFamily = "'Courier New', monospace";
+        this._fpsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        this._fpsText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this._fpsText.top = "16px";
+        this._fpsText.left = "-16px";
+        this._fpsText.outlineWidth = 2;
+        this._fpsText.outlineColor = "rgba(0,0,0,0.8)";
+        this._ui.addControl(this._fpsText);
     }
 
     _createWeaponDisplay() {
@@ -414,17 +467,18 @@ export class PlayerHUD {
     updateHealth(current, max = 100) {
         const clamp = Math.max(0, Math.min(max, current));
         const percentage = (clamp / max) * 100;
-        
-        this._healthBarInner.width = `${percentage}%`;
-        this._healthText.text = `${Math.round(clamp)}/${max}`;
-    }
 
-    updateFood(current, max = 100) {
-        const clamp = Math.max(0, Math.min(max, current));
-        const percentage = (clamp / max) * 100;
-        
-        this._foodBarInner.width = `${percentage}%`;
-        this._foodText.text = `${Math.round(clamp)}/${max}`;
+        this._healthBarInner.width = `${percentage}%`;
+        this._healthText.text = `${Math.round(clamp)} / ${max}`;
+
+        // Color shift: green -> yellow -> red based on HP
+        if (percentage > 60) {
+            this._healthBarInner.background = "#28c76f"; // healthy green
+        } else if (percentage > 30) {
+            this._healthBarInner.background = "#f9a825"; // warning orange
+        } else {
+            this._healthBarInner.background = "#e63950"; // danger red
+        }
     }
 
     updateWeapon(weaponName) {
@@ -762,7 +816,7 @@ export class StartMenu {
 }
 
 export class SettingsMenu {
-    constructor(scene, onBack) {
+    constructor(scene, onBack, onVolumeChange) {
         this._ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("SettingsUI", true, scene);
 
         const background = new GUI.Rectangle();
@@ -865,6 +919,8 @@ export class SettingsMenu {
         };
 
         createSlider("Volume G\u00e9n\u00e9ral", "masterVolume", (val) => {
+            saveSettings();
+            if (onVolumeChange) onVolumeChange();
             try {
                 const engine = scene.getEngine();
                 if (engine.audioEngine) {
@@ -876,7 +932,8 @@ export class SettingsMenu {
         });
         
         createSlider("Volume Musique", "musicVolume", (val) => {
-            // Utilisable lorsque des sons ou de la musique seront ajoutés
+            saveSettings();
+            if (onVolumeChange) onVolumeChange();
         });
 
         const spacer2 = new GUI.Rectangle();

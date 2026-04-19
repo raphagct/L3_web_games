@@ -9,6 +9,7 @@ import {
   Texture,
   PointLight
 } from "@babylonjs/core";
+import { SoundManager } from "./soundManager.js";
 
 export class Projectile {
   static VITESSE = 80;
@@ -126,9 +127,13 @@ export class Projectile {
           
           let multiplier = 1;
           if (localY > 0.2) {
-              multiplier = 2.0; // Headshot
+              multiplier = 2.0;
+              SoundManager.play('headshot');
           } else if (localY < -0.3) {
-              multiplier = 0.5; // Legshot
+              multiplier = 0.5;
+              SoundManager.play('hit');
+          } else {
+              SoundManager.play('hit');
           }
 
           enemy.takeDamage(15 * multiplier);

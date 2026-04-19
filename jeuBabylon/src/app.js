@@ -11,6 +11,8 @@ import { Environment } from "./environnment.js";
 import { Player } from "./characterController.js";
 import { PlayerHUD, PauseMenu, SettingsMenu, LoseMenu } from "./ui.js";
 import { EnemyType1, EnemyType2, Boss } from "./enemy.js";
+import { SoundManager } from "./soundManager.js";
+import { GameSettings } from "./config.js";
 
 const State = {
   START: 0,
@@ -68,25 +70,63 @@ export default class App {
     this._menuMusicUnlockHandler = null;
     this.menuMusic.loop = true;
     this.menuMusic.preload = "auto";
-    this.menuMusic.volume = 0.45;
+    this.menuMusic.volume = (GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5) * 0.5;
+    
+    this.bossMusic = new Audio("./sfx/boss_music.mp3");
+    this.bossMusic.loop = true;
+    this.bossMusic.preload = "auto";
+    this.bossMusic.volume = (GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5) * 0.3; // musique en faible dans le fond
+    
     this._lightningInterval = null;
 
     //on init scene et engine
     this.engine = new Engine(this.canvas, true);
     this.scene = new Scene(this.engine);
+    this.scene.gameApp = this;
 
     this.main();
   }
 
   _playMenuMusic() {
     if (!this.menuMusic) return;
-    this.menuMusic.volume = this.menuMusicMuted ? 0 : 0.45;
+    this.updateVolumes();
     const playPromise = this.menuMusic.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
         // Lecture bloquée tant qu'il n'y a pas d'interaction utilisateur
       });
     }
+  }
+
+  updateVolumes() {
+    const musicVol = GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5;
+    if (this.menuMusic) {
+        this.menuMusic.volume = (this.menuMusicMuted ? 0 : musicVol) * 0.5;
+    }
+    if (this.bossMusic) {
+        this.bossMusic.volume = musicVol * 0.3;
+    }
+    // Mise à jour du SoundManager pour les sons longs (pas)
+    SoundManager.updateVolume();
+  }
+
+  stopBossMusicWithFade() {
+    if (!this.bossMusic) return;
+    const initialVolume = this.bossMusic.volume;
+    const fadeDuration = 3000; // 3 seconds
+    const interval = 50;
+    const steps = fadeDuration / interval;
+    const volumeStep = initialVolume / steps;
+
+    const fadeInterval = setInterval(() => {
+      if (this.bossMusic.volume > volumeStep) {
+        this.bossMusic.volume -= volumeStep;
+      } else {
+        this.bossMusic.volume = 0;
+        this.bossMusic.pause();
+        clearInterval(fadeInterval);
+      }
+    }, interval);
   }
 
   _stopMenuMusic() {
@@ -233,6 +273,9 @@ export default class App {
   _renderCutsceneDom(title, text, onNext) {
     this._removeCutsceneDom();
 
+    const existingFade = document.getElementById("boss-fade-out");
+    if (existingFade) existingFade.remove();
+
     const overlay = document.createElement("div");
     overlay.id = "cutscene-overlay";
     overlay.innerHTML = `
@@ -295,12 +338,11 @@ export default class App {
 
     window.addEventListener("keydown", (e) => {
       if (this.state === State.GAME && e.key === "Escape") {
-        if (this.isPaused) {
-          this.togglePause();
-        } 
-        else if (!document.pointerLockElement) {
-          this.togglePause();
-        }
+        // Debounce: ignore escape if we already handled it very recently
+        const now = Date.now();
+        if (this._lastEscapeTime && now - this._lastEscapeTime < 400) return;
+        this._lastEscapeTime = now;
+        this.togglePause();
       }
     });
 
@@ -308,6 +350,11 @@ export default class App {
       // Ne déclencher la pause QUE si on est en GAME et pas en transition
       if (this.state !== State.GAME) return;
       if (this._ignoringPointerLock) return;
+      // Ignore the event triggered by our own requestPointerLock call
+      if (this._skipNextPointerLockEvent) {
+        this._skipNextPointerLockEvent = false;
+        return;
+      }
       if (!document.pointerLockElement && !this.isPaused) {
         this.togglePause();
       }
@@ -324,6 +371,7 @@ export default class App {
 
     // Gérer l'affichage du menu
     if (this.isPaused) {
+      SoundManager.setFootsteps(false);
       if (this.pauseMenu) this.pauseMenu.show();
       if (document.exitPointerLock) {
         document.exitPointerLock();
@@ -331,7 +379,9 @@ export default class App {
     } else {
       if (this.pauseMenu) this.pauseMenu.hide();
       if (this.settingsMenu) this.settingsMenu.hide();
-      
+
+      // Tell the pointerlock listener to ignore the event triggered by the lock itself
+      this._skipNextPointerLockEvent = true;
       const canvas = this.engine.getRenderingCanvas();
       if (canvas && canvas.requestPointerLock) {
         canvas.requestPointerLock();
@@ -341,6 +391,7 @@ export default class App {
 
   async setUpGame() {
     let scene = new Scene(this.engine);
+    scene.gameApp = this; // Ensure gameApp is accessible for music fades
     this.gamescene = scene;
 
     // Charger l'environnement (le sol)
@@ -365,7 +416,7 @@ export default class App {
     // Stocker le joueur sur la scène pour que les scripts (scies, lave...) puissent y accéder dynamiquement
     scene.player = this.player;
 
-    this.spawnEnemiesForArena(scene);
+    // Ne PAS spawner les ennemis ici - on attend que la scène soit entièrement prête
   }
 
   async goToGame() {
@@ -382,7 +433,23 @@ export default class App {
 
     //--WHEN SCENE FINISHED LOADING--
     await scene.whenReadyAsync();
-    
+
+    // Préchauffer les shaders pour éviter les freezes au début
+    await new Promise(resolve => {
+      scene.executeWhenReady(() => {
+        // Force shader compilation on all materials
+        scene.meshes.forEach(mesh => {
+          if (mesh.material) {
+            mesh.material.freeze(); // lock the material state for perf
+          }
+        });
+        resolve();
+      });
+    });
+
+    // Maintenant tout est prêt : on spawne les ennemis
+    this.spawnEnemiesForArena(scene);
+
     // Menu Pause
     this.isPaused = false;
     scene.isPaused = false;
@@ -390,7 +457,7 @@ export default class App {
     this.settingsMenu = new SettingsMenu(scene, () => {
       this.settingsMenu.hide();
       this.pauseMenu.show();
-    });
+    }, () => this.updateVolumes());
 
     this.loseMenu = new LoseMenu(
       scene,
@@ -408,6 +475,7 @@ export default class App {
         if (this.settingsMenu) this.settingsMenu.dispose();
         if (this.loseMenu) this.loseMenu.dispose();
         if (this.hud) this.hud.dispose();
+        if (this.bossMusic) this.bossMusic.pause();
         this.gamescene = null;
         this.goToStart();
       }
@@ -424,6 +492,7 @@ export default class App {
         this.pauseMenu.dispose();
         if (this.settingsMenu) this.settingsMenu.dispose();
         if (this.loseMenu) this.loseMenu.dispose();
+        if (this.bossMusic) this.bossMusic.pause();
         this.goToStart();
       }
     );
@@ -432,6 +501,10 @@ export default class App {
     this.state = State.GAME;
     this.scene = scene;
     this.engine.hideLoadingUI();
+
+    // Reset pointer lock guards after the full transition
+    this._ignoringPointerLock = false;
+    this._skipNextPointerLockEvent = false;
     this.scene.attachControl();
   }
 
@@ -539,6 +612,11 @@ export default class App {
 
       if (this.currentArenaIndex === this.arenas.length - 1) {
           this.enemies.push(new Boss(scene, this.player, getRandomArenaPos()));
+          if (this.bossMusic && !this.menuMusicMuted) {
+              this.updateVolumes(); // Reset volume in case of previous fade-out
+              this.bossMusic.currentTime = 0;
+              this.bossMusic.play().catch(e => console.log("Boss music blocked", e));
+          }
       } else {
           const num1 = 1 + this.currentArenaIndex;
           for(let i=0; i<num1; i++) {
@@ -562,6 +640,7 @@ export default class App {
           
           this.scene.detachControl();
           if (document.exitPointerLock) document.exitPointerLock();
+          SoundManager.setFootsteps(false);
           
           this.cutScene = new Scene(this.engine);
           let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
@@ -579,6 +658,7 @@ export default class App {
                   this.gamescene.dispose();
                   this.gamescene = null;
               }
+              if (this.bossMusic) this.bossMusic.pause();
               
               this.currentArenaIndex = 0; 
               this.goToStart();
@@ -603,6 +683,7 @@ export default class App {
       // Détacher les inputs de la scène de jeu
       this.scene.detachControl();
       if (document.exitPointerLock) document.exitPointerLock();
+      SoundManager.setFootsteps(false);
       
       // Sauvegarder la référence au jeu
       const savedGameScene = this.scene;
@@ -642,6 +723,8 @@ export default class App {
     this.engine.displayLoadingUI();
     this._removeCutsceneDom();
     this._removeStartMenuDom();
+    if (this.bossMusic) this.bossMusic.pause();
+    SoundManager.setFootsteps(false);
     this.scene.detachControl();
     let scene = new Scene(this.engine);
     scene.clearColor = new Color4(0.05, 0.05, 0.1, 1);
@@ -662,6 +745,8 @@ export default class App {
     this._removeStartMenuDom();
     this._removeCutsceneDom();
     this._stopMenuMusic();
+    if (this.bossMusic) this.bossMusic.pause();
+    SoundManager.setFootsteps(false);
     this.engine.displayLoadingUI();
     this.scene.detachControl();
     this.cutScene = new Scene(this.engine);
@@ -692,6 +777,7 @@ export default class App {
 
     this.scene.isPaused = true;
     this.isPaused = true;
+    SoundManager.setFootsteps(false);
     if (this.hud) {
         this.hud.isPaused = true;
         this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));

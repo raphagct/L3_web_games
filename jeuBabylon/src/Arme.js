@@ -5,6 +5,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { Projectile } from "./Projectile.js";
+import { SoundManager } from "./soundManager.js";
 
 export class Arme {
   static COOLDOWN = 0.25; // secondes entre chaque tir
@@ -56,6 +57,8 @@ export class Arme {
     if (this.scene.isPaused) return;
 
     this.tempsCooldown = Arme.COOLDOWN;
+    
+    SoundManager.play('shoot');
 
     // Animation de recul (recoil) de l'arme
     if (this._recoilObs) {
