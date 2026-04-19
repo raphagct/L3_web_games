@@ -8,7 +8,7 @@ Vidéo youtube présentant le site, les jeux en 2 minutes :
 https://www.youtube.com/watch?v=hxdhP2aKxVc
 
 Lien vers le jeu hébergé : 
-https://l3-web-games-git-develop-raphagcts-projects.vercel.app/
+https://l3-web-games.vercel.app/
 
 
 ### Participants :
