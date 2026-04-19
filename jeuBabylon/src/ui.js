@@ -23,7 +23,6 @@ export class PlayerHUD {
                 const deltaTimeInSeconds = scene.getEngine().getDeltaTime() / 1000;
                 this._updateTimer(deltaTimeInSeconds);
 
-                // Update FPS every 0.25 seconds
                 this._fpsUpdateTimer += deltaTimeInSeconds;
                 if (this._fpsUpdateTimer >= 0.25) {
                     this._fpsUpdateTimer = 0;
@@ -42,7 +41,6 @@ export class PlayerHUD {
     }
 
     showSpawnProtection(duration = 3) {
-        // Nettoyer un éventuel effet précédent
         const existing = document.getElementById("spawn-protection-overlay");
         if (existing) existing.remove();
 
@@ -76,7 +74,6 @@ export class PlayerHUD {
             animation: spawnTextBlink 0.6s ease-in-out infinite alternate;
         `;
 
-        // Injecter les keyframes si pas encore présents
         if (!document.getElementById("spawn-protection-style")) {
             const style = document.createElement("style");
             style.id = "spawn-protection-style";
@@ -100,7 +97,7 @@ export class PlayerHUD {
 
         document.body.appendChild(overlay);
 
-        // À 1 seconde restante → clignotement rapide orange pour avertir
+
         const warnTimeout = setTimeout(() => {
             if (!document.getElementById("spawn-protection-overlay")) return;
             overlay.style.animation = "spawnFastBlink 0.18s linear infinite";
@@ -112,7 +109,6 @@ export class PlayerHUD {
             }
         }, (duration - 1) * 1000);
 
-        // Fin : fondu et suppression
         const endTimeout = setTimeout(() => {
             clearTimeout(warnTimeout);
             const el = document.getElementById("spawn-protection-overlay");
@@ -122,7 +118,6 @@ export class PlayerHUD {
             }
         }, duration * 1000);
 
-        // Stocker pour nettoyage éventuel
         this._spawnProtectionCleanup = () => {
             clearTimeout(warnTimeout);
             clearTimeout(endTimeout);
@@ -139,7 +134,6 @@ export class PlayerHUD {
     }
 
     showDamageEffect() {
-        // Injecter les keyframes si pas encore présents
         if (!document.getElementById("damage-effect-style")) {
             const style = document.createElement("style");
             style.id = "damage-effect-style";
@@ -153,7 +147,6 @@ export class PlayerHUD {
             document.head.appendChild(style);
         }
 
-        // Supprimer un flash précédent si encore en cours
         const existing = document.getElementById("damage-flash-overlay");
         if (existing) existing.remove();
 
@@ -170,7 +163,6 @@ export class PlayerHUD {
         `;
         document.body.appendChild(overlay);
 
-        // Nettoyage automatique après l'animation
         setTimeout(() => {
             const el = document.getElementById("damage-flash-overlay");
             if (el) el.remove();
@@ -187,12 +179,11 @@ export class PlayerHUD {
         this._timeText.top = "20px";
         this._timeText.outlineWidth = 4;
         this._timeText.outlineColor = "black";
-        
+
         this._ui.addControl(this._timeText);
     }
 
     _createStatBars() {
-        // Main stats container - anchored bottom-left
         const statsPanel = new GUI.StackPanel();
         statsPanel.width = "280px";
         statsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
@@ -201,7 +192,6 @@ export class PlayerHUD {
         statsPanel.left = "16px";
         this._ui.addControl(statsPanel);
 
-        // --- Label row ---
         const labelRow = new GUI.StackPanel();
         labelRow.isVertical = false;
         labelRow.height = "22px";
@@ -235,7 +225,6 @@ export class PlayerHUD {
         this._healthText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
         labelRow.addControl(this._healthText);
 
-        // --- Health bar outer shell ---
         const healthOuter = new GUI.Rectangle();
         healthOuter.width = "260px";
         healthOuter.height = "16px";
@@ -246,17 +235,15 @@ export class PlayerHUD {
         healthOuter.paddingTop = "4px";
         statsPanel.addControl(healthOuter);
 
-        // Inner fill (we fake a gradient by layering two rectangles)
         this._healthBarInner = new GUI.Rectangle();
         this._healthBarInner.width = "100%";
         this._healthBarInner.height = "100%";
         this._healthBarInner.cornerRadius = 7;
         this._healthBarInner.thickness = 0;
-        this._healthBarInner.background = "#e63950"; // base red
+        this._healthBarInner.background = "#e63950";
         this._healthBarInner.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         healthOuter.addControl(this._healthBarInner);
 
-        // Highlight shine on the bar (top lighter strip)
         const barShine = new GUI.Rectangle();
         barShine.width = "100%";
         barShine.height = "50%";
@@ -293,7 +280,7 @@ export class PlayerHUD {
         this._weaponText.left = "-20px";
         this._weaponText.outlineWidth = 3;
         this._weaponText.outlineColor = "black";
-        
+
         this._ui.addControl(this._weaponText);
     }
 
@@ -320,7 +307,7 @@ export class PlayerHUD {
         vertical.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         this._ui.addControl(vertical);
 
-        // Hit marker (Container)
+        // Hit marker 
         this._hitMarker = new GUI.Container();
         this._hitMarker.width = "40px";
         this._hitMarker.height = "40px";
@@ -398,8 +385,8 @@ export class PlayerHUD {
 
     addHit() {
         this.combo++;
-        this.comboTimer = 3.0; // 3 seconds to keep combo
-        
+        this.comboTimer = 3.0;
+
         let txt = "HIT x" + this.combo;
         if (this.combo >= 5) {
             txt = "COMBO x" + this.combo + "!";
@@ -420,7 +407,7 @@ export class PlayerHUD {
     addKill(position) {
         if (!position) return;
 
-        const dummy = MeshBuilder.CreateSphere("dummyKill", {diameter: 0.1}, this.scene);
+        const dummy = MeshBuilder.CreateSphere("dummyKill", { diameter: 0.1 }, this.scene);
         dummy.position = position.clone();
         dummy.isVisible = false;
 
@@ -431,14 +418,14 @@ export class PlayerHUD {
         killText.fontSize = 28;
         killText.outlineWidth = 3;
         killText.outlineColor = "black";
-        
+
         this._ui.addControl(killText);
         killText.linkWithMesh(dummy);
-        
-        let alpha = 1.5; 
+
+        let alpha = 1.5;
         let offsetY = 0;
         const obs = this.scene.onBeforeRenderObservable.add(() => {
-            if(this.isPaused) return;
+            if (this.isPaused) return;
             alpha -= 0.02;
             offsetY -= 1;
             killText.linkOffsetY = offsetY;
@@ -471,13 +458,12 @@ export class PlayerHUD {
         this._healthBarInner.width = `${percentage}%`;
         this._healthText.text = `${Math.round(clamp)} / ${max}`;
 
-        // Color shift: green -> yellow -> red based on HP
         if (percentage > 60) {
-            this._healthBarInner.background = "#28c76f"; // healthy green
+            this._healthBarInner.background = "#28c76f";
         } else if (percentage > 30) {
-            this._healthBarInner.background = "#f9a825"; // warning orange
+            this._healthBarInner.background = "#f9a825";
         } else {
-            this._healthBarInner.background = "#e63950"; // danger red
+            this._healthBarInner.background = "#e63950";
         }
     }
 
@@ -523,7 +509,7 @@ export class PlayerHUD {
             this._bossHealthText.outlineColor = "black";
             this._bossHealthContainer.addControl(this._bossHealthText);
         }
-        
+
         this._bossMaxHp = maxHp;
         this._bossNameText.text = name;
         this._bossHealthContainer.isVisible = true;
@@ -838,27 +824,27 @@ export class SettingsMenu {
         title.fontSize = 40;
         title.height = "60px";
         panel.addControl(title);
-        
+
         const createKeyMapButton = (label, action) => {
             const hPanel = new GUI.StackPanel();
             hPanel.isVertical = false;
             hPanel.height = "50px";
             hPanel.paddingBottom = "10px";
-            
+
             const text = new GUI.TextBlock();
             text.text = label;
             text.color = "white";
             text.width = "200px";
             text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             hPanel.addControl(text);
-            
+
             const btn = GUI.Button.CreateSimpleButton("btn_" + action, GameSettings.keys[action].toUpperCase());
             btn.width = "150px";
             btn.color = "white";
             btn.background = "grey";
-            
+
             let isAssigning = false;
-            
+
             const keydownHandler = (e) => {
                 if (!isAssigning) return;
                 e.preventDefault();
@@ -895,14 +881,14 @@ export class SettingsMenu {
             hPanel.isVertical = false;
             hPanel.height = "60px";
             hPanel.paddingBottom = "10px";
-            
+
             const text = new GUI.TextBlock();
             text.text = label;
             text.color = "white";
             text.width = "200px";
             text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             hPanel.addControl(text);
-            
+
             const slider = new GUI.Slider();
             slider.minimum = 0;
             slider.maximum = 1;
@@ -928,9 +914,9 @@ export class SettingsMenu {
                 } else if (engine.getAudioEngine && engine.getAudioEngine()) {
                     engine.getAudioEngine().setGlobalVolume(val);
                 }
-            } catch(e) {}
+            } catch (e) { }
         });
-        
+
         createSlider("Volume Musique", "musicVolume", (val) => {
             saveSettings();
             if (onVolumeChange) onVolumeChange();
@@ -950,7 +936,7 @@ export class SettingsMenu {
             if (onBack) onBack();
         });
         panel.addControl(backBtn);
-        
+
         this.hide();
     }
 

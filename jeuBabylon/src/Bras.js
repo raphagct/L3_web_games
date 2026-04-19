@@ -21,23 +21,18 @@ export class Bras {
   _creerBras() {
     const RG = 1;
 
-    // Matériau peau amélioré
     const matPeau = new StandardMaterial("matPeau", this.scene);
-    matPeau.diffuseColor  = new Color3(0.88, 0.70, 0.55);
+    matPeau.diffuseColor = new Color3(0.88, 0.70, 0.55);
     matPeau.emissiveColor = new Color3(0.22, 0.14, 0.09);
     matPeau.specularColor = new Color3(0.30, 0.20, 0.15);
     matPeau.specularPower = 48;
 
-    // Matériau vêtement (manche)
     const matManche = new StandardMaterial("matManche", this.scene);
-    matManche.diffuseColor  = new Color3(0.12, 0.12, 0.15);
+    matManche.diffuseColor = new Color3(0.12, 0.12, 0.15);
     matManche.emissiveColor = new Color3(0.04, 0.04, 0.05);
     matManche.specularColor = new Color3(0.06, 0.06, 0.07);
     matManche.specularPower = 12;
 
-    // ── AVANT-BRAS PRINCIPAL (même géométrie qu'avant = box) ──────
-    // On garde exactement la même position/rotation qu'avant pour
-    // ne pas déplacer l'arme qui lui est attachée.
     const bras = MeshBuilder.CreateBox(
       "bras",
       { width: 0.14, height: 0.14, depth: 0.55 },
@@ -49,7 +44,6 @@ export class Bras {
     bras.position = new Vector3(0.35, -0.25, 0.55);
     bras.rotation = new Vector3(0, 0, -0.1);
 
-    // ── MANCHE (cylindre légèrement plus large à l'arrière) ───────
     const manche = MeshBuilder.CreateCylinder("manche", {
       height: 0.22,
       diameterTop: 0.155,
@@ -59,11 +53,9 @@ export class Bras {
     manche.material = matManche;
     manche.renderingGroupId = RG;
     manche.parent = bras;
-    // En arrière du bras (à l'opposé du canon)
     manche.position = new Vector3(0, 0, -0.20);
     manche.rotation = new Vector3(Math.PI / 2, 0, 0);
 
-    // ── POIGNET (anneau de transition peau/manche) ─────────────────
     const poignet = MeshBuilder.CreateCylinder("poignet", {
       height: 0.06,
       diameterTop: 0.135,

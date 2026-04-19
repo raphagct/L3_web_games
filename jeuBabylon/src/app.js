@@ -28,12 +28,12 @@ export default class App {
     this.canvas = document.getElementById("canvas");
 
     this.arenas = [
-        "sol_lvl2", 
-        "ground", 
-        "ground3", 
-        "ground_arene_4",
-        "New Ground",
-        "ground_coté"
+      "sol_lvl2",
+      "ground",
+      "ground3",
+      "ground_arene_4",
+      "New Ground",
+      "ground_coté"
     ];
 
     this.cutsceneTexts = [
@@ -71,12 +71,12 @@ export default class App {
     this.menuMusic.loop = true;
     this.menuMusic.preload = "auto";
     this.menuMusic.volume = (GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5) * 0.5;
-    
+
     this.bossMusic = new Audio("./sfx/boss_music.mp3");
     this.bossMusic.loop = true;
     this.bossMusic.preload = "auto";
     this.bossMusic.volume = (GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5) * 0.3; // musique en faible dans le fond
-    
+
     this._lightningInterval = null;
 
     //on init scene et engine
@@ -101,10 +101,10 @@ export default class App {
   updateVolumes() {
     const musicVol = GameSettings.musicVolume !== undefined ? GameSettings.musicVolume : 0.5;
     if (this.menuMusic) {
-        this.menuMusic.volume = (this.menuMusicMuted ? 0 : musicVol) * 0.5;
+      this.menuMusic.volume = (this.menuMusicMuted ? 0 : musicVol) * 0.5;
     }
     if (this.bossMusic) {
-        this.bossMusic.volume = musicVol * 0.3;
+      this.bossMusic.volume = musicVol * 0.3;
     }
     // Mise à jour du SoundManager pour les sons longs (pas)
     SoundManager.updateVolume();
@@ -319,8 +319,8 @@ export default class App {
           break;
         case State.GAME:
           if (!this.isPaused && this.scene.enemies && this.scene.enemies.length === 0 && !this.levelCompleteTriggered) {
-             this.levelCompleteTriggered = true;
-             this.handleArenaComplete();
+            this.levelCompleteTriggered = true;
+            this.handleArenaComplete();
           }
           this.scene.render();
           break;
@@ -338,7 +338,6 @@ export default class App {
 
     window.addEventListener("keydown", (e) => {
       if (this.state === State.GAME && e.key === "Escape") {
-        // Debounce: ignore escape if we already handled it very recently
         const now = Date.now();
         if (this._lastEscapeTime && now - this._lastEscapeTime < 400) return;
         this._lastEscapeTime = now;
@@ -350,7 +349,6 @@ export default class App {
       // Ne déclencher la pause QUE si on est en GAME et pas en transition
       if (this.state !== State.GAME) return;
       if (this._ignoringPointerLock) return;
-      // Ignore the event triggered by our own requestPointerLock call
       if (this._skipNextPointerLockEvent) {
         this._skipNextPointerLockEvent = false;
         return;
@@ -369,7 +367,7 @@ export default class App {
       this.hud.isPaused = this.isPaused;
     }
 
-    // Gérer l'affichage du menu
+    // Gére l'affichage du menu
     if (this.isPaused) {
       SoundManager.setFootsteps(false);
       if (this.pauseMenu) this.pauseMenu.show();
@@ -380,7 +378,6 @@ export default class App {
       if (this.pauseMenu) this.pauseMenu.hide();
       if (this.settingsMenu) this.settingsMenu.hide();
 
-      // Tell the pointerlock listener to ignore the event triggered by the lock itself
       this._skipNextPointerLockEvent = true;
       const canvas = this.engine.getRenderingCanvas();
       if (canvas && canvas.requestPointerLock) {
@@ -391,10 +388,10 @@ export default class App {
 
   async setUpGame() {
     let scene = new Scene(this.engine);
-    scene.gameApp = this; // Ensure gameApp is accessible for music fades
+    scene.gameApp = this;
     this.gamescene = scene;
 
-    // Charger l'environnement (le sol)
+    // Charge l'environnement 
     const environment = new Environment(scene);
     this.environment = environment;
     await this.environment.load();
@@ -409,14 +406,12 @@ export default class App {
     // Créer le HUD
     this.hud = new PlayerHUD(scene);
 
-    // Créer le joueur (il gère ses propres inputs et sa caméra)
+    // Créer le joueur 
     this.player = new Player(scene, this.hud, () => this.goToLose());
     await this.player.load();
 
-    // Stocker le joueur sur la scène pour que les scripts (scies, lave...) puissent y accéder dynamiquement
+    // Stock le joueur sur la scène pour que les scripts (scies, lave...) puissent y accéder dynamiquement
     scene.player = this.player;
-
-    // Ne PAS spawner les ennemis ici - on attend que la scène soit entièrement prête
   }
 
   _showCustomLoader(message = "CHARGEMENT...") {
@@ -490,22 +485,18 @@ export default class App {
     oldScene.detachControl();
     scene.detachControl();
 
-    // 1. Load player + lights
     this._updateLoader(15, "CHARGEMENT DE L'ENVIRONNEMENT");
     await this.initializeGameAsync(scene);
 
-    // 2. Wait for scene graph to be declared ready
     this._updateLoader(35, "INITIALISATION DES SYSTÈMES");
     await scene.whenReadyAsync();
 
-    // 3. Wait for textures
     this._updateLoader(50, "CHARGEMENT DES TEXTURES");
     await new Promise(resolve => {
       const check = () => scene.isReady(true) ? resolve() : setTimeout(check, 40);
       check();
     });
 
-    // 4. Build menus (before spawn to avoid race)
     this.isPaused = false;
     scene.isPaused = false;
     this.settingsMenu = new SettingsMenu(scene, () => {
@@ -520,31 +511,25 @@ export default class App {
       () => { this.pauseMenu.dispose(); if (this.settingsMenu) this.settingsMenu.dispose(); if (this.loseMenu) this.loseMenu.dispose(); if (this.bossMusic) this.bossMusic.pause(); this.goToStart(); }
     );
 
-    // 5. Spawn enemies BEFORE warmup so their shaders compile too
     this._updateLoader(60, "SPAWN DES ENNEMIS");
     this.spawnEnemiesForArena(scene);
 
-    // Force all bounding boxes now so intersectsMesh works on frame 1
     scene.meshes.forEach(m => { m.computeWorldMatrix(true); m.refreshBoundingInfo(); });
 
-    // 6. Switch to game scene
     oldScene.dispose();
     this.state = State.GAME;
     this.scene = scene;
     scene.attachControl();
 
-    // 7. WARMUP: stop the engine render loop, render manually
-    //    This avoids double-render and gives us full control over frame count.
-    //    The custom loader covers the canvas so the player sees nothing.
     this._updateLoader(65, "COMPILATION DES SHADERS");
     this.engine.stopRenderLoop();
 
     await new Promise(resolve => {
       let frames = 0;
-      const WARMUP_FRAMES = 120; // ~2 seconds of compilation
+      const WARMUP_FRAMES = 120;
 
       const warmup = () => {
-        try { scene.render(); } catch(e) {}
+        try { scene.render(); } catch (e) { }
         frames++;
         const pct = 65 + Math.round((frames / WARMUP_FRAMES) * 30);
         this._updateLoader(Math.min(95, pct), `COMPILATION DES SHADERS (${frames}/${WARMUP_FRAMES})`);
@@ -557,7 +542,6 @@ export default class App {
       requestAnimationFrame(warmup);
     });
 
-    // 8. Restart the normal render loop
     this._updateLoader(100, "PRÊT !");
     this.engine.runRenderLoop(() => {
       switch (this.state) {
@@ -584,214 +568,205 @@ export default class App {
   }
 
   spawnEnemiesForArena(scene) {
-      if (scene.enemies) {
-          scene.enemies.forEach(e => {
-              if (!e.isDead) e.die();
-          });
-      }
-      this.enemies = [];
-      scene.enemies = this.enemies;
+    if (scene.enemies) {
+      scene.enemies.forEach(e => {
+        if (!e.isDead) e.die();
+      });
+    }
+    this.enemies = [];
+    scene.enemies = this.enemies;
 
-      const arenaMeshName = this.arenas[this.currentArenaIndex];
-      const spawnMesh = scene.getMeshByName(arenaMeshName);
-      
-      let spawnPos = new Vector3(0, 0, 0);
+    const arenaMeshName = this.arenas[this.currentArenaIndex];
+    const spawnMesh = scene.getMeshByName(arenaMeshName);
 
-      if (spawnMesh) {
-          spawnMesh.computeWorldMatrix(true);
-          const boundingInfo = spawnMesh.getBoundingInfo();
-          if (boundingInfo) {
-              spawnPos = boundingInfo.boundingBox.centerWorld.clone();
-          } else {
-              spawnPos = spawnMesh.getAbsolutePosition().clone();
-          }
-      }
+    let spawnPos = new Vector3(0, 0, 0);
 
-      if (this.player && this.player.mesh) {
-          this.player.mesh.position.x = spawnPos.x;
-          this.player.mesh.position.y = spawnPos.y + 2.5;
-          this.player.mesh.position.z = spawnPos.z;
-          if (typeof this.player.healFull === "function") {
-              this.player.healFull();
-          }
-          // Protection contre les dégâts au spawn (3 secondes d'invincibilité)
-          if (typeof this.player.setSpawnProtection === "function") {
-              this.player.setSpawnProtection(3);
-          }
-      }
-
-      // On récupère la direction où le joueur regarde pour spawner les ennemis DEVANT lui
-      let playerForward = new Vector3(0, 0, 1);
-      if (this.player && this.player.mesh && scene.activeCamera) {
-          const cam = scene.activeCamera;
-          playerForward = cam.getDirection(Vector3.Forward());
-          playerForward.y = 0;
-          playerForward.normalize();
-      }
-
-      const getRandomArenaPos = () => {
-          let found = false;
-          let finalPos = new Vector3(0, 0, 0);
-          let attempts = 0;
-          
-          while (!found && attempts < 30) {
-              const angle = Math.random() * Math.PI * 2;
-              let radius = 10 + Math.random() * 15; // De 10 à 25m
-              
-              const dirX = Math.sin(angle);
-              const dirZ = Math.cos(angle);
-              const direction = new Vector3(dirX, 0, dirZ).normalize();
-              
-              // 1. Raycast depuis le centre vers l'extérieur pour ne pas traverser les murs
-              const centerRay = new Ray(new Vector3(spawnPos.x, spawnPos.y + 1.5, spawnPos.z), direction, radius);
-              const centerHit = scene.pickWithRay(centerRay, (m) => {
-                  return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
-              });
-
-              if (centerHit && centerHit.hit) {
-                  // Si on tape un mur, on s'arrête avant le mur
-                  // Si le mur est trop proche (ex: < 4m), on annule et on cherche un autre angle
-                  if (centerHit.distance < 4) {
-                      attempts++;
-                      continue; 
-                  }
-                  radius = centerHit.distance - 2; // On se place 2m avant le mur
-              }
-
-              const testX = spawnPos.x + dirX * radius;
-              const testZ = spawnPos.z + dirZ * radius;
-              
-              // 2. Raycast vers le bas pour trouver le sol à cet endroit
-              const downRay = new Ray(new Vector3(testX, spawnPos.y + 50, testZ), new Vector3(0, -1, 0), 100);
-              const downHit = scene.pickWithRay(downRay, (m) => {
-                  return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
-              });
-
-              if (downHit && downHit.hit) {
-                  // On vérifie que le sol n'est pas trop bas (ex: un trou de la mort)
-                  if (downHit.pickedPoint.y >= spawnPos.y - 5) {
-                      finalPos = new Vector3(testX, downHit.pickedPoint.y + 1, testZ);
-                      found = true;
-                  }
-              }
-              attempts++;
-          }
-
-          if (!found) {
-              // Fallback au cas où aucun point valide n'est trouvé
-              finalPos = new Vector3(spawnPos.x + (Math.random() - 0.5) * 5, spawnPos.y + 2.5, spawnPos.z + (Math.random() - 0.5) * 5);
-          }
-
-          return finalPos;
-      };
-
-      if (this.currentArenaIndex === this.arenas.length - 1) {
-          this.enemies.push(new Boss(scene, this.player, getRandomArenaPos()));
-          if (this.bossMusic && !this.menuMusicMuted) {
-              this.updateVolumes(); // Reset volume in case of previous fade-out
-              this.bossMusic.currentTime = 0;
-              this.bossMusic.play().catch(e => console.log("Boss music blocked", e));
-          }
+    if (spawnMesh) {
+      spawnMesh.computeWorldMatrix(true);
+      const boundingInfo = spawnMesh.getBoundingInfo();
+      if (boundingInfo) {
+        spawnPos = boundingInfo.boundingBox.centerWorld.clone();
       } else {
-          const num1 = 1 + this.currentArenaIndex;
-          for(let i=0; i<num1; i++) {
-              this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
-          }
-          const num2 = 1 + Math.floor(this.currentArenaIndex / 2);
-          for(let i=0; i<num2; i++) {
-              this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
-          }
+        spawnPos = spawnMesh.getAbsolutePosition().clone();
       }
+    }
+
+    if (this.player && this.player.mesh) {
+      this.player.mesh.position.x = spawnPos.x;
+      this.player.mesh.position.y = spawnPos.y + 2.5;
+      this.player.mesh.position.z = spawnPos.z;
+      if (typeof this.player.healFull === "function") {
+        this.player.healFull();
+      }
+      // Protection contre les dégâts au spawn (3 secondes d'invincibilité)
+      if (typeof this.player.setSpawnProtection === "function") {
+        this.player.setSpawnProtection(3);
+      }
+    }
+
+    // On récupère la direction où le joueur regarde pour spawner les ennemis DEVANT lui
+    let playerForward = new Vector3(0, 0, 1);
+    if (this.player && this.player.mesh && scene.activeCamera) {
+      const cam = scene.activeCamera;
+      playerForward = cam.getDirection(Vector3.Forward());
+      playerForward.y = 0;
+      playerForward.normalize();
+    }
+
+    const getRandomArenaPos = () => {
+      let found = false;
+      let finalPos = new Vector3(0, 0, 0);
+      let attempts = 0;
+
+      while (!found && attempts < 30) {
+        const angle = Math.random() * Math.PI * 2;
+        let radius = 10 + Math.random() * 15;
+
+        const dirX = Math.sin(angle);
+        const dirZ = Math.cos(angle);
+        const direction = new Vector3(dirX, 0, dirZ).normalize();
+
+        const centerRay = new Ray(new Vector3(spawnPos.x, spawnPos.y + 1.5, spawnPos.z), direction, radius);
+        const centerHit = scene.pickWithRay(centerRay, (m) => {
+          return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
+        });
+
+        if (centerHit && centerHit.hit) {
+          // Si on tape un mur, on s'arrête avant le mur
+          if (centerHit.distance < 4) {
+            attempts++;
+            continue;
+          }
+          radius = centerHit.distance - 2;
+        }
+
+        const testX = spawnPos.x + dirX * radius;
+        const testZ = spawnPos.z + dirZ * radius;
+
+        const downRay = new Ray(new Vector3(testX, spawnPos.y + 50, testZ), new Vector3(0, -1, 0), 100);
+        const downHit = scene.pickWithRay(downRay, (m) => {
+          return m.checkCollisions && m.name !== "player" && !m.name.includes("enemy");
+        });
+
+        if (downHit && downHit.hit) {
+          if (downHit.pickedPoint.y >= spawnPos.y - 5) {
+            finalPos = new Vector3(testX, downHit.pickedPoint.y + 1, testZ);
+            found = true;
+          }
+        }
+        attempts++;
+      }
+
+      if (!found) {
+        finalPos = new Vector3(spawnPos.x + (Math.random() - 0.5) * 5, spawnPos.y + 2.5, spawnPos.z + (Math.random() - 0.5) * 5);
+      }
+
+      return finalPos;
+    };
+
+    if (this.currentArenaIndex === this.arenas.length - 1) {
+      this.enemies.push(new Boss(scene, this.player, getRandomArenaPos()));
+      if (this.bossMusic && !this.menuMusicMuted) {
+        this.updateVolumes();
+        this.bossMusic.currentTime = 0;
+        this.bossMusic.play().catch(e => console.log("Boss music blocked", e));
+      }
+    } else {
+      const num1 = 1 + this.currentArenaIndex;
+      for (let i = 0; i < num1; i++) {
+        this.enemies.push(new EnemyType1(scene, this.player, getRandomArenaPos()));
+      }
+      const num2 = 1 + Math.floor(this.currentArenaIndex / 2);
+      for (let i = 0; i < num2; i++) {
+        this.enemies.push(new EnemyType2(scene, this.player, getRandomArenaPos()));
+      }
+    }
   }
 
   async handleArenaComplete() {
-      this.currentArenaIndex++;
-      if (this.currentArenaIndex >= this.arenas.length) {
-          this.state = State.CUTSCENE;
-          this._ignoringPointerLock = true;
-          this.isPaused = true;
-          this.scene.isPaused = true;
-          if (this.hud) this.hud.isPaused = true;
-          
-          this.scene.detachControl();
-          if (document.exitPointerLock) document.exitPointerLock();
-          SoundManager.setFootsteps(false);
-          
-          this.cutScene = new Scene(this.engine);
-          let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
-          this.cutScene.clearColor = new Color4(0, 0, 0, 1);
-          
-          this._renderCutsceneDom("VICTOIRE", "L'IA S.U.D.O est détruite. Son noyau est hors-ligne. Vous avez sauvé l'humanité !", () => {
-              this._removeCutsceneDom();
-              this.cutScene.dispose();
-              
-              if (this.pauseMenu) this.pauseMenu.dispose();
-              if (this.settingsMenu) this.settingsMenu.dispose();
-              if (this.loseMenu) this.loseMenu.dispose();
-              if (this.hud) this.hud.dispose();
-              if (this.gamescene) {
-                  this.gamescene.dispose();
-                  this.gamescene = null;
-              }
-              if (this.bossMusic) this.bossMusic.pause();
-              
-              this.currentArenaIndex = 0; 
-              this.goToStart();
-          });
-
-          const nextBtn = document.getElementById("cutscene-next-btn");
-          if (nextBtn) {
-              nextBtn.textContent = "RETOUR AU MENU";
-          }
-          
-          this.scene = this.cutScene;
-          return;
-      }
-      
-      // === ÉTAPE 1 : Bloquer TOUT ===
+    this.currentArenaIndex++;
+    if (this.currentArenaIndex >= this.arenas.length) {
       this.state = State.CUTSCENE;
       this._ignoringPointerLock = true;
       this.isPaused = true;
       this.scene.isPaused = true;
       if (this.hud) this.hud.isPaused = true;
-      
-      // Détacher les inputs de la scène de jeu
+
       this.scene.detachControl();
       if (document.exitPointerLock) document.exitPointerLock();
       SoundManager.setFootsteps(false);
-      
-      // Sauvegarder la référence au jeu
-      const savedGameScene = this.scene;
-      
-      // === ÉTAPE 2 : Créer une scène de cutscene séparée (comme goToCutScene) ===
+
       this.cutScene = new Scene(this.engine);
       let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
-      camera.setTarget(Vector3.Zero());
       this.cutScene.clearColor = new Color4(0, 0, 0, 1);
-      
-      const nextData = this.cutsceneTexts[this.currentArenaIndex] || { title: "VICTOIRE", text: "Victoire écrasante" };
 
-      this._renderCutsceneDom(nextData.title, nextData.text, () => {
-          this._removeCutsceneDom();
-          this.cutScene.dispose();
+      this._renderCutsceneDom("VICTOIRE", "L'IA S.U.D.O est détruite. Son noyau est hors-ligne. Vous avez sauvé l'humanité !", () => {
+        this._removeCutsceneDom();
+        this.cutScene.dispose();
 
-          this.scene = savedGameScene;
-          this.scene.isPaused = false;
-          this.isPaused = false;
-          if (this.hud) this.hud.isPaused = false;
+        if (this.pauseMenu) this.pauseMenu.dispose();
+        if (this.settingsMenu) this.settingsMenu.dispose();
+        if (this.loseMenu) this.loseMenu.dispose();
+        if (this.hud) this.hud.dispose();
+        if (this.gamescene) {
+          this.gamescene.dispose();
+          this.gamescene = null;
+        }
+        if (this.bossMusic) this.bossMusic.pause();
 
-          this.spawnEnemiesForArena(this.scene);
-          this.levelCompleteTriggered = false;
-
-          this.state = State.GAME;
-          this.scene.attachControl();
-
-          setTimeout(() => {
-              this._ignoringPointerLock = false;
-          }, 300);
+        this.currentArenaIndex = 0;
+        this.goToStart();
       });
 
+      const nextBtn = document.getElementById("cutscene-next-btn");
+      if (nextBtn) {
+        nextBtn.textContent = "RETOUR AU MENU";
+      }
+
       this.scene = this.cutScene;
+      return;
+    }
+
+    this.state = State.CUTSCENE;
+    this._ignoringPointerLock = true;
+    this.isPaused = true;
+    this.scene.isPaused = true;
+    if (this.hud) this.hud.isPaused = true;
+
+    this.scene.detachControl();
+    if (document.exitPointerLock) document.exitPointerLock();
+    SoundManager.setFootsteps(false);
+
+    const savedGameScene = this.scene;
+
+    this.cutScene = new Scene(this.engine);
+    let camera = new FreeCamera("cutCamera", new Vector3(0, 0, 0), this.cutScene);
+    camera.setTarget(Vector3.Zero());
+    this.cutScene.clearColor = new Color4(0, 0, 0, 1);
+
+    const nextData = this.cutsceneTexts[this.currentArenaIndex] || { title: "VICTOIRE", text: "Victoire écrasante" };
+
+    this._renderCutsceneDom(nextData.title, nextData.text, () => {
+      this._removeCutsceneDom();
+      this.cutScene.dispose();
+
+      this.scene = savedGameScene;
+      this.scene.isPaused = false;
+      this.isPaused = false;
+      if (this.hud) this.hud.isPaused = false;
+
+      this.spawnEnemiesForArena(this.scene);
+      this.levelCompleteTriggered = false;
+
+      this.state = State.GAME;
+      this.scene.attachControl();
+
+      setTimeout(() => {
+        this._ignoringPointerLock = false;
+      }, 300);
+    });
+
+    this.scene = this.cutScene;
   }
 
   async goToStart() {
@@ -854,11 +829,10 @@ export default class App {
     this.isPaused = true;
     SoundManager.setFootsteps(false);
     if (this.hud) {
-        this.hud.isPaused = true;
-        this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
+      this.hud.isPaused = true;
+      this.saveScoreToDB(Math.floor(this.hud._realTimeSeconds));
     }
 
-    // On ne détache PAS la scène (this.scene.detachControl()), sinon on ne peut plus cliquer sur les boutons de l'interface GUI !
     if (document.exitPointerLock) {
       document.exitPointerLock();
     }
@@ -873,20 +847,20 @@ export default class App {
     if (!isLoggedIn) return;
     const userStr = localStorage.getItem('currentUser');
     if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            await fetch('/api/scores', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: user.id,
-                    gameName: 'babylon',
-                    score: score
-                })
-            });
-        } catch(e) {
-            console.error('Erreur sauvegarde score', e);
-        }
+      try {
+        const user = JSON.parse(userStr);
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            gameName: 'babylon',
+            score: score
+          })
+        });
+      } catch (e) {
+        console.error('Erreur sauvegarde score', e);
+      }
     }
   }
 }
