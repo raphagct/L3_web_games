@@ -234,7 +234,10 @@ export default class App {
         <div class="start-menu-tagline">Resistez. Survivez. Reprenez le controle.</div>
         <div class="start-menu-actions">
           <button id="start-play-btn" class="start-menu-link start-menu-link-active">COMMENCER</button>
-          <button id="start-music-toggle-btn" class="start-menu-link start-menu-link-small">MUSIQUE: ON</button>
+          <div class="start-menu-sub-actions">
+            <button id="start-music-toggle-btn" class="start-menu-link start-menu-link-small">MUSIQUE: ON</button>
+            <button id="start-quit-btn" class="start-menu-link start-menu-link-small">RETOUR SITE</button>
+          </div>
         </div>
       </div>
       <div class="start-menu-footer-credit">Auteur : Raphaël GUICHET, Valentin Fouilloud, Mathis LECHEVALIER - GamesOnWeb 2026</div>
@@ -243,6 +246,7 @@ export default class App {
 
     const playBtn = document.getElementById("start-play-btn");
     const musicBtn = document.getElementById("start-music-toggle-btn");
+    const quitBtn = document.getElementById("start-quit-btn");
 
     const updateMusicLabel = () => {
       if (!musicBtn) return;
@@ -267,10 +271,16 @@ export default class App {
       });
     }
 
+    if (quitBtn) {
+      quitBtn.addEventListener("click", () => {
+        window.location.href = "../../index.html";
+      });
+    }
+
     this._bindLightningOverlay(overlay, () => this.state === State.START);
   }
 
-  _renderCutsceneDom(title, text, onNext) {
+  _renderCutsceneDom(title, text, onNext, onBack) {
     this._removeCutsceneDom();
 
     const existingFade = document.getElementById("boss-fade-out");
@@ -285,6 +295,7 @@ export default class App {
         <div class="cutscene-brand-underline"></div>
         <div class="cutscene-lore" id="cutscene-body"></div>
         <div class="cutscene-actions">
+          ${onBack ? '<button type="button" id="cutscene-back-btn" class="start-menu-link start-menu-link-small">&#8592; MENU</button>' : ''}
           <button type="button" id="cutscene-next-btn" class="start-menu-link start-menu-link-active">SUIVANT</button>
         </div>
       </div>
@@ -300,6 +311,13 @@ export default class App {
     if (nextBtn) {
       nextBtn.addEventListener("click", () => {
         if (onNext) onNext();
+      });
+    }
+
+    const backBtn = overlay.querySelector("#cutscene-back-btn");
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        if (onBack) onBack();
       });
     }
 
@@ -815,6 +833,21 @@ export default class App {
     this._renderCutsceneDom(initData.title, initData.text, () => {
       this._removeCutsceneDom();
       this.goToGame();
+    }, () => {
+      // Retour au menu principal depuis la première cutscene
+      this._removeCutsceneDom();
+      if (this.cutScene) {
+        this.cutScene.dispose();
+        this.cutScene = null;
+      }
+      if (this.gamescene) {
+        this.gamescene.dispose();
+        this.gamescene = null;
+      }
+      // Recréer une scène vide et retourner au menu
+      this.scene = new Scene(this.engine);
+      this.scene.gameApp = this;
+      this.goToStart();
     });
 
     await this.setUpGame();

@@ -137,7 +137,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+}
+
+.start-menu-sub-actions {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 4px;
 }
 
 .start-menu-link {
