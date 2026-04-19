@@ -50,6 +50,8 @@ Scénario 2 :
 Faire une grande map avec des ennemies qui attaque le joueur et qui le suivent peu importe son emplacement et plus le joueur finissait d'ennemies plus il gagnait de l'exp et avec les lvls du joueur il obtenait des bonus (plus d'attaque, de nouvelles armes, plus de vitesse de déplacements etc...) avec du scaling du côté joueur et ennemie.  
 Scénario 3 :  
 Faire une map zombie comme dans la franchise black ops avec des vagues a survivre et plus on avance dans les vagues plus la difficulté augmente.
+Scnéraio 4 :  
+Faire un jeu à la Hitman en faisant une map très détaillé et faire un jeu d'assassinat de cyborg.
 
 Nous avons sélectionné le troisième scénario mais nous nous sommes dit que faire des arènes différentes pour passer des vagues serait plus fun et une meilleure expérience pour les joueurs.  
 NB : Nous avons la barre de nourriture car de base nous voulions partir sur le scénario 2.
@@ -108,8 +110,7 @@ Valentin :
 Répartition égal, les travaux effectués par chacun sont trop différent pour pouvoir évaluer sur le projet global.  
 
 ### Difficultés rencontrés
-Une partie de notre jeu qui nous a posé beaucoup de difficultés c'est la création de la map, nous avons passés beaucoup de temps a tester des textures a regarder la doc pour les meshs etc... a force de se renseigner en regardant youtube notamment nous sommes tombés sur une vidéo qui parle de babylon js editor, un éditeur qui est beaucoup plus visuel et facile a prendre en main, même si le logiciel est très très récent avec pleins de bug et de fonctionnalitées qui manque, nous avons pu faire des maps complexes avec des formes simples a base de cube etc...  
-Un autre point qui nous a posé problème c'est la mise en place de l'UI / UX pour avoir les cutscene pour passer les niveaux et avoir les bons affichages. Nous avons régler ce problème grâce à ...
+Une partie de notre jeu qui nous a posé beaucoup de difficultés c'est la création de la map, nous avons passés beaucoup de temps a tester des textures a regarder la doc pour les meshs etc... a force de se renseigner en regardant youtube notamment nous sommes tombés sur une vidéo qui parle de babylon js editor, un éditeur qui est beaucoup plus visuel et facile a prendre en main, même si le logiciel est très très récent avec pleins de bug et de fonctionnalitées qui manque, nous avons pu faire des maps complexes avec des formes simples a base de cube etc...
 
 ### Pourquoi ce jeu et pas un autre ? 
 
