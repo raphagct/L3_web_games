@@ -117,11 +117,7 @@ Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos un 
 ~~~
 git clone https://github.com/raphagct/L3_web_games.git
 ~~~
-
-~~~
-cd jeuBabylon
-~~~
-
+### Le lancer
 ~~~
 npm install
 ~~~
@@ -130,6 +126,7 @@ npm install
 npm run dev
 ~~~
 
+Ajouter un fichier .env dans le dossier backend et y mettre votre clé MongoDB.
 
 
 
