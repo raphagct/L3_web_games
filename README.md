@@ -10,7 +10,6 @@ https://www.youtube.com/watch?v=hxdhP2aKxVc
 Lien vers le jeu hébergé : 
 https://l3-web-games.vercel.app/
 
-
 ### Participants :
 - Guichet Raphael
 - Fouilloud Valentin
@@ -60,8 +59,6 @@ NB : Nous avons la barre de nourriture car de base nous voulions partir sur le s
 
 ![Diagramme_de_classe](assets/images/Diagramme_classe_GOW.drawio.png)
 
-°  
-°  
 
 Milestone détail 1 :  
 ![Milestone 1 détails](assets/images/Milestone1.png)  
@@ -89,11 +86,9 @@ Sites :
 - https://ambientcg.com/   (pour des assets)
 - https://www.textures.com/  (pour avoir des matériaux)
 
-
 ### Aide de l'IA  
 
 Aide pour mettre des effets sur le menu de lancement en général une bonne partie de l'UI et de l'UX. 
-
 
 ## Partie Personnelle  
 ### Répartition du travail dans le groupe  
@@ -115,7 +110,6 @@ Une partie de notre jeu qui nous a posé beaucoup de difficultés c'est la créa
 ### Pourquoi ce jeu et pas un autre ? 
 
 Nous avons voulu faire ce jeu car de notre expérience avec les jeux vidéos un jeu qui a un décor qui change souvent, une difficulté qui augmente au fur et a mesure qu'on avance et le style de jeu survie est la chose la plus fun qu'on connaisse, nous sommes des 2005 nous sommes la génération Minecraft, Fortnite et Call of duty, ces franchises sont le coeur des découvertes des jeux pour nous. C'est pour cela que nous avons choisit le scénario 3 au final pour avoir un jeu qui ressemble a ce qu'on aime le plus jouer. 
-
 
 ## Comment lancer le projet ?
 
