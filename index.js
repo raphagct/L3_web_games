@@ -2,10 +2,12 @@ const toogle = document.getElementById('toogle');
 const navbar = document.getElementById('navbar');
 
 
-toogle.addEventListener ('click', () => {
-  navbar.classList.toggle('sidebar');
-  toogle.classList.toggle('toogle-active');
-});
+if (toogle && navbar) {
+  toogle.addEventListener('click', () => {
+    navbar.classList.toggle('sidebar');
+    toogle.classList.toggle('toogle-active');
+  });
+}
 
 const loginForm = document.getElementById('form-login');
 const registerForm = document.getElementById('form-register');
@@ -84,10 +86,11 @@ if (loginForm && registerForm) {
 document.addEventListener("DOMContentLoaded", () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isLoggedIn) {
-        // Redirection du bouton de login
-        const loginLinks = document.querySelectorAll('.login a');
-        loginLinks.forEach(link => {
-            link.href = 'profile.html';
-        });
+        // Met à jour le bouton de connexion en bouton de profil
+        const loginBtn = document.querySelector('.btn-login');
+        if (loginBtn) {
+            loginBtn.href = 'profile.html';
+            loginBtn.textContent = 'Profil';
+        }
     }
 });
