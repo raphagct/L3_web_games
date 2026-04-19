@@ -90,7 +90,7 @@ Sites :
 
 ### Aide de l'IA  
 
-Aide pour mettre des effets sur le menu de lancement en général une bonne partie de l'UI / UX, 
+Aide pour mettre des effets sur le menu de lancement en général une bonne partie de l'UI et de l'UX. 
 
 
 ## Partie Personnelle  
@@ -124,12 +124,13 @@ git clone https://github.com/raphagct/L3_web_games.git
 ~~~
 
 ~~~
-npm install
+cd jeuBabylon
 ~~~
 
 ~~~
-cd jeuBabylon
+npm install
 ~~~
+
 ~~~
 npm run dev
 ~~~
